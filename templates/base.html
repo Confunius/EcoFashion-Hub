@@ -7,7 +7,27 @@
     <!-- Bootstrap 4.5.2 CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
     <link rel="stylesheet" href="home.css">
-</head>
+    <style>
+      /* background colour: 4b6043 */
+      /* Active colour: ab916c*/
+      /* inactive colour: f2ecd8 */
+      .nav-item{
+        background-color: #ab916c;
+        color: white;
+      }
+      /* apply it on .nav-item 's link child' */
+
+      .nav-item a:hover {
+        color: black;
+      }
+      .list-group-item.active{
+        background-color: #ab916c;
+        border-color: #ab916c;
+        color: black;
+      }
+    </style>
+  </head>
+
 <body style="background:#4b6043" class="text-light container-fluid">
     <nav class="navbar navbar-expand-sm">
   <!-- Brand -->
@@ -22,18 +42,18 @@
     <!-- Links -->
     <div class="flex-fill p-2">
       <ul class="navbar-nav list-group justify-content-end">
-        <li class="nav-item list-group-item active bg-warning text-light">
+        <li class="nav-item list-group-item active text-light">
           <a class="nav-link a text-light" href="/">Our Home</a>
         </li>
-        <li class="nav-item list-group-item bg-warning">
+        <li class="nav-item list-group-item">
           <a class="nav-link text-light" href="/products">Products</a>
         </li>
-        <li class="nav-item list-group-item bg-warning">
+        <li class="nav-item list-group-item">
           <a class="nav-link text-light" href="/">Sustainability</a>
         </li>
 
         <!-- Dropdown -->
-        <li class="nav-item dropdown list-group-item bg-warning">
+        <li class="nav-item dropdown list-group-item">
           <a class="nav-link dropdown-toggle text-light" href="#" id="navbardrop" data-toggle="dropdown">
             Customer Service
           </a>
@@ -44,18 +64,18 @@
           </div>
         </li>
 
-        <li class="nav-item list-group-item bg-warning d-flex flew-row">
+        <li class="nav-item list-group-item d-flex flew-row">
           <a class="nav-link" href="/">Cart</a>
           <text>0</text>
         </li>
-        <li class="nav-item list-group-item bg-warning">
+        <li class="nav-item list-group-item">
           <a class="nav-link" href="/">Account</a>
         </li>
-        <li class="nav-item list-group-item bg-warning d-flex flex-row">
+        <li class="nav-item list-group-item d-flex flex-row">
           <a class="nav-link" href="/">Wishlist</a>
           <text>0</text>
         </li>
-        <li class="nav-item list-group-item bg-warning">
+        <li class="nav-item list-group-item">
           <a class="nav-link" href="/">Search</a>
         </li>
       </ul>
