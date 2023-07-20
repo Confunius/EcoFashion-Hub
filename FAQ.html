@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <style>
+        /* Add some basic styles for the search input container */
+        .search_box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        /* Add styles for the "We're Here to Help!" text */
+        .bg_text {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        /* Add styles for the search icon */
+        .search_icon {
+            cursor: pointer;
+        }
+
+        /* Add some padding to the right of the input so the text doesn't overlap with the icon */
+        .searchInputBox {
+            width: 450px;
+            padding-right: 30px;
+        }
+
+        /* Additional styles for the FAQ box (you may have this in your CSS already) */
+        .faq-box {
+            margin-top: 20px;
+        }
+
+        /* Flexbox container for sections */
+        .section-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        /* Styles for the section boxes */
+        .section-box {
+            display: flex;
+            align-items: center;
+            width: 100px;
+            height: 100px;
+            background-color: #ab916c;
+            margin: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .section-box:hover {
+            background-color: #e0e0e0;
+        }
+
+        .section-box i {
+            font-size: 24px;
+            margin-right: 5px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap 4.5.2 CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="home.css">
+</head>
+<body style="background:#4b6043" class="text-light container-fluid">
+    <nav class="navbar navbar-expand-sm">
+  <!-- Brand -->
+  <div class="container-fluid d-flex flex-row just ify-content-start">
+    <div class="p-2">
+      <img title="logo" src="https://blog.oxfamintermon.org/wp-content/uploads/2016/11/moda-ecol%C3%B3gica-1.jpg"
+    width="80" height="80" style="border-radius:50%">
+    </div>
+    <div class="p-2">
+      <a class="navbar-brand text-light" href="/">EcoFashion Hub</a>
+    </div>
+    <!-- Links -->
+    <div class="flex-fill p-2">
+      <ul class="navbar-nav list-group justify-content-end">
+        <li class="nav-item list-group-item active bg-warning text-light">
+          <a class="nav-link a text-light" href="/">Our Home</a>
+        </li>
+        <li class="nav-item list-group-item bg-warning">
+          <a class="nav-link text-light" href="/">Products</a>
+        </li>
+        <li class="nav-item list-group-item bg-warning">
+          <a class="nav-link text-light" href="/">Sustainability</a>
+        </li>
+
+        <!-- Dropdown -->
+        <li class="nav-item dropdown list-group-item bg-warning">
+          <a class="nav-link dropdown-toggle text-light" href="#" id="navbardrop" data-toggle="dropdown">
+            Customer Service
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="/">Customer Service</a>
+            <a class="dropdown-item" href="/">Service Records</a>
+            <a class="dropdown-item" href="/FAQ">FAQ</a>
+          </div>
+        </li>
+
+        <li class="nav-item list-group-item bg-warning d-flex flew-row">
+          <a class="nav-link" href="/">Cart</a>
+          <text>0</text>
+        </li>
+        <li class="nav-item list-group-item bg-warning">
+          <a class="nav-link" href="/">Account</a>
+        </li>
+        <li class="nav-item list-group-item bg-warning d-flex flex-row">
+          <a class="nav-link" href="/">Wishlist</a>
+          <text>0</text>
+        </li>
+        <li class="nav-item list-group-item bg-warning">
+          <a class="nav-link" href="/">Search</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+  </nav>
+
+
+    <div class="container-fluid">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% block scripts %}
+    <!-- jQuery 3.5.1, Popper 1.16.1, Bootstrap 4.5.2 JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    {% endblock %}
+<div class="search_box">
+        <div class="bg_text" tabindex="0">
+            We're Here to Help!
+        </div>
+        <div class="bg_search">
+            <input type="text" class="searchInputBox" maxlength="150" placeholder="Popular Searches: Refund, Shipping, Account">
+            <i class="fas fa-search search_icon"></i> <!-- Use "fas" for Font Awesome 6 Solid icons -->
+        </div>
+    </div>
+
+    <div class="faq-box">
+        <h1>Frequently Asked Questions</h1>
+
+        <!-- Flexbox container for sections -->
+        <div class="section-container">
+            <div class="section-box">
+                <i class="fas fa-shopping-cart"></i>
+                Order Issues
+            </div>
+            <div class="section-box">
+                <i class="fas fa-undo-alt"></i>
+                Refund
+            </div>
+            <div class="section-box">
+                <i class="fas fa-tags"></i>
+                Promotions
+            </div>
+            <div class="section-box">
+                <i class="fas fa-user"></i>
+                Account
+            </div>
+            <div class="section-box">
+                <i class="fas fa-truck"></i>
+                Delivery
+            </div>
+        </div>
+        <!-- End of Flexbox container for sections -->
+
+        <!-- FAQs with questions and answers will be inserted here -->
+        <!-- Replace this with your actual FAQs -->
+
+    </div>
+
+    <!-- Add the JavaScript code -->
+    <script>
+        var searchIcon = document.querySelector('.search_icon');
+        var searchInput = document.querySelector('.searchInputBox');
+
+        // Click event handler for the search icon
+        searchIcon.addEventListener('click', function() {
+            // Perform the action you want here, e.g., submit the search form
+            searchInput.focus(); // For example, this focuses on the search input
+        });
+    </script>
+</body>
+</html>
