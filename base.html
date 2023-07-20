@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap 4.5.2 CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link rel="stylesheet" href="home.css">
+</head>
+<body style="background:#4b6043" class="text-light container-fluid">
+    <nav class="navbar navbar-expand-sm">
+  <!-- Brand -->
+  <div class="container-fluid d-flex flex-row justify-content-start">
+    <div class="p-2">
+      <img title="logo" src="https://blog.oxfamintermon.org/wp-content/uploads/2016/11/moda-ecol%C3%B3gica-1.jpg"
+    width="80" height="80" style="border-radius:50%">
+    </div>
+    <div class="p-2">
+      <a class="navbar-brand text-light" href="/">EcoFashion Hub</a>
+    </div>
+    <!-- Links -->
+    <div class="flex-fill p-2">
+      <ul class="navbar-nav list-group justify-content-end">
+        <li class="nav-item list-group-item active bg-warning text-light">
+          <a class="nav-link a text-light" href="/">Our Home</a>
+        </li>
+        <li class="nav-item list-group-item bg-warning">
+          <a class="nav-link text-light" href="/products">Products</a>
+        </li>
+        <li class="nav-item list-group-item bg-warning">
+          <a class="nav-link text-light" href="/">Sustainability</a>
+        </li>
+
+        <!-- Dropdown -->
+        <li class="nav-item dropdown list-group-item bg-warning">
+          <a class="nav-link dropdown-toggle text-light" href="#" id="navbardrop" data-toggle="dropdown">
+            Customer Service
+          </a>
+          <div class="dropdown-menu">
+            <a class="dropdown-item" href="/">Customer Service</a>
+            <a class="dropdown-item" href="/">Service Records</a>
+            <a class="dropdown-item" href="/">FAQ</a>
+          </div>
+        </li>
+
+        <li class="nav-item list-group-item bg-warning d-flex flew-row">
+          <a class="nav-link" href="/">Cart</a>
+          <text>0</text>
+        </li>
+        <li class="nav-item list-group-item bg-warning">
+          <a class="nav-link" href="/">Account</a>
+        </li>
+        <li class="nav-item list-group-item bg-warning d-flex flex-row">
+          <a class="nav-link" href="/">Wishlist</a>
+          <text>0</text>
+        </li>
+        <li class="nav-item list-group-item bg-warning">
+          <a class="nav-link" href="/">Search</a>
+        </li>
+      </ul>
+    </div>
+    </div>
+  </nav>
+
+
+    <div class="container-fluid">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% block scripts %}
+    <!-- jQuery 3.5.1, Popper 1.16.1, Bootstrap 4.5.2 JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    {% endblock %}
+</body>
+</html>
