@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Ecofashion Hub - Cart{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="text-center">Your Cart</h1>
+
+  {% if cart_items %}
+  <table class="table table-bordered mt-4">
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in cart_items %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>{{ item.price }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>{{ item.price * item.quantity }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="text-center">
+    <h3>Total: {{ cart_total }}</h3>
+    <a href="#" class="btn btn-primary">Checkout</a>
+  </div>
+  {% else %}
+  <div class="text-center mt-4">
+    <h3>Your cart is empty</h3>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

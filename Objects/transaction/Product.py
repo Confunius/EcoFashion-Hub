@@ -1,9 +1,10 @@
 class Product:
-    def __init__(self, name, price, description, image):
+    def __init__(self, name, price, description, image, category):
         self.name = name
         self.price = price
         self.description = description
         self.image = image
+        self.category = category
     
     def getName(self):
         return self.name
@@ -13,6 +14,8 @@ class Product:
         return self.description
     def getImage(self):
         return self.image
+    def getCategory(self):
+        return self.category
     def setName(self, name):
         self.name = name
     def setPrice(self, price):
@@ -21,4 +24,6 @@ class Product:
         self.description = description
     def setImage(self, image):
         self.image = image
+    def setCategory(self, category):
+        self.category = category
         

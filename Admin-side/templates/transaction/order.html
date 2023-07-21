@@ -1,11 +1,10 @@
-{% extends "../base.html" %}
+{% extends "base.html" %}
 {% block title %}Ecofashion Hub - Order{% endblock %}
 {% block content %}
 <h1 class="text-center">Order</h1>
 <div>
     {% if count == 0 %}
     <h3 class="text-center">No orders</h3>
-    {% endif %}
     {% elif count == 1 %}
     <h3 class="text-center">1 order</h3>
     {% else %}

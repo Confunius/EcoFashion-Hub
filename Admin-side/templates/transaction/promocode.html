@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Ecofashion Hub - Order{% endblock %}
+{% block content %}
+<h1 class="text-center">Order</h1>
+<div>
+    {% if count == 0 %}
+    <h3 class="text-center">No orders</h3>
+    {% elif count == 1 %}
+    <h3 class="text-center">1 order</h3>
+    {% else %}
+    <h3 class="text-center">{{ count }} orders</h3>
+    {% endif %}
+</div>
+<div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Order_ID</th>
+                <th>User_ID</th>
+                <th>Product_ID</th>
+                <th>Order_Date</th>
+                <th>Ship to</th>
+                <th>Promo code</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in order_list %}
+            <tr>
+                <td>{{ order.order_id }}</td>
+                <td>{{ order.user_id }}</td>
+                <td>{{ order.product_id }}</td>
+                <td>{{ order.order_date }}</td>
+                <td>{{ order.ship_to }}</td>
+                <td>{{ order.promo_code }}</td>
+                <td><a href="#" class="btn btn-warning">View</a></td>
+                <td>
+                    <form action="" method="POST">
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
