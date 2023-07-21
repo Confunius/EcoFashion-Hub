@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import shelve
-# import sys, os
+import sys, os
 # current_dir = os.path.dirname(os.path.abspath(__file__))
 # main_dir = os.path.dirname(current_dir)
 # sys.path.append(main_dir)
@@ -17,6 +17,29 @@ def home():
 # Customer side
 
 # Account
+@app.route('Admin/CustomerDelete')
+def CustomerDelete():
+    return render_template('CustomerDelete.html')
+
+@app.route('Admin/CustomerInfo')
+def CustomerInfo():
+    return render_template('CustomerInfo.html')
+
+@app.route('Admin/CustomerUpdate')
+def CustomerUpdate():
+    return render_template('CustomerUpdate.html')
+
+@app.route('Admin/CustomerAccounts')
+def CustomerAccounts():
+    return render_template('CustomerAccounts.html')
+
+@app.route('Admin/Profile')
+def Profile():
+    return render_template('Profile.html')
+
+@app.route('Admin/EditProfile')
+def EditProfile():
+    return render_template('EditProfile.html')
 
 # Transaction
 @app.route('/products')
@@ -46,36 +69,28 @@ def ServiceRecord():
 # Admin side
 
 @app.route('/admin')
-def home():
+def ahome():
     return render_template('Admin/login.html')
 @app.route('/login')
-def login():
+def alogin():
     return render_template('Admin/login.html')
 @app.route('/homepage')
-def homepage():
+def ahomepage():
     return render_template('Admin/homepage.html')
 
 
 # Account
-@app.route('Admin/CustomerService')
-def CustomerService():
-    return render_template('Admin/CustomerService.html')
+# @app.route('Admin/CustomerService')
+# def CustomerService():
+#     return render_template('Admin/CustomerService.html')
 
-@app.route('Admin/ServiceRecord')
-def ServiceRecord():
-    return render_template('Admin/ServiceRecord.html')
+# @app.route('Admin/ServiceRecord')
+# def ServiceRecord():
+#     return render_template('Admin/ServiceRecord.html')
 
 @app.route('Admin/AdminAccounts')
 def AdminAccounts():
     return render_template('Admin/AdminAccounts.html')
-
-@app.route('Admin/CustomerAccounts')
-def CustomerAccounts():
-    return render_template('CustomerAccounts.html')
-
-@app.route('Admin/Profile')
-def Profile():
-    return render_template('Profile.html')
 
 @app.route('Admin/AdminDelete')
 def AdminDelete():
@@ -96,22 +111,6 @@ def AdminPasswordForm():
 @app.route('Admin/AdminUpdate')
 def AdminUpdate():
     return render_template('AdminUpdate.html')
-
-@app.route('Admin/CustomerDelete')
-def CustomerDelete():
-    return render_template('CustomerDelete.html')
-
-@app.route('Admin/CustomerInfo')
-def CustomerInfo():
-    return render_template('CustomerInfo.html')
-
-@app.route('Admin/CustomerUpdate')
-def CustomerUpdate():
-    return render_template('CustomerUpdate.html')
-
-@app.route('Admin/EditProfile')
-def EditProfile():
-    return render_template('EditProfile.html')
 
 @app.route('Admin/Navbar')
 def Navbar():
