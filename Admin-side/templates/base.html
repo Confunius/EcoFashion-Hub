@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+
+    <!-- Bootstrap 4.5.2 CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <style>
+      /* background colour: 4b6043 */
+      /* dark colour: ab916c*/
+      /* light colour: f2ecd8 */
+      .nav-item{
+        background-color: #ab916c;
+        color: white;
+      }
+      /* apply it on .nav-item 's link child' */
+
+      .nav-item a:hover {
+        color: black;
+      }
+      .list-group-item.active{
+        background-color: #ab916c;
+        border-color: #ab916c;
+        color: black;
+      }
+      
+      .bgd-light {
+        background-color: #f2ecd8!important;
+      }
+      .bgd-dark {
+        background-color: #ab916c!important;
+      }
+      .txt-light {
+        color: white!important;
+      }
+      .txt-dark {
+        color: black!important;
+      }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  </head>
+
+<body style="background:#4b6043" class="text-light container-fluid p-0">
+    <nav class="navbar navbar-expand-sm bgd-dark">
+  <!-- Brand -->
+  <div class="container-fluid d-flex flex-row justify-content-start">
+    <div class="p-2">
+      <img title="logo" src="https://blog.oxfamintermon.org/wp-content/uploads/2016/11/moda-ecol%C3%B3gica-1.jpg"
+    width="80" height="80" style="border-radius:50%">
+    </div>
+    <div class="p-2">
+      <a class="navbar-brand text-light" href="/">EcoFashion Hub Admin</a>
+    </div>
+
+    <div class="d-flex flex-column flex-fill p-2 drowdown">
+    <a class="nav-link align-self-end" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa-solid fa-lg fa-user txt-light">Admin</i></a>
+    <div class="dropdown-menu" style="left: revert;right: 0;">
+        <a class="dropdown-item" href="/">Account Management</a>
+        <a class="dropdown-item" href="/">Logout</a>
+    </div>
+    </div>
+</div>
+  </nav>
+
+
+    <div class="container-fluid">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    {% block scripts %}
+    <!-- jQuery 3.5.1, Popper 1.16.1, Bootstrap 4.5.2 JavaScript -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    {% endblock %}
+</body>
+</html>
