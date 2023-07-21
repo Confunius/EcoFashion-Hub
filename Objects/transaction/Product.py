@@ -1,29 +1,11 @@
 class Product:
-    def __init__(self, name, price, description, image, category):
+    def __init__(self, product_id, name, color, cost_price, list_price, stock, description, image, category):
+        self.product_id = product_id
         self.name = name
-        self.price = price
+        self.color = color
+        self.cost_price = cost_price
+        self.list_price = list_price
+        self.stock = stock
         self.description = description
         self.image = image
         self.category = category
-    
-    def getName(self):
-        return self.name
-    def getPrice(self):
-        return self.price
-    def getDescription(self):
-        return self.description
-    def getImage(self):
-        return self.image
-    def getCategory(self):
-        return self.category
-    def setName(self, name):
-        self.name = name
-    def setPrice(self, price):
-        self.price = price
-    def setDescription(self, description):
-        self.description = description
-    def setImage(self, image):
-        self.image = image
-    def setCategory(self, category):
-        self.category = category
-        
