@@ -6,6 +6,7 @@ import sys, os
 # sys.path.append(main_dir)
 # Importing Objects
 from Objects.transaction.Product import Product  # it does work
+from Objects.transaction.Order import Order
 # sys.path.remove(main_dir)
 
 app = Flask(__name__)
@@ -111,21 +112,71 @@ def Sidebar():
 
 
 # Transaction
+@app.route('/view_order/<order_id>')
+def view_order(order_id):
+    # Retrieve the order details from the database based on order_id
+    db = shelve.open('Objects/transaction/order.db', 'r')
+    order = db.get(order_id)
+    db.close()
+
+    # Render the view modal with the order details
+    return render_template('view_order.html', order=order)
+
+@app.route('/delete_order/<order_id>', methods=['POST'])
+def delete_order(order_id):
+    # Open the shelve database
+    db = shelve.open('Objects/transaction/order.db', 'w')
+
+    # Check if the order_id exists in the database
+    if order_id in db:
+        # Delete the order from the database
+        del db[order_id]
+        db.close()
+
+    # Redirect back to the order page
+    return redirect(url_for('order'))
+
 @app.route('/admin/order')
 def order():
     order_list = []
-    order_dict = {}
     db_path = 'Objects/transaction/order.db'
     if not os.path.exists(db_path):
+        placeholder_data = [
+            {
+                "order_id": "O1",
+                "user_id": "U1",
+                "product_id": "P1",
+                "order_date": "2023-07-21",
+                "ship_to": "John Doe",
+                "promo_code": "N/A"
+            },
+            {
+                "order_id": "O2",
+                "user_id": "U2",
+                "product_id": "P2",
+                "order_date": "2023-07-22",
+                "ship_to": "Jane Smith",
+                "promo_code": "N/A"
+            }
+        ]
         db = shelve.open(db_path, 'c')
+        for data in placeholder_data:
+            order = Order(
+                data["order_id"],
+                data["user_id"],
+                data["product_id"],
+                data["order_date"],
+                data["ship_to"],
+                data["promo_code"],
+            )
+            db[order.order_id] = order
         db.close()
 
     db = shelve.open(db_path, 'r')
-    order_dict = db.get('Order', {})
-    db.close()
-    for key in order_dict:
-        order = order_dict.get(key)
+    for key in db:
+        order = db.get(key)
         order_list.append(order)
+    db.close()
     return render_template('/Admin/transaction/order.html', order_list=order_list, count=len(order_list))
 
 @app.route('/update_product/<product_id>', methods=['POST'])
