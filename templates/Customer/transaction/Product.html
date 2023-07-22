@@ -44,10 +44,12 @@
                     <img src="{{ product.image }}" width="300px" height="500px">
                 </div>
                 <div class="product-info d-flex flex-column bgd-dark txt-dark p-3" style="width:300px">
-                    <h5 class="product-title">{{ product.name }}</h5>
+                    <a class="product-title h5 txt-dark" href="{{ url_for('product_info', product_id=product.product_id) }}">{{ product.name }}</a>
                     <div class="rating d-flex flex-row justify-content-around">
-                        <p class="text-warning">4 stars</p>
-                        <p class="text-info">10,116 reviews</p>
+                        {% for _ in range(product.average_rating) %}
+                            <p class="text-warning">&#9733;</p>
+                        {% endfor %}
+                        <p class="text-info">{{ product.num_reviews }} reviews</p>
                     </div>
                     <h4 class="price">${{ "%0.2f"|format(product.list_price) }}</h4>
                     <button class="align-self-end add-to-cart p-3">Add to Cart</button>

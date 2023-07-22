@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g
 import shelve
 import sys, os
 # current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,6 +12,8 @@ from Objects.transaction.code import Code
 # sys.path.remove(main_dir)
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'  # Replace with your own secret key
+
 
 # FAQ data
 faqs = [
@@ -81,15 +83,105 @@ def EditProfile():
 def products():
     product_list = []
     db_path = 'Objects/transaction/product.db'
+    review_db_path = 'Objects/transaction/review.db'
     try:
         db = shelve.open(db_path, 'r')
+        review_db = shelve.open(review_db_path, 'r')
+
         for key in db:
             product = db[key]
+            product_reviews = [review for review in review_db.values() if review.product_id == product.product_id]
+            num_reviews = len(product_reviews)
+            if num_reviews > 0:
+                total_rating = sum(review.rating for review in product_reviews)
+                average_rating = total_rating / num_reviews
+            else:
+                average_rating = 0
+
+            # Round the average_rating to display in stars
+            rounded_rating = round(average_rating)
+
+            # Add the average_rating and num_reviews to the product object
+            product.average_rating = rounded_rating
+            product.num_reviews = num_reviews
+
             product_list.append(product)
+
         db.close()
+        review_db.close()
     except:
         product_list = []
     return render_template('/Customer/transaction/Product.html', product_list=product_list, count=len(product_list))
+
+
+def generate_csrf():
+    if 'csrf_token' not in session:
+        session['csrf_token'] = 'some_random_string_or_use_uuid_module_to_generate_one'
+    return session['csrf_token']
+
+app.jinja_env.globals['csrf_token'] = generate_csrf
+
+@app.route('/product/<product_id>')
+def product_info(product_id):
+    review_list = []
+    pdb_path = 'Objects/transaction/product.db'
+    db_path = 'Objects/transaction/review.db'
+    
+    try:
+        pdb = shelve.open(pdb_path, 'r')
+        if product_id in pdb.keys():
+            productobj = pdb[product_id]
+        pdb.close()
+    except:
+        productobj = None
+    
+    try:
+        db = shelve.open(db_path, 'r')
+        for key in db:
+            review = db[key]
+            if review.product_id == product_id:
+                review_list.append(review)
+        db.close()
+    except:
+        review_list = []
+    
+    # Calculate average rating
+    total_rating = sum(review.rating for review in review_list)
+    total_reviews = len(review_list)
+    average_rating = total_rating / total_reviews if total_reviews > 0 else 0
+    
+    # Round the average rating up to the nearest whole number
+    rounded_rating = round(average_rating)
+    
+    return render_template('/Customer/transaction/ProductInfo.html', productobj=productobj, review_list=review_list, count=len(review_list), rounded_rating=rounded_rating)
+
+@app.route('/review/<product_id>', methods=['POST'])
+def add_review(product_id):
+    db_path = 'Objects/transaction/review.db'
+
+    # Retrieve the form data
+    customer_name = request.form['customer_name']
+    rating = int(request.form['rating'])
+    review_comment = request.form['review_comment']
+
+    db = shelve.open(db_path, 'w')  # Open the review.db in read-write mode
+
+    # Generate a new review_id by finding the highest review_id and incrementing it by 1
+    max_review_id = 0
+    if db:
+        # Check if the db is not empty before calculating the max_review_id
+        max_review_id = max((int(review_id[1:]) for review_id in db.keys() if review_id.startswith('R')), default=0)
+
+    new_review_id = "R" + str(max_review_id + 1)
+
+    # Create a new Review object
+    review = Review(new_review_id, product_id, "I need a User ID Ching Yi ", customer_name, rating, review_comment)
+
+    # Save the review to the review_db
+    db[new_review_id] = review
+    db.close()
+
+    return redirect(url_for('product_info', product_id=product_id))
 
 @app.route('/cart')
 def cart():
@@ -191,7 +283,7 @@ def order():
                 "user_id": "U1",
                 "product_id": "P1",
                 "order_date": "2023-07-21",
-                "ship_to": "John Doe",
+                "ship_to": "Singapore",
                 "promo_code": "N/A"
             },
             {
@@ -199,7 +291,7 @@ def order():
                 "user_id": "U2",
                 "product_id": "P2",
                 "order_date": "2023-07-22",
-                "ship_to": "Jane Smith",
+                "ship_to": "Singapore",
                 "promo_code": "N/A"
             }
         ]
@@ -386,7 +478,7 @@ def review():
     if not os.path.exists(db_path):
         placeholder_reviews = [
             {
-                "review_id": 1,
+                "review_id": "R1",
                 "product_id": "P1",
                 "user_id": 1,
                 "author": "John Doe",
@@ -394,7 +486,7 @@ def review():
                 "description": "Great product! Love it.",
             },
             {
-                "review_id": 2,
+                "review_id": "R2",
                 "product_id": "P1",
                 "user_id": 2,
                 "author": "Jane Smith",
@@ -402,7 +494,7 @@ def review():
                 "description": "Excellent quality and fast delivery.",
             },
             {
-                "review_id": 3,
+                "review_id": "R3",
                 "product_id": "P2",
                 "user_id": 3,
                 "author": "Mike Johnson",
@@ -410,7 +502,7 @@ def review():
                 "description": "Decent product, but could be better.",
             },
             {
-                "review_id": 4,
+                "review_id": "R4",
                 "product_id": "P2",
                 "user_id": 4,
                 "author": "Sarah Lee",
@@ -418,7 +510,7 @@ def review():
                 "description": "Absolutely amazing! Highly recommended.",
             },
             {
-                "review_id": 5,
+                "review_id": "R5",
                 "product_id": "P3",
                 "user_id": 5,
                 "author": "Chris Williams",
