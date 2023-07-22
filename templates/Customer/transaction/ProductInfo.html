@@ -1,0 +1,77 @@
+{% extends "Customer/base.html" %}
+{% block title %}Ecofashion Hub - Product Info{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="{{ product.image }}" class="img-fluid" alt="{{ product.name }}">
+        </div>
+        <div class="col-md-8">
+            <h2 class="mb-3">{{ product.name }}</h2>
+            <div class="d-flex align-items-center mb-3">
+                <span class="mr-2">Rating:</span>
+                <div class="d-flex align-items-center">
+                    <span class="mr-2 text-warning">
+                        {% for _ in range(product.rating) %}
+                            &#9733;
+                        {% endfor %}
+                    </span>
+                    <span>({{ product.rating }})</span>
+                </div>
+            </div>
+            <p class="mb-3">Price: ${{ product.price|format("%.2f") }}</p>
+            <p class="mb-3">Size: {{ product.size }}</p>
+            <p class="mb-3">Quantity: {{ product.quantity }}</p>
+            <p class="mb-3">Stock Left: {{ product.stock }}</p>
+            <p class="mb-3">Product Details: {{ product.details }}</p>
+            <button class="btn btn-primary mr-2">Add to Cart</button>
+            <button class="btn btn-success mr-2">Add to Wishlist</button>
+            <button class="btn btn-secondary">Continue Shopping</button>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Review Form -->
+<div class="container mt-5">
+    <h3 class="text-center">Customer Reviews</h3>
+    <form action="{{ url_for('product_info', product_id=product.product_id) }}" method="POST">
+        <div class="form-group">
+            <label for="customer_name">Your Name:</label>
+            <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+        </div>
+        <div class="form-group">
+            <label for="rating">Rating:</label>
+            <select class="form-control" id="rating" name="rating" required>
+                <option value="5">5 stars</option>
+                <option value="4">4 stars</option>
+                <option value="3">3 stars</option>
+                <option value="2">2 stars</option>
+                <option value="1">1 star</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="review_comment">Review Comment:</label>
+            <textarea class="form-control" id="review_comment" name="review_comment" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Review</button>
+    </form>
+</div>
+
+<!-- Display Existing Reviews -->
+<div class="container mt-5">
+    {% if product.reviews %}
+    <h4 class="text-center">Existing Reviews</h4>
+    <ul>
+        {% for review in product.reviews %}
+        <li>
+            <p><strong>{{ review.customer_name }}</strong> - Rating: {{ review.rating }}</p>
+            <p>{{ review.review_comment }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-center">No reviews yet. Be the first one to review this product!</p>
+    {% endif %}
+</div>
+{% endblock %}

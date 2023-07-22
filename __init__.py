@@ -366,6 +366,25 @@ def product():
         product_list.append(product)
     return render_template('/Admin/transaction/product.html', product_list=product_list, count=len(product_list))
 
+# @app.route('/product/<product_id>', methods=['GET', 'POST'])
+# def product_info(product_id):
+#     if request.method == 'POST':
+#         # Handle the form submission for customer reviews (implement the form handling logic here)
+#         # For simplicity, we're using the dummy_product for demonstration purposes
+#         customer_name = request.form['customer_name']
+#         rating = int(request.form['rating'])
+#         review_comment = request.form['review_comment']
+
+#         new_review = {
+#             'customer_name': customer_name,
+#             'rating': rating,
+#             'review_comment': review_comment
+#         }
+
+#         dummy_product['reviews'].append(new_review)
+
+#     return render_template('Customer/product_info.html', product=dummy_product)
+
 @app.route('/admin/review')
 def review():
     return render_template('/Admin/transaction/review.html')
