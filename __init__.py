@@ -8,6 +8,7 @@ import sys, os
 from Objects.transaction.Product import Product  # it does work
 from Objects.transaction.Order import Order
 from Objects.transaction.Review import Review
+from Objects.transaction.code import Code
 # sys.path.remove(main_dir)
 
 app = Flask(__name__)
@@ -367,25 +368,6 @@ def product():
         product_list.append(product)
     return render_template('/Admin/transaction/product.html', product_list=product_list, count=len(product_list))
 
-# @app.route('/product/<product_id>', methods=['GET', 'POST'])
-# def product_info(product_id):
-#     if request.method == 'POST':
-#         # Handle the form submission for customer reviews (implement the form handling logic here)
-#         # For simplicity, we're using the dummy_product for demonstration purposes
-#         customer_name = request.form['customer_name']
-#         rating = int(request.form['rating'])
-#         review_comment = request.form['review_comment']
-
-#         new_review = {
-#             'customer_name': customer_name,
-#             'rating': rating,
-#             'review_comment': review_comment
-#         }
-
-#         dummy_product['reviews'].append(new_review)
-
-#     return render_template('Customer/product_info.html', product=dummy_product)
-
 @app.route('/admin/delete_review/<int:review_id>', methods=['POST'])
 def delete_review(review_id):
     db_path = 'Objects/transaction/review.db'
@@ -465,9 +447,78 @@ def review():
     db.close()
 
     return render_template('Admin/transaction/review.html', review_list=review_list, count=len(review_list))
-@app.route('/admin/promocode')
+
+@app.route('/admin/code')
 def promocode():
-    return render_template('/Admin/transaction/promocode.html')
+    code_list = []
+    db_path = 'Objects/transaction/promo.db'
+    
+    if not os.path.exists(db_path):
+        placeholder_data = [
+            {
+                "code": "CODE1",
+                "discount": 10.0,
+                "end_date": "2023-12-31",
+            },
+            {
+                "code": "CODE2",
+                "discount": 20.0,
+                "end_date": "2023-11-30",
+            },
+            {
+                "code": "CODE3",
+                "discount": 15.0,
+                "end_date": "2023-10-31",
+            },
+        ]
+
+        db = shelve.open(db_path, 'c')
+        for data in placeholder_data:
+            promo = Code(
+                data["code"],
+                data["discount"],
+                data["end_date"],
+            )
+            db[promo.code] = promo
+        db.close()
+
+    db = shelve.open(db_path, 'r')
+    for key in db:
+        code = db[key]
+        code_list.append(code)
+    db.close()
+    return render_template('/Admin/transaction/promocode.html', code_list=code_list, count=len(code_list))
+
+@app.route('/admin/add_promo', methods=['POST'])
+def add_promo():
+    if request.method == 'POST':
+        code = request.form['code']
+        discount = float(request.form['discount'])
+        end_date = request.form['end_date']
+        promo = Code(code, discount, end_date)
+        db = shelve.open('Objects/transaction/promo.db', 'c')
+        db[promo.code] = promo
+        db.close()
+    return redirect(url_for('promocode'))
+
+@app.route('/update_code/<code>', methods=['POST'])
+def update_code(code):
+    if request.method == 'POST':
+        discount = float(request.form['discount'])
+        end_date = request.form['end_date']
+        promo = Code(code, discount, end_date)
+        db = shelve.open('Objects/transaction/promo.db', 'w')
+        db[promo.code] = promo
+        db.close()
+    return redirect(url_for('promocode'))
+
+@app.route('/delete_code/<code>', methods=['POST'])
+def delete_code(code):
+    db = shelve.open('Objects/transaction/promo.db', 'w')
+    if code in db:
+        del db[code]
+    db.close()
+    return redirect(url_for('promocode'))
 
 
 
