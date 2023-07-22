@@ -11,6 +11,38 @@ from Objects.transaction.Order import Order
 
 app = Flask(__name__)
 
+# FAQ data
+faqs = [
+    {
+        "section": "Order Issues",
+        "questions": ["How to check my order status?", "Why didn't I get an email about my order being shipped?",
+"How long will shipping take for my order?"],
+        "answers": ["You will receive the shipping inform email within 1 business day after the order is shipped",
+"Answer 2", "Answer 3"]
+    },
+    {
+        "section": "Promotions",
+        "questions": ["Question 4", "Question 5"],
+        "answers": ["Answer 4", "Answer 5"]
+    },
+{
+        "section": "Account",
+        "questions": ["Question 6", "Question 7"],
+        "answers": ["Answer 6", "Answer 7"]
+    },
+{
+        "section": "Delivery",
+        "questions": ["Question 8", "Question 9"],
+        "answers": ["Answer 8", "Answer 9"]
+    },
+{
+        "section": "Refund",
+        "questions": ["Question 10", "Question 11"],
+        "answers": ["Answer 10", "Answer 11"]
+    },
+    
+]
+
 # Home
 @app.route('/')
 def home():
@@ -54,7 +86,7 @@ def cart():
 # Customer Service
 @app.route('/FAQ')
 def FAQ():
-    return render_template('/Customer/custservice/FAQ.html')
+    return render_template('/Customer/custservice/FAQ.html', faqs=faqs)
 
 @app.route('/CustomerService')
 def CustomerService():
