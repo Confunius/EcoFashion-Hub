@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-     <style>
-        /* Add some basic styles for the search input container */
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+      /* Add some basic styles for the search input container */
         .search_box {
             display: flex;
             flex-direction: column;
@@ -44,9 +44,10 @@
         /* Styles for the section boxes */
         .section-box {
             display: flex;
+            flex-direction: column; /* Set the direction to vertical */
             align-items: center;
-            width: 100px;
-            height: 100px;
+            width: 120px;
+            height: 120px;
             background-color: #ab916c;
             margin: 5px;
             border: 1px solid #ccc;
@@ -60,13 +61,44 @@
         .section-box i {
             font-size: 24px;
             margin-right: 5px;
+            margin-top: 35px;
+        }
+
+        /* Additional styles for FAQ questions and answers */
+        .faq-question {
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f2ecd8;
+            margin-bottom: 5px;
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+
+        .faq-question.active + .faq-answer {
+            display: block;
+        }
+
+        /* Additional styles for FAQ sections */
+        .faq-section {
+            display: none;
+        }
+
+        .faq-section.active {
+            display: block;
         }
     </style>
     {% extends "Customer/base.html" %} {% block title %}Ecofashion Hub - FAQ{% endblock %} {% block content %}
+
 </head>
 <body>
-     <div class="search_box">
-        <div class="bg_text" tabindex="0">
+    <div class="search_box">
+      <div class="bg_text" tabindex="0">
             We're Here to Help!
         </div>
         <div class="bg_search">
@@ -80,41 +112,103 @@
 
         <!-- Flexbox container for sections -->
         <div class="section-container">
-            <div class="section-box">
+            <div class="section-box" data-section="order issues">
                 <i class="fas fa-shopping-cart"></i>
                 Order Issues
             </div>
-            <div class="section-box">
+            <div class="section-box" data-section="refund">
                 <i class="fas fa-undo-alt"></i>
                 Refund
             </div>
-            <div class="section-box">
+            <div class="section-box" data-section="promotions">
                 <i class="fas fa-tags"></i>
                 Promotions
             </div>
-            <div class="section-box">
+            <div class="section-box" data-section="account">
                 <i class="fas fa-user"></i>
                 Account
             </div>
-            <div class="section-box">
+            <div class="section-box" data-section="delivery">
                 <i class="fas fa-truck"></i>
                 Delivery
             </div>
         </div>
-        <!-- End of Flexbox container for sections -->
+    </div>
+    <!-- End of Flexbox container for sections -->
 
-        <!-- FAQs with questions and answers will be inserted here -->
-        <!-- Replace with FAQ -->
-
+    <div class="faq-content"> <!-- Add a wrapper div for the questions and answers -->
+        {% for section in faqs %}
+        <div class="faq-section" data-section="{{ section.section | lower }}">
+            {% for i in range(section.questions | length) %}
+            <div class="faq-question">
+                <h3>{{ section.questions[i] }}</h3>
+            </div>
+            <div class="faq-answer">
+                <p>{{ section.answers[i] }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
     </div>
 
-    <!-- JavaScript code -->
+
+    <!-- Add the JavaScript code -->
+    <!-- After deleting text all questions still appear -->
     <script>
-        var searchIcon = document.querySelector('.search_icon');
-        var searchInput = document.querySelector('.searchInputBox');
-        searchIcon.addEventListener('click', function() {
-            searchInput.focus(); 
+        <!-- Add the JavaScript code -->
+    var searchIcon = document.querySelector('.search_icon');
+    var searchInput = document.querySelector('.searchInputBox');
+
+    // Click event handler for the search icon
+    searchIcon.addEventListener('click', function() {
+        searchInput.focus();
+    });
+
+    // Click event handler for section boxes
+    var sectionBoxes = document.querySelectorAll('.section-box');
+    sectionBoxes.forEach(function(sectionBox) {
+        sectionBox.addEventListener('click', function() {
+            var dataSection = this.getAttribute('data-section');
+            var faqSections = document.querySelectorAll('.faq-section');
+            faqSections.forEach(function(faqSection) {
+                if (faqSection.getAttribute('data-section') === dataSection) {
+                    faqSection.classList.toggle('active');
+                } else {
+                    faqSection.classList.remove('active');
+                }
+            });
         });
+    });
+
+    // Click event handler for FAQ questions to show/hide answers
+    var faqQuestions = document.querySelectorAll('.faq-question');
+    faqQuestions.forEach(function(faqQuestion) {
+        faqQuestion.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    });
+
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        var keyword = searchInput.value.toLowerCase();
+        var allQuestions = document.querySelectorAll('.faq-question');
+
+        allQuestions.forEach(function(question) {
+            var questionText = question.textContent.toLowerCase();
+            var faqSection = question.closest('.faq-section');
+
+            if (questionText.includes(keyword)) {
+                question.style.display = 'block';
+                faqSection.style.display = 'block';
+            } else {
+                question.style.display = 'none';
+                // Check if there are visible questions in the section
+                var visibleQuestions = faqSection.querySelectorAll('.faq-question');
+                var visible = Array.from(visibleQuestions).some(q => q.style.display === 'block');
+                faqSection.style.display = visible ? 'block' : 'none';
+            }
+        });
+    });
     </script>
 </body>
 </html>
