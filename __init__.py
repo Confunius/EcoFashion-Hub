@@ -159,6 +159,20 @@ def update_product(product_id):
     # Redirect back to the product page
     return redirect(url_for('product'))
 
+@app.route('/delete_product/<product_id>', methods=['POST'])
+def delete_product(product_id):
+    # Open the shelve database
+    db = shelve.open('Objects/transaction/product.db', 'w')
+
+    # Check if the product_id exists in the database
+    if product_id in db:
+        # Delete the product from the database
+        del db[product_id]
+        db.close()
+
+    # Redirect back to the product page
+    return redirect(url_for('product'))
+
 @app.route('/admin/product')
 def product():
     product_list = []
