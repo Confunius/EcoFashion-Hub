@@ -1,14 +1,14 @@
 {% extends "Admin/base.html" %}
 {% block title %}Ecofashion Hub - Order{% endblock %}
 {% block content %}
-<h1 class="text-center">Order</h1>
+<h1>Order</h1>
 <div>
     {% if count == 0 %}
-    <h3 class="text-center">No orders</h3>
+    <h3>No orders</h3>
     {% elif count == 1 %}
-    <h3 class="text-center">1 order</h3>
+    <h3>1 order</h3>
     {% else %}
-    <h3 class="text-center">{{ count }} orders</h3>
+    <h3>{{ count }} orders</h3>
     {% endif %}
 </div>
 <div>

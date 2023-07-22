@@ -128,6 +128,37 @@ def order():
         order_list.append(order)
     return render_template('/Admin/transaction/order.html', order_list=order_list, count=len(order_list))
 
+@app.route('/update_product/<product_id>', methods=['POST'])
+def update_product(product_id):
+    # Retrieve the form data
+    name = request.form['name']
+    color = request.form['color']
+    cost_price = float(request.form['cost_price'])
+    list_price = float(request.form['list_price'])
+    stock = int(request.form['stock'])
+    description = request.form['description']
+    image = request.form['image']
+    category = request.form['category']
+
+    # Update the product in the database
+    db = shelve.open('Objects/transaction/product.db', 'w')
+
+    if product_id in db:
+        productobj = db[product_id]
+        productobj.name = name
+        productobj.color = color
+        productobj.cost_price = cost_price
+        productobj.list_price = list_price
+        productobj.stock = stock
+        productobj.description = description
+        productobj.image = image
+        productobj.category = category
+        db[product_id] = productobj
+    db.close()
+
+    # Redirect back to the product page
+    return redirect(url_for('product'))
+
 @app.route('/admin/product')
 def product():
     product_list = []
@@ -189,8 +220,9 @@ def product():
     db = shelve.open(db_path, 'r')
     # open the db and retrieve the dictionary
     for key in db:
+        # key is product ID
         product = db[key]
-        product_dict[product.product_id] = product
+        product_dict[key] = product
     db.close()
     for key in product_dict:
         product = product_dict.get(key)

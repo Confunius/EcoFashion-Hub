@@ -1,14 +1,14 @@
 {% extends "Admin/base.html" %}
 {% block title %}Ecofashion Hub - Order{% endblock %}
 {% block content %}
-<h1 class="text-center">Product Info Management</h1>
+<h1>Product Info Management</h1>
 <div>
     {% if count == 0 %}
-    <h3 class="text-center">No products</h3>
+    <h3>No products</h3>
     {% elif count == 1 %}
-    <h3 class="text-center">1 product</h3>
+    <h3>1 product</h3>
     {% else %}
-    <h3 class="text-center">{{ count }} products</h3>
+    <h3>{{ count }} products</h3>
     {% endif %}
 </div>
 <div>
@@ -47,14 +47,14 @@
                 <div class="modal-dialog" role="document">
                     <div class="modal-content bgd-light txt-dark">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="updateModalLabel">Update Product Info</h5>
+                            <h5 class="modal-title" id="updateModalLabel">Update Product ID {{ product.product_id }}</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
                             <!-- Update Product Form -->
-                            <form action="" method="POST">
+                            <form action="{{ url_for('update_product', product_id=product.product_id) }}" method="POST">
                                 <!-- Add your update product form fields here -->
                                 <div class="form-group">
                                     <label for="name">Name:</label>
@@ -90,8 +90,7 @@
                                     <input type="text" class="form-control" id="category" name="category" value="{{ product.category }}">
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <button type="submit" class="btn bgd-dark">Save Changes</button>
                                 </div>
                             </form>
                         </div>
