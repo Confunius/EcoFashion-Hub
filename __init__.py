@@ -75,7 +75,7 @@ def EditProfile():
     return render_template('/Customer/account/EditProfile.html')
 
 # Transaction
-@app.route('/products')
+@app.route('/product')
 def products():
     product_list = []
     db_path = 'Objects/transaction/product.db'
