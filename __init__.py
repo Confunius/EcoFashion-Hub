@@ -179,6 +179,35 @@ def order():
     db.close()
     return render_template('/Admin/transaction/order.html', order_list=order_list, count=len(order_list))
 
+@app.route('/admin/add_product', methods=['POST'])
+def add_product():
+    # Retrieve the form data
+    name = request.form['name']
+    color = request.form['color']
+    cost_price = float(request.form['cost_price'])
+    list_price = float(request.form['list_price'])
+    stock = int(request.form['stock'])
+    description = request.form['description']
+    image = request.form['image']
+    category = request.form['category']
+
+    # Update the product_dict with the new product
+    db = shelve.open('Objects/transaction/product.db', 'w')
+    max_id = 0
+    # Find the maximum existing ID in the database
+    for key in db:
+        product_id = int(key[1:])
+        if product_id > max_id:
+            max_id = product_id
+
+    new_product_id = "P" + str(max_id + 1)  # Assign a new ID based on the maximum ID + 1
+    new_product = Product(new_product_id, name, color, cost_price, list_price, stock, description, image, category)
+    db[new_product_id] = new_product
+    db.close()
+
+    # Redirect back to the product page
+    return redirect(url_for('product'))
+
 @app.route('/update_product/<product_id>', methods=['POST'])
 def update_product(product_id):
     # Retrieve the form data

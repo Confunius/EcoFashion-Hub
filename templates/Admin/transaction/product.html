@@ -12,6 +12,9 @@
     {% endif %}
 </div>
 <div>
+    <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addProductModal">Add Product</a>
+</div>
+<div>
     <table class="table table-striped">
         <thead>
             <tr class="bgd-dark">
@@ -125,5 +128,60 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+<!-- Add Product Modal -->
+<div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content bgd-light txt-dark">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">Add New Product</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('add_product') }}" method="POST">
+                    <!-- Add your add product form fields here -->
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="color">Color:</label>
+                        <input type="text" class="form-control" id="color" name="color" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cost_price">Cost Price:</label>
+                        <input type="number" class="form-control" id="cost_price" name="cost_price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="list_price">List Price:</label>
+                        <input type="number" class="form-control" id="list_price" name="list_price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">Stock:</label>
+                        <input type="number" class="form-control" id="stock" name="stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="image">Image URL:</label>
+                        <input type="text" class="form-control" id="image" name="image" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category:</label>
+                        <input type="text" class="form-control" id="category" name="category" required>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
