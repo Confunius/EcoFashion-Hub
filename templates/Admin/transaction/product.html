@@ -2,7 +2,7 @@
 {% block title %}Ecofashion Hub - Order{% endblock %}
 {% block content %}
 <h1>Product Info Management</h1>
-<div>
+<div class="mb-3">
     {% if count == 0 %}
     <h3>No products</h3>
     {% elif count == 1 %}
@@ -11,10 +11,10 @@
     <h3>{{ count }} products</h3>
     {% endif %}
 </div>
-<div>
+<div class="mb-3">
     <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addProductModal">Add Product</a>
 </div>
-<div>
+<div class="table-responsive">
     <table class="table table-striped">
         <thead>
             <tr class="bgd-dark">
@@ -38,7 +38,7 @@
                 <td>{{ product.cost_price }}</td>
                 <td>{{ product.list_price }}</td>
                 <td>{{ product.stock }}</td>
-                <td>{{ product.description }}</td>
+                <td><p class="text-truncate" style="width:200px">{{ product.description }}</p></td>
                 <td>{{ product.category }}</td>
                 <td>
                     <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateModal{{ product.product_id }}">Update</button>

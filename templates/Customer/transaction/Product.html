@@ -34,6 +34,9 @@
         <div class="search mb-3">
             <input class="form-control bgd-light" placeholder="Search" type="text">
         </div>
+        {% if product_list|length == 0 %}
+        <h1 class="text-center">No products found</h1>
+        {% else %}
         <div class="d-flex flex-wrap flex-fill">
             {% for product in product_list %}
             <div class="product text-center mb-3 mr-3">
@@ -52,6 +55,7 @@
             </div>
             {% endfor %}
         </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

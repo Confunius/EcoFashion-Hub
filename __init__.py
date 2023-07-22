@@ -79,17 +79,14 @@ def EditProfile():
 def products():
     product_list = []
     db_path = 'Objects/transaction/product.db'
-    if not os.path.exists(db_path):
-        db = shelve.open(db_path, 'c')
-        db.close()
-
-    db = shelve.open(db_path, 'r')
-    for key in db:
-        if key != 'Product':  # Skip any other keys that might be present in the shelve
+    try:
+        db = shelve.open(db_path, 'r')
+        for key in db:
             product = db[key]
             product_list.append(product)
-
-    db.close()
+        db.close()
+    except:
+        product_list = []
     return render_template('/Customer/transaction/Product.html', product_list=product_list, count=len(product_list))
 
 @app.route('/cart')
@@ -305,6 +302,7 @@ def product():
     db_path = 'Objects/transaction/product.db'
     if not os.path.exists(db_path):
         placeholder_data = [
+
             {
                 "product_id": "P1",
                 "name": "Men 100% Cotton Linen Long Sleeve Shirt",
@@ -312,7 +310,7 @@ def product():
                 "cost_price": 8,
                 "list_price": 16,
                 "stock": 3,
-                "description": "Introducing the \"Men 100% Cotton Linen Long Sleeve Shirt\"...",
+                "description": "Introducing the \"Men 100% Cotton Linen Long Sleeve Shirt\"! Crafted with the finest blend of cotton and linen, this classic white shirt boasts both style and comfort. Perfect for casual outings or semi-formal occasions, its long sleeves add an air of sophistication to any ensemble. The breathable fabric ensures you stay cool and relaxed all day long. Embrace a timeless, versatile look with this essential wardrobe piece that pairs effortlessly with jeans, chinos, or tailored trousers. Designed to exude elegance and confidence, this shirt is a must-have for every fashion-forward gentleman. Get ready to make a lasting impression.",
                 "image": "https://m.media-amazon.com/images/I/615Cby-DciL._AC_SX679_.jpg",
                 "category": "Men's Casual"
             },
@@ -323,7 +321,7 @@ def product():
                 "cost_price": 14,
                 "list_price": 18,
                 "stock": 5,
-                "description": "Women Organic Dye Casual Jacket...",
+                "description": "Women Organic Dye Casual Jacket! Elevate your style with this eco-friendly \"Women Organic Dye Casual Jacket.\" Crafted with organic dyes and sustainably sourced materials, this jacket embodies a perfect blend of fashion and environmental consciousness. The soft and breathable fabric ensures comfort without compromising on style. Its pristine white color complements any outfit, making it a versatile addition to your wardrobe. Embrace the essence of modern femininity as you step out in this chic jacket, designed to make a statement at casual gatherings or outings with friends. Embrace sustainability with flair and inspire others to do the same.",
                 "image": "https://m.media-amazon.com/images/I/81mrNU4gF3L._AC_SX569_.jpg",
                 "category": "Women's Casual"
             },
@@ -334,7 +332,7 @@ def product():
                 "cost_price": 6,
                 "list_price": 12,
                 "stock": 2,
-                "description": "Women Tank Top 100% Recycled Fibers...",
+                "description": "Women Tank Top 100% Recycled Fibers! Embrace a greener lifestyle with our \"Women Tank Top 100% Recycled Fibers.\" Made from environmentally friendly materials, this white tank top not only enhances your workout performance but also reduces your carbon footprint. The soft and stretchable fabric provides a comfortable and supportive fit, making it ideal for any active lifestyle. Whether you're hitting the gym, going for a run, or practicing yoga, this tank top ensures you stay cool and dry throughout your workout. Embrace sustainability without compromising on style, and let this tank top be a reflection of your commitment to a healthier planet.",
                 "image": "https://m.media-amazon.com/images/I/61a9kY47XPL._AC_SX679_.jpg",
                 "category": "Women's Sportswear"
             },
