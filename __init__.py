@@ -7,6 +7,7 @@ import sys, os
 # Importing Objects
 from Objects.transaction.Product import Product  # it does work
 from Objects.transaction.Order import Order
+from Objects.transaction.Review import Review
 # sys.path.remove(main_dir)
 
 app = Flask(__name__)
@@ -385,9 +386,85 @@ def product():
 
 #     return render_template('Customer/product_info.html', product=dummy_product)
 
+@app.route('/admin/delete_review/<int:review_id>', methods=['POST'])
+def delete_review(review_id):
+    db_path = 'Objects/transaction/review.db'
+    db = shelve.open(db_path, 'w')
+    try:
+        del db[str(review_id)]
+    except KeyError:
+        pass
+    db.close()
+    return redirect(url_for('review'))
+
 @app.route('/admin/review')
 def review():
-    return render_template('/Admin/transaction/review.html')
+    review_list = []
+    db_path = 'Objects/transaction/review.db'
+    if not os.path.exists(db_path):
+        placeholder_reviews = [
+            {
+                "review_id": 1,
+                "product_id": "P1",
+                "user_id": 1,
+                "author": "John Doe",
+                "rating": 4,
+                "description": "Great product! Love it.",
+            },
+            {
+                "review_id": 2,
+                "product_id": "P1",
+                "user_id": 2,
+                "author": "Jane Smith",
+                "rating": 5,
+                "description": "Excellent quality and fast delivery.",
+            },
+            {
+                "review_id": 3,
+                "product_id": "P2",
+                "user_id": 3,
+                "author": "Mike Johnson",
+                "rating": 3,
+                "description": "Decent product, but could be better.",
+            },
+            {
+                "review_id": 4,
+                "product_id": "P2",
+                "user_id": 4,
+                "author": "Sarah Lee",
+                "rating": 5,
+                "description": "Absolutely amazing! Highly recommended.",
+            },
+            {
+                "review_id": 5,
+                "product_id": "P3",
+                "user_id": 5,
+                "author": "Chris Williams",
+                "rating": 4,
+                "description": "Nice product for the price.",
+            },
+        ]
+
+        # Save the placeholder reviews to the review.db database
+        db_path = 'Objects/transaction/review.db'
+        db = shelve.open(db_path, 'c')
+        for data in placeholder_reviews:
+            review = Review(
+                data["review_id"],
+                data["product_id"],
+                data["user_id"],
+                data["author"],
+                data["rating"],
+                data["description"],
+            )
+            db[str(review.review_id)] = review
+        db.close()
+
+    db = shelve.open(db_path, 'r')
+    review_list = list(db.values())  # Assuming reviews are stored in the 'review' shelve
+    db.close()
+
+    return render_template('Admin/transaction/review.html', review_list=review_list, count=len(review_list))
 @app.route('/admin/promocode')
 def promocode():
     return render_template('/Admin/transaction/promocode.html')
