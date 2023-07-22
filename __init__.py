@@ -5,7 +5,7 @@ import sys, os
 # main_dir = os.path.dirname(current_dir)
 # sys.path.append(main_dir)
 # Importing Objects
-from Objects.transaction.Product import Product
+from Objects.transaction.Product import Product  # it does work
 # sys.path.remove(main_dir)
 
 app = Flask(__name__)
@@ -13,55 +13,55 @@ app = Flask(__name__)
 # Home
 @app.route('/')
 def home():
-    return render_template('Customer/homepage.html')
+    return render_template('/Customer/homepage.html')
 # Customer side
 
 # Account
-@app.route('Admin/CustomerDelete')
+@app.route('/CustomerDelete')
 def CustomerDelete():
-    return render_template('CustomerDelete.html')
+    return render_template('/Customer/account/CustomerDelete.html')
 
-@app.route('Admin/CustomerInfo')
+@app.route('/CustomerInfo')
 def CustomerInfo():
-    return render_template('CustomerInfo.html')
+    return render_template('/Customer/account/CustomerInfo.html')
 
-@app.route('Admin/CustomerUpdate')
+@app.route('/CustomerUpdate')
 def CustomerUpdate():
-    return render_template('CustomerUpdate.html')
+    return render_template('/Customer/account/CustomerUpdate.html')
 
-@app.route('Admin/CustomerAccounts')
+@app.route('/CustomerAccounts')
 def CustomerAccounts():
-    return render_template('CustomerAccounts.html')
+    return render_template('/Customer/account/CustomerAccounts.html')
 
-@app.route('Admin/Profile')
+@app.route('/Profile')
 def Profile():
-    return render_template('Profile.html')
+    return render_template('/Customer/account/Profile.html')
 
-@app.route('Admin/EditProfile')
+@app.route('/EditProfile')
 def EditProfile():
-    return render_template('EditProfile.html')
+    return render_template('/Customer/account/EditProfile.html')
 
 # Transaction
 @app.route('/products')
 def products():
-    return render_template('Customer/transaction/Product.html')
+    return render_template('/Customer/transaction/Product.html')
 
 @app.route('/cart')
-def products():
-    return render_template('Customer/transaction/Cart.html')
+def cart():
+    return render_template('/Customer/transaction/Cart.html')
 
 # Customer Service
 @app.route('/FAQ')
 def FAQ():
-    return render_template('Customer/custservice/FAQ.html')
+    return render_template('/Customer/custservice/FAQ.html')
 
 @app.route('/CustomerService')
 def CustomerService():
-    return render_template('Customer/custservice/CustomerService.html')
+    return render_template('/Customer/custservice/CustomerService.html')
 
 @app.route('/ServiceRecord')
 def ServiceRecord():
-    return render_template('Customer/custservice/ServiceRecord.html')
+    return render_template('/Customer/custservice/ServiceRecord.html')
 
 
 
@@ -70,59 +70,48 @@ def ServiceRecord():
 
 @app.route('/admin')
 def ahome():
-    return render_template('Admin/login.html')
-@app.route('/login')
-def alogin():
-    return render_template('Admin/login.html')
-@app.route('/homepage')
+    return render_template('/Admin/login.html')
+@app.route('/admin/homepage')
 def ahomepage():
-    return render_template('Admin/homepage.html')
+    return render_template('/Admin/homepage.html')
 
 
 # Account
-# @app.route('Admin/CustomerService')
-# def CustomerService():
-#     return render_template('Admin/CustomerService.html')
-
-# @app.route('Admin/ServiceRecord')
-# def ServiceRecord():
-#     return render_template('Admin/ServiceRecord.html')
-
-@app.route('Admin/AdminAccounts')
+@app.route('/admin/AdminAccounts')
 def AdminAccounts():
-    return render_template('Admin/AdminAccounts.html')
+    return render_template('/Admin/account/AdminAccounts.html')
 
-@app.route('Admin/AdminDelete')
+@app.route('/admin/AdminDelete')
 def AdminDelete():
-    return render_template('AdminDelete.html')
+    return render_template('/Admin/account/AdminDelete.html')
 
-@app.route('Admin/AdminFrom')
+@app.route('/admin/AdminFrom')
 def AdminFrom():
-    return render_template('AdminFrom.html')
+    return render_template('/Admin/account/AdminFrom.html')
 
-@app.route('Admin/AdminInfo')
+@app.route('/admin/AdminInfo')
 def AdminInfo():
-    return render_template('AdminInfo.html')
+    return render_template('/Admin/account/AdminInfo.html')
 
-@app.route('Admin/AdminPasswordForm')
+@app.route('/admin/AdminPasswordForm')
 def AdminPasswordForm():
-    return render_template('AdminPasswordForm.html')
+    return render_template('/Admin/account/AdminPasswordForm.html')
 
-@app.route('Admin/AdminUpdate')
+@app.route('/admin/AdminUpdate')
 def AdminUpdate():
-    return render_template('AdminUpdate.html')
+    return render_template('/Admin/account/AdminUpdate.html')
 
-@app.route('Admin/Navbar')
+@app.route('/admin/Navbar')
 def Navbar():
-    return render_template('Navbar.html')
+    return render_template('/Navbar.html')
 
-@app.route('Admin/Sidebar')
+@app.route('/admin/Sidebar')
 def Sidebar():
-    return render_template('Sidebar.html')
+    return render_template('/Sidebar.html')
 
 
 # Transaction
-@app.route('Admin/transaction/order')
+@app.route('/admin/order')
 def order():
     order_list = []
     order_dict = {}
@@ -137,15 +126,15 @@ def order():
     for key in order_dict:
         order = order_dict.get(key)
         order_list.append(order)
-    return render_template('Admin/transaction/order.html', order_list=order_list, count=len(order_list))
+    return render_template('/Admin/transaction/order.html', order_list=order_list, count=len(order_list))
 
-@app.route('Admin/transaction/product')
+@app.route('/admin/product')
 def product():
     product_list = []
     product_dict = {}
     db_path = 'Objects/transaction/product.db'
     if not os.path.exists(db_path):
-        product_data = [
+        placeholder_data = [
             {
                 "product_id": "P1",
                 "name": "Men 100% Cotton Linen Long Sleeve Shirt",
@@ -182,17 +171,17 @@ def product():
         ]
 
         db = shelve.open(db_path, 'c')
-        for product_data_item in product_data:
+        for data in placeholder_data:
             product = Product(
-                product_data_item["product_id"],
-                product_data_item["name"],
-                product_data_item["color"],
-                product_data_item["cost_price"],
-                product_data_item["list_price"],
-                product_data_item["stock"],
-                product_data_item["description"],
-                product_data_item["image"],
-                product_data_item["category"],
+                data["product_id"],
+                data["name"],
+                data["color"],
+                data["cost_price"],
+                data["list_price"],
+                data["stock"],
+                data["description"],
+                data["image"],
+                data["category"],
             )
             db[product.product_id] = product
         db.close()
@@ -206,14 +195,14 @@ def product():
     for key in product_dict:
         product = product_dict.get(key)
         product_list.append(product)
-    return render_template('Admin/transaction/product.html', product_list=product_list, count=len(product_list))
+    return render_template('/Admin/transaction/product.html', product_list=product_list, count=len(product_list))
 
-@app.route('Admin/transaction/review')
+@app.route('/admin/review')
 def review():
-    return render_template('Admin/transaction/review.html')
-@app.route('Admin/transaction/promocode')
+    return render_template('/Admin/transaction/review.html')
+@app.route('/admin/promocode')
 def promocode():
-    return render_template('Admin/transaction/promocode.html')
+    return render_template('/Admin/transaction/promocode.html')
 
 
 
