@@ -77,7 +77,20 @@ def EditProfile():
 # Transaction
 @app.route('/products')
 def products():
-    return render_template('/Customer/transaction/Product.html')
+    product_list = []
+    db_path = 'Objects/transaction/product.db'
+    if not os.path.exists(db_path):
+        db = shelve.open(db_path, 'c')
+        db.close()
+
+    db = shelve.open(db_path, 'r')
+    for key in db:
+        if key != 'Product':  # Skip any other keys that might be present in the shelve
+            product = db[key]
+            product_list.append(product)
+
+    db.close()
+    return render_template('/Customer/transaction/Product.html', product_list=product_list, count=len(product_list))
 
 @app.route('/cart')
 def cart():
