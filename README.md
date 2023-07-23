@@ -44,95 +44,97 @@ Payment Methods | | | ✔️
 
 > **Ching Yi** is the mastermind behind our user-friendly interface. From the captivating *Homepage* to seamless *Account Information and Password* management, **Ching Yi's** artistry makes navigation a breeze.
 
-## Wei Heng's Realm - Product and Beyond
+# Running EcoFashion Hub Website Locally
 
-> **Product Page** - Where Style Meets Sustainability
+In this guide, we will walk you through the steps to run the EcoFashion Hub website on your local device. The website is hosted on GitHub, and you can run it using CodeSpaces or other methods.
 
-**Wei Heng's** brilliance is evident on our Product Page. Customers can explore our curated collection through intuitive category filters and captivating visuals.
+## Prerequisites
 
-> **Product Information** - Sustainability Unveiled
+Before you begin, ensure that you have the following installed on your device:
 
-At the Product Info section, customers discover the sustainability aspects of each item, empowering them to make informed choices.
+1. Python: Make sure you have Python installed. You can download the latest version from the official Python website (https://www.python.org/downloads/).
 
-> **Shopping Cart** - Building Your Sustainable Cart
+2. Git: Install Git on your machine if you haven't already. You can download it from the official Git website (https://git-scm.com/downloads).
 
-The Shopping Cart offers a seamless experience for customers to review and modify their selections before proceeding to payment.
+## Cloning the Repository
 
-> **Payment** - Secure Transactions, Sustainable Choices
+1. Open your terminal or command prompt.
 
-Our Payment process ensures secure transactions while offering various payment options to cater to every customer's needs.
+2. Navigate to the directory where you want to store the EcoFashion Hub website on your local device.
 
-> **Order Tracking** - Your Journey with EcoFashion
+3. Clone the GitHub repository using the following command:
 
-Customers can track their orders through the Tracking system, staying updated on every step of the delivery process.
+```
+git clone https://github.com/your-username/EcoFashion-Hub.git
+```
 
-> **Refund** - Empowering Responsible Shopping
+Replace `your-username` with your GitHub username.
 
-In case of the need for a refund, Wei Heng's system ensures a smooth process, addressing customer concerns with empathy and efficiency.
+## Setting up a Virtual Environment
 
-> **Order Management** - Organizing Sustainable Orders
+1. Change into the cloned directory:
 
-Wei Heng oversees the Order Management system, ensuring smooth order processing and promoting transparency.
+```
+cd EcoFashion-Hub
+```
 
-> **Product Management** - A Sustainable Product Ecosystem
+2. Create a virtual environment:
 
-Wei Heng curates and updates our product catalog, ensuring a diverse range of sustainable choices for our customers.
+```
+python -m venv venv
+```
 
-> **Promo Code Management** - Discounts for Sustainability
+3. Activate the virtual environment:
 
-Our Promo Code Management allows customers to enjoy discounts responsibly, making sustainable fashion even more accessible.
+- On Windows:
 
-> **Review Management** - Empowering Voices
+```
+venv\Scripts\activate
+```
 
-Customers' reviews provide valuable feedback, and Wei Heng ensures a platform to showcase their experiences and insights.
+- On macOS and Linux:
 
-## Ethan's Realm - Customer Service Extraordinaire
+```
+source venv/bin/activate
+```
 
-> **Customer Service** - Your Support System
+## Installing Dependencies
 
-**Ethan's** expertise shines through in our Customer Service section, providing personalized support and solutions to every inquiry.
+1. Install the required dependencies by running the following command:
 
-> **Resolving Tickets** - Swift Solutions, Happy Customers
+```
+pip install -r requirements.txt
+```
 
-Tickets are resolved efficiently and promptly, ensuring customer satisfaction and building a loyal community.
+## Running the Website
 
-> **FAQ** - Empowering Customers with Answers
+### Method 1: Using CodeSpaces
 
-**Ethan** curates our comprehensive FAQ section, empowering customers to find solutions to common questions.
+If you are using GitHub CodeSpaces, follow these steps:
 
-> **Tickets** - Open Communication Channel
+1. Open the `__init__.py` file in your CodeSpaces editor.
 
-Customers can initiate Tickets for personalized assistance, and **Ethan** ensures a smooth journey from inquiry to resolution.
+2. Click on the "Run" button at the top of the editor to start the development server.
 
-## Ching Yi's Realm - A Seamless User Experience
+3. Access the EcoFashion Hub website by clicking on the URL provided by the development server.
 
-> **Homepage** - Your Gateway to Sustainable Fashion
+### Method 2: Using Python
 
-**Ching Yi** designs an inviting Homepage, offering a glimpse into the sustainable fashion world that awaits our customers.
+If you prefer to run the website using Python, follow these steps:
 
-> **Login & Sign Up** - Your Sustainable Passport
+1. In your terminal or command prompt, make sure you are in the `EcoFashion-Hub` directory.
 
-Our secure Login and Sign Up process provides customers access to a personalized eco-conscious journey.
+2. Run the following command to start the development server:
 
-> **Account Information & Password** - Empowering Your Control
+```
+python __init__.py
+```
 
-**Ching Yi** ensures that customers can easily view and modify their Account Information and Password for a personalized experience.
+3. Access the EcoFashion Hub website by visiting `http://localhost:5000` in your web browser.
 
-> **Wishlist** - Curating Sustainable Desires
+## Stopping the Server
 
-Customers can curate their Wishlist, keeping track of their favorite sustainable items for future purchases.
-
-> **Order Status & History** - Tracking Your EcoFashion Journey
-
-**Ching Yi** enables customers to track their order status and view their purchase history for a seamless shopping experience.
-
-> **Account Deletion** - Respectful Goodbye
-
-Customers can choose to delete their account, and **Ching Yi** ensures a smooth and respectful process.
-
-> **Payment Methods** - Easy and Secure Transactions
-
-**Ching Yi** manages the Payment Methods, providing options that prioritize both convenience and security.
+To stop the development server, press `Ctrl + C` in the terminal or command prompt where the server is running.
 
 ## Conclusion
 
