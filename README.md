@@ -9,7 +9,6 @@ Responsibilities | *Wei Heng* | **Ethan** | *Ching Yi*
 Product Page | ✔️ | | 
 Product Information | ✔️ | | 
 Shopping Cart | ✔️ | | 
-Payment | ✔️ | | 
 Order Tracking | ✔️ | | 
 Refund | ✔️ | | 
 Order Management | ✔️ | | 
@@ -20,8 +19,6 @@ README.md | ✔️ | |
 base.html | ✔️ | | 
 Ratings | ✔️ | | 
 Sustainability Page | ✔️ | | 
-Necessary Shelves | ✔️ | | 
-Necessary Classes and Objects | ✔️ | | 
 Customer Service | | ✔️ | 
 Resolving Tickets | | ✔️ | 
 FAQ | | ✔️ | 
