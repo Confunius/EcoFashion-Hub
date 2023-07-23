@@ -220,72 +220,68 @@ graph LR;
 ## Customer Service
 ```mermaid
 flowchart LR;
-
-    subgraph CustomerServiceFlow
-        Start((Start))
-        B(Customer Raises Inquiry)
-        C((Resolution Required?))
-        D[Resolve Inquiry]
-        E[Escalate to Supervisor]
-        F[Customer Satisfied]
-        G[Issue Resolved]
-        H[Supervisor Intervention]
-        I[Investigation]
-        J((Resolution Provided?))
-        K[Proceed to Customer Feedback Collection]
-        L[Identify Root Cause]
-        M[Positive Feedback?]
-        N[Negative Feedback?]
-        O[Technical Issue]
-        P[Communication Gap]
-        Q[Process Gap]
-        R[Share Positive Feedback with Customer]
-        S((Compensation Required?))
-        T[Apologize and Offer Discount]
-        U[Issue Compensation]
-        V[Seek Customer Preferences]
-        W[Offer Discount]
-        X[Provide Gift Voucher]
-        Y[Product Replacement]
-        Z[Refund Requested]
-        End((End))
-        
-        Start -->|Raise Inquiry| B
-        B -->|Resolution Required?| C
-        C -->|Yes| D
-        C -->|No| E
-        D -->|Issue Resolved| G
-        D -->|Customer Satisfied| F
-        E -->|Supervisor Intervention| H
-        H -->|Investigation| I
-        I -->|Resolution Provided?| J
-        J -->|Yes| K
-        J -->|No| L
-        K -->|Positive Feedback?| M
-        K -->|Negative Feedback?| N
-        L -->|Technical Issue| O
-        L -->|Communication Gap| P
-        L -->|Process Gap| Q
-        M -->|Share Positive Feedback| R
-        N -->|Compensation Required?| S
-        N -->|Apologize and Offer Discount| T
-        S -->|Issue Compensation| U
-        S -->|Seek Customer Preferences| V
-        U -->|Offer Discount| W
-        U -->|Provide Gift Voucher| X
-        V -->|Product Replacement| Y
-        V -->|Refund Requested| Z
-        R -->|End| End
-        W -->|End| End
-        X -->|End| End
-        Y -->|End| End
-        Z -->|End| End
-        O -->|End| End
-        P -->|End| End
-        Q -->|End| End
-        T -->|End| End
-    end
-
+    Start((Start))
+    B(Customer Raises Inquiry)
+    C((Resolution Required?))
+    D[Resolve Inquiry]
+    E[Escalate to Supervisor]
+    F[Customer Satisfied]
+    G[Issue Resolved]
+    H[Supervisor Intervention]
+    I[Investigation]
+    J((Resolution Provided?))
+    K[Proceed to Customer Feedback Collection]
+    L[Identify Root Cause]
+    M[Positive Feedback?]
+    N[Negative Feedback?]
+    O[Technical Issue]
+    P[Communication Gap]
+    Q[Process Gap]
+    R[Share Positive Feedback with Customer]
+    S((Compensation Required?))
+    T[Apologize and Offer Discount]
+    U[Issue Compensation]
+    V[Seek Customer Preferences]
+    W[Offer Discount]
+    X[Provide Gift Voucher]
+    Y[Product Replacement]
+    Z[Refund Requested]
+    End((End))
+    
+    Start -->|Raise Inquiry| B
+    B -->|Resolution Required?| C
+    C -->|Yes| D
+    C -->|No| E
+    D -->|Issue Resolved| G
+    D -->|Customer Satisfied| F
+    E -->|Supervisor Intervention| H
+    H -->|Investigation| I
+    I -->|Resolution Provided?| J
+    J -->|Yes| K
+    J -->|No| L
+    K -->|Positive Feedback?| M
+    K -->|Negative Feedback?| N
+    L -->|Technical Issue| O
+    L -->|Communication Gap| P
+    L -->|Process Gap| Q
+    M -->|Share Positive Feedback| R
+    N -->|Compensation Required?| S
+    N -->|Apologize and Offer Discount| T
+    S -->|Issue Compensation| U
+    S -->|Seek Customer Preferences| V
+    U -->|Offer Discount| W
+    U -->|Provide Gift Voucher| X
+    V -->|Product Replacement| Y
+    V -->|Refund Requested| Z
+    R -->|End| End
+    W -->|End| End
+    X -->|End| End
+    Y -->|End| End
+    Z -->|End| End
+    O -->|End| End
+    P -->|End| End
+    Q -->|End| End
+    T -->|End| End
 
 ```
 ## Account Management
