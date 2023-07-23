@@ -21,7 +21,7 @@ Sustainability Page | ✔️ | |
 Customer Service | | ✔️ | 
 Resolving Tickets | | ✔️ | 
 FAQ | | ✔️ | 
-Tickets | | ✔️ | 
+Chat | | ✔️ | 
 Homepage | | | ✔️
 Login & Sign Up | | | ✔️
 Account Information & Password | | | ✔️
