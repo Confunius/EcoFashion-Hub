@@ -228,11 +228,32 @@ graph LR;
     D --> G[Issue Resolved];
     E --> H[Supervisor Intervention];
     H --> I[Investigation];
-    I --> J[Resolution Provided];
-    J --> F;
-    J --> G;
-    G --> K[Close Ticket];
-    F --> K;
+    I --> J{Resolution Provided?};
+    J --> |Yes| K[Proceed to Customer Feedback Collection];
+    J --> |No| L[Identify Root Cause];
+    K --> M[Positive Feedback?];
+    K --> N[Negative Feedback?];
+    L --> O[Technical Issue];
+    L --> P[Communication Gap];
+    L --> Q[Process Gap];
+    M --> R[Share Positive Feedback with Customer];
+    N --> S{Compensation Required?};
+    N --> T[Apologize and Offer Discount];
+    S --> U[Issue Compensation];
+    S --> V[Seek Customer Preferences];
+    U --> W[Offer Discount];
+    U --> X[Provide Gift Voucher];
+    V --> Y[Product Replacement];
+    V --> Z[Refund Requested];
+    X --> A;
+    Y --> A;
+    Z --> A;
+    W --> A;
+    R --> A;
+    T --> A;
+    P --> A;
+    Q --> A;
+
 ```
 ## Account Management
 ```mermaid
