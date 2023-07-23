@@ -139,20 +139,60 @@ To stop the development server, press `Ctrl + C` in the terminal or command prom
 
 ## UML
 ```mermaid
-requirementDiagram
-
-    requirement test_req {
-    id: 1
-    text: the test text.
-    risk: high
-    verifymethod: test
+erDiagram
+    CUSTOMER_SERVICE ||--|{ TICKET : raises
+    CUSTOMER_SERVICE {
+        string userID
+        string ticketTitle
+        datetime dateReceived
+        string status
     }
 
-    element test_entity {
-    type: simulation
+    CUSTOMER ||--o{ REVIEW : writes
+    CUSTOMER {
+        string userID
+        string name
+        string email
+        string gender
     }
 
-    test_entity - satisfies -> test_req
+    REVIEW }|--|| PRODUCT : describes
+    REVIEW {
+        string productID
+        string userID
+        string author
+        int rating
+        string description
+    }
+
+    PRODUCT }|--|| ORDER : contains
+    PRODUCT {
+        string productID
+        string name
+        string color
+        float costPrice
+        float listPrice
+        int stock
+        string description
+        string category
+    }
+
+    ORDER }|--o| PROMO_CODE : applies
+    ORDER {
+        string orderID
+        string userID
+        string productID
+        datetime orderDate
+        string shipTo
+        string promoCode
+    }
+
+    PROMO_CODE {
+        string code
+        float discount
+        string actions
+    }
+
 ```
 
 ## Products
