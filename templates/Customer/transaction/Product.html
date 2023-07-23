@@ -56,7 +56,10 @@
                         <p class="text-info" style="text-shadow: 1px 1px 3px black">{{ product.num_reviews }} reviews</p>
                     </div>
                     <h4 class="price">${{ "%0.2f"|format(product.list_price) }}</h4>
-                    <button class="align-self-end add-to-cart p-3">Add to Cart</button>
+                    <form action="{{ url_for('add_to_cart') }}" method="post">
+                        <input type="hidden" name="product_id" value="{{ product.product_id }}">
+                        <button type="submit" class="align-self-end add-to-cart p-3">Add to Cart</button>
+                    </form>
                 </div>
             </div>
             {% endfor %}

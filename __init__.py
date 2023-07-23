@@ -9,6 +9,7 @@ from Objects.transaction.Product import Product  # it does work
 from Objects.transaction.Order import Order
 from Objects.transaction.Review import Review
 from Objects.transaction.code import Code
+from Objects.transaction.cart import Cart, CartItem
 # sys.path.remove(main_dir)
 
 app = Flask(__name__)
@@ -195,9 +196,44 @@ def add_review(product_id):
 
     return redirect(url_for('product_info', product_id=product_id))
 
+cartobj = Cart()
+
+@app.context_processor
+def cart_items_processor():
+    num_items_in_cart = sum(item.quantity for item in cartobj.get_cart_items())
+    return {'num_items_in_cart': num_items_in_cart}
+
+@app.route('/product', methods=['POST'])
+def add_to_cart():
+    product_id = request.form['product_id']
+    quantity = 1
+    size = ''
+
+    # Fetch the product details from the database
+    db_path = 'Objects/transaction/product.db'
+    db = shelve.open(db_path, 'r')
+    product = db.get(product_id)
+    db.close()
+
+    if product is None:
+        return redirect(url_for('products'))
+
+    # Create an item object with the product details and the selected quantity
+    item = CartItem(product_id=product.product_id, name=product.name, price=product.list_price, quantity=quantity, size=size)
+
+    # Add the item to the cart
+    cartobj.add_to_cart(item)
+
+    return redirect(url_for('cart'))
+
+
 @app.route('/cart')
 def cart():
-    return render_template('/Customer/transaction/Cart.html')
+    cart_items = cartobj.get_cart_items()
+    cart_total = cartobj.get_cart_total()
+    num_items_in_cart = sum(item.quantity for item in cart_items)
+
+    return render_template('Customer/transaction/Cart.html', cart_items=cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart)
 
 # Customer Service
 @app.route('/FAQ')

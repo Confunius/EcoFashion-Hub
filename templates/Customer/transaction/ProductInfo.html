@@ -45,7 +45,10 @@
 <!-- Floating Sidebar for Buttons -->
 <div class="position-fixed m-4" style="right:0;">
     <div class="d-flex flex-column">
-        <button class="btn bgd-light mb-2">Add to Cart</button>
+        <form action="{{ url_for('add_to_cart') }}" method="post">
+            <input type="hidden" name="product_id" value="{{ productobj.product_id }}">
+            <button type="submit" class="btn bgd-light mb-2" style="width:100%">Add to Cart</button>
+        </form>
         <button class="btn bgd-light mb-2">Add to Wishlist</button>
         <button class="btn btn-secondary" href="/product">Continue Shopping</button>
     </div>
