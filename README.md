@@ -286,11 +286,6 @@ flowchart LR;
         T -->|End| End
     end
 
-    Start -->|Product Management| ProductManagementFlowStart
-    Start -->|Account Management| AccountManagementFlowStart
-    ProductManagementFlowEnd -->|End| End
-    AccountManagementFlowEnd -->|End| End
-
 
 ```
 ## Account Management
