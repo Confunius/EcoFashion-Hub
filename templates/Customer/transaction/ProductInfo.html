@@ -14,7 +14,7 @@
                 <div class="d-flex align-items-center">
                     {% if rounded_rating %}
                         {% for _ in range(rounded_rating|int) %}
-                            <span class="mr-2 text-warning">&#9733;</span>
+                            <p class="text-warning mr-1 mb-0">&#9733;</p>
                         {% endfor %}
                     {% else %}
                         <span class="mr-2">Not rated yet</span>
@@ -47,7 +47,7 @@
     <div class="d-flex flex-column">
         <button class="btn bgd-light mb-2">Add to Cart</button>
         <button class="btn bgd-light mb-2">Add to Wishlist</button>
-        <button class="btn bgd-light" href="/product">Continue Shopping</button>
+        <button class="btn btn-secondary" href="/product">Continue Shopping</button>
     </div>
 </div>
 
@@ -88,13 +88,12 @@
     <ul>
         {% for review in review_list %}
         <li>
-            <p><strong>{{ review.author }}</strong>
+            <p class="mb-0"><strong>{{ review.author }}</strong>
                  - Rating: <div class="d-flex flex-row">
-                {% for _ in range(product.average_rating) %}
-                    <p class="text-warning mr-1">&#9733;</p>
+                {% for _ in range(review.rating) %}
+                    <p class="text-warning mr-1 mb-0">&#9733;</p>
                 {% endfor %}
                 </div>
-            </p>
             <p>{{ review.description }}</p>
         </li>
         {% endfor %}
