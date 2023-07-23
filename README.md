@@ -139,61 +139,62 @@ To stop the development server, press `Ctrl + C` in the terminal or command prom
 
 ## UML
 ```mermaid
-CUSTOMER_SERVICE ||--o{ CUSTOMER : relates to
-CUSTOMER_SERVICE {
-    string userID
-    string ticketTitle
-    datetime dateReceived
-    string status
-}
+classDiagram
+    class CustomerService {
+        +int UserID
+        +String TicketTitle
+        +Date DateReceived
+        +String Status
+    }
 
-CUSTOMER ||--o{ REVIEW : writes
-CUSTOMER {
-    string userID
-    string name
-    string email
-    string gender
-}
+    class Customer {
+        +int UserID
+        +String Name
+        +String Email
+        +String Gender
+    }
 
-REVIEW }|..o{ ORDER : describes
-REVIEW {
-    string reviewID
-    string productID
-    string userID
-    string author
-    int rating
-    string description
-}
+    class Review {
+        +int ProductID
+        +int UserID
+        +String Author
+        +int Rating
+        +String Description
+    }
 
-ORDER }|..o{ PRODUCT : contains
-ORDER {
-    string orderID
-    string userID
-    string productID
-    datetime orderDate
-    string shipTo
-    string promoCode
-}
+    class Product {
+        +int ProductID
+        +String Name
+        +String Color
+        +double CostPrice
+        +double ListPrice
+        +int Stock
+        +String Description
+        +String Category
+    }
 
-PRODUCT ||--|{ PROMO_CODE : applies
-PRODUCT {
-    string productID
-    string name
-    string color
-    float costPrice
-    float listPrice
-    int stock
-    string description
-    string category
-}
+    class Order {
+        +int OrderID
+        +int UserID
+        +int ProductID
+        +Date OrderDate
+        +String ShipTo
+        +String PromoCode
+    }
 
-ORDER }|--|{ PROMO_CODE
-PROMO_CODE {
-    string code
-    float discount
-    string actions
-}
+    class PromoCode {
+        +String Code
+        +double Discount
+        +String Actions
+    }
 
+    CustomerService --|> Customer : User ID
+    CustomerService --> Review : Product_ID
+    Customer --> Review : User ID
+    Customer --> Order : User ID
+    Review --|> Product : Product_ID
+    Order --|> Product : Product_ID
+    Order --> PromoCode : Promo Code
 ```
 
 ## Products
