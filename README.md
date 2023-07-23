@@ -2,9 +2,33 @@
 
 ## Introduction
 
-Welcome to EcoFashion, where fashion meets sustainability in perfect harmony! Our team of dedicated experts is committed to providing you with an exceptional shopping experience while making a positive impact on the environment. Let's explore the remarkable capabilities of Markdown as we introduce you to our team and the services they offer.
-
+Welcome to EcoFashion, where fashion meets sustainability in perfect harmony! Our team of dedicated experts is committed to providing you with an exceptional shopping experience while making a positive impact on the environment. 
 ## Meet Our Team
+
+Responsibilities | Wei Heng | Ethan | Ching Yi
+--- | --- | --- | ---
+Product Page | ✔️ | | 
+Product Information | ✔️ | | 
+Shopping Cart | ✔️ | | 
+Payment | ✔️ | | 
+Order Tracking | ✔️ | | 
+Refund | ✔️ | | 
+Order Management | ✔️ | | 
+Product Management | ✔️ | | 
+Promo Code Management | ✔️ | | 
+Review Management | ✔️ | | 
+Customer Service | | ✔️ | 
+Resolving Tickets | | ✔️ | 
+FAQ | | ✔️ | 
+Tickets | | ✔️ | 
+Homepage | | | ✔️
+Login & Sign Up | | | ✔️
+Account Information & Password | | | ✔️
+Wishlist | | | ✔️
+Order Status & History | | | ✔️
+Account Deletion | | | ✔️
+Payment Methods | | | ✔️
+Note: ✔️ represents the responsibilities handled by each team member.
 
 ### Wei Heng - The Product Maestro
 
