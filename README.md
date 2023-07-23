@@ -139,62 +139,60 @@ To stop the development server, press `Ctrl + C` in the terminal or command prom
 
 ## UML
 ```mermaid
-erDiagram
-    CUSTOMER_SERVICE ||--o{ CUSTOMER : relates to
-    CUSTOMER_SERVICE {
-        string userID
-        string ticketTitle
-        datetime dateReceived
-        string status
-    }
+CUSTOMER_SERVICE ||--o{ CUSTOMER : relates to
+CUSTOMER_SERVICE {
+    string userID
+    string ticketTitle
+    datetime dateReceived
+    string status
+}
 
-    CUSTOMER ||--o{ REVIEW : writes
-    CUSTOMER {
-        string userID
-        string name
-        string email
-        string gender
-    }
+CUSTOMER ||--o{ REVIEW : writes
+CUSTOMER {
+    string userID
+    string name
+    string email
+    string gender
+}
 
-    REVIEW }|..o{ ORDER : describes
-    REVIEW {
-        string reviewID
-        string productID
-        string userID
-        string author
-        int rating
-        string description
-    }
+REVIEW }|..o{ ORDER : describes
+REVIEW {
+    string reviewID
+    string productID
+    string userID
+    string author
+    int rating
+    string description
+}
 
-    ORDER }|..o{ PRODUCT : contains
-    ORDER {
-        string orderID
-        string userID
-        string productID
-        datetime orderDate
-        string shipTo
-        string promoCode
-    }
+ORDER }|..o{ PRODUCT : contains
+ORDER {
+    string orderID
+    string userID
+    string productID
+    datetime orderDate
+    string shipTo
+    string promoCode
+}
 
-    PRODUCT ||--|{ PROMO_CODE : applies
-    PRODUCT {
-        string productID
-        string name
-        string color
-        float costPrice
-        float listPrice
-        int stock
-        string description
-        string category
-    }
+PRODUCT ||--|{ PROMO_CODE : applies
+PRODUCT {
+    string productID
+    string name
+    string color
+    float costPrice
+    float listPrice
+    int stock
+    string description
+    string category
+}
 
-    ORDER }|--|{ PROMO_CODE
-    PROMO_CODE {
-        string code
-        float discount
-        string actions
-    }
-
+ORDER }|--|{ PROMO_CODE
+PROMO_CODE {
+    string code
+    float discount
+    string actions
+}
 
 ```
 
