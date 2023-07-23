@@ -189,7 +189,6 @@ classDiagram
     }
 
     CustomerService --|> Customer : User ID
-    CustomerService --> Review : Product_ID
     Customer --> Review : User ID
     Customer --> Order : User ID
     Review --|> Product : Product_ID
