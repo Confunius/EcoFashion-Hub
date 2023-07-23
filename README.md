@@ -286,59 +286,6 @@ flowchart LR;
         T -->|End| End
     end
 
-    subgraph EcoFashionHubWebsite
-        ProductPage[Visit Product Page]
-        ProductPage -->|Add to Cart| ShoppingCart[Add Items to Shopping Cart]
-        ShoppingCart -->|Proceed to Checkout| Payment[Proceed to Payment]
-        Payment --> OrderTracking[Track Order Status]
-        Payment --> PromoCodeManagement[Apply Promo Code]
-        Payment -->|Refund Requested| Refund[Process Refund]
-        Payment --> ProductManagement[Manage Products]
-        ProductManagement --> ReviewManagement[Manage Customer Reviews]
-        ProductManagement --> SustainabilityPage[View Sustainability Page]
-        ProductManagement -->|Update Product| README[Update README.md]
-        README --> baseHTML[Update base.html]
-        CustomerService --> ResolvingTickets[Resolve Customer Tickets]
-        CustomerService --> FAQ[Provide FAQs]
-        CustomerService --> Chat[Engage in Live Chat]
-        Homepage --> LoginSignUp[Login and Sign Up]
-        Homepage --> Wishlist[Manage Wishlist]
-        Homepage --> OrderStatusHistory[View Order Status and History]
-        Homepage --> AccountInformationPassword[Manage Account Information and Password]
-        Homepage --> AccountDeletion[Delete Account]
-        AccountInformationPassword -->|Update Password| PaymentMethods[Manage Payment Methods]
-    end
-
-    subgraph ProductManagementFlow
-        ProductManagementFlowStart((Start))
-        AA[Product Management Task 1]
-        AB[Product Management Task 2]
-        AC[Product Management Task 3]
-        AD[Product Management Task 4]
-        ProductManagementFlowEnd((End))
-
-        ProductManagementFlowStart -->|Task 1| AA
-        AA -->|Task 2| AB
-        AB -->|Task 3| AC
-        AC -->|Task 4| AD
-        AD -->|End| ProductManagementFlowEnd
-    end
-
-    subgraph AccountManagementFlow
-        AccountManagementFlowStart((Start))
-        BA[Account Management Task 1]
-        BB[Account Management Task 2]
-        BC[Account Management Task 3]
-        BD[Account Management Task 4]
-        AccountManagementFlowEnd((End))
-
-        AccountManagementFlowStart -->|Task 1| BA
-        BA -->|Task 2| BB
-        BB -->|Task 3| BC
-        BC -->|Task 4| BD
-        BD -->|End| AccountManagementFlowEnd
-    end
-
     Start -->|Product Management| ProductManagementFlowStart
     Start -->|Account Management| AccountManagementFlowStart
     ProductManagementFlowEnd -->|End| End
