@@ -4,7 +4,7 @@
 
 ## Meet Our Team
 
-Responsibilities | *Wei Heng* | **Ethan** | *Ching Yi*
+Responsibilities | *Wei Heng* | *Ethan* | *Ching Yi*
 --- | --- | --- | ---
 Product Page | ✔️ | | 
 Product Information | ✔️ | | 
