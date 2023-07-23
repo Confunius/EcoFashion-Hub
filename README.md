@@ -219,71 +219,130 @@ graph LR;
 ```
 ## Customer Service
 ```mermaid
-graph LR;
-    A[Start] --> B(Customer Raises Inquiry);
-    B --> C{Resolution Required?};
-    C --> |Yes| D[Resolve Inquiry];
-    C --> |No| E[Escalate to Supervisor];
-    D --> F[Customer Satisfied];
-    D --> G[Issue Resolved];
-    E --> H[Supervisor Intervention];
-    H --> I[Investigation];
-    I --> J{Resolution Provided?};
-    J --> |Yes| K[Proceed to Customer Feedback Collection];
-    J --> |No| L[Identify Root Cause];
-    K --> M[Positive Feedback?];
-    K --> N[Negative Feedback?];
-    L --> O[Technical Issue];
-    L --> P[Communication Gap];
-    L --> Q[Process Gap];
-    M --> R[Share Positive Feedback with Customer];
-    N --> S{Compensation Required?};
-    N --> T[Apologize and Offer Discount];
-    S --> U[Issue Compensation];
-    S --> V[Seek Customer Preferences];
-    U --> W[Offer Discount];
-    U --> X[Provide Gift Voucher];
-    V --> Y[Product Replacement];
-    V --> Z[Refund Requested];
-    X --> A;
-    Y --> A;
-    Z --> A;
-    W --> A;
-    R --> A;
-    T --> A;
-    P --> A;
-    Q --> A;
-    
-    A --> ProductPage[Visit Product Page];
-    ProductPage -->|Add to Cart| ShoppingCart[Add Items to Shopping Cart];
-    ShoppingCart -->|Proceed to Checkout| Payment[Proceed to Payment];
-    Payment --> OrderTracking[Track Order Status];
-    Payment --> PromoCodeManagement[Apply Promo Code];
-    Payment -->|Refund Requested| Refund[Process Refund];
-    Payment --> ProductManagement[Manage Products];
-    ProductManagement --> ReviewManagement[Manage Customer Reviews];
-    ProductManagement --> SustainabilityPage[View Sustainability Page];
-    ProductManagement -->|Update Product| README[Update README.md];
-    README --> baseHTML[Update base.html];
-    
-    CustomerService --> ResolvingTickets[Resolve Customer Tickets];
-    CustomerService --> FAQ[Provide FAQs];
-    CustomerService --> Chat[Engage in Live Chat];
-    
-    Homepage --> LoginSignUp[Login and Sign Up];
-    Homepage --> Wishlist[Manage Wishlist];
-    Homepage --> OrderStatusHistory[View Order Status and History];
-    Homepage --> AccountInformationPassword[Manage Account Information and Password];
-    Homepage --> AccountDeletion[Delete Account];
-    
-    AccountInformationPassword -->|Update Password| PaymentMethods[Manage Payment Methods];
-    
-    LinkStyle style ProductPage fill:#F2E8FF,stroke:#985BFF,stroke-width:2px;
-    LinkStyle style ShoppingCart fill:#FFE6E6,stroke:#FF5959,stroke-width:2px;
-    LinkStyle style Payment fill:#FFEDCC,stroke:#FF9933,stroke-width:2px;
-    LinkStyle style CustomerService fill:#E0FBFC,stroke:#02C9C9,stroke-width:2px;
-    LinkStyle style Homepage fill:#E8F9FF,stroke:#4C9BFF,stroke-width:2px;
-    LinkStyle style AccountInformationPassword fill:#FFDCE0,stroke:#FF5959,stroke-width:2px;
+flowchart LR;
+
+    subgraph CustomerServiceFlow
+        Start((Start))
+        B(Customer Raises Inquiry)
+        C((Resolution Required?))
+        D[Resolve Inquiry]
+        E[Escalate to Supervisor]
+        F[Customer Satisfied]
+        G[Issue Resolved]
+        H[Supervisor Intervention]
+        I[Investigation]
+        J((Resolution Provided?))
+        K[Proceed to Customer Feedback Collection]
+        L[Identify Root Cause]
+        M[Positive Feedback?]
+        N[Negative Feedback?]
+        O[Technical Issue]
+        P[Communication Gap]
+        Q[Process Gap]
+        R[Share Positive Feedback with Customer]
+        S((Compensation Required?))
+        T[Apologize and Offer Discount]
+        U[Issue Compensation]
+        V[Seek Customer Preferences]
+        W[Offer Discount]
+        X[Provide Gift Voucher]
+        Y[Product Replacement]
+        Z[Refund Requested]
+        End((End))
+        
+        Start -->|Raise Inquiry| B
+        B -->|Resolution Required?| C
+        C -->|Yes| D
+        C -->|No| E
+        D -->|Issue Resolved| G
+        D -->|Customer Satisfied| F
+        E -->|Supervisor Intervention| H
+        H -->|Investigation| I
+        I -->|Resolution Provided?| J
+        J -->|Yes| K
+        J -->|No| L
+        K -->|Positive Feedback?| M
+        K -->|Negative Feedback?| N
+        L -->|Technical Issue| O
+        L -->|Communication Gap| P
+        L -->|Process Gap| Q
+        M -->|Share Positive Feedback| R
+        N -->|Compensation Required?| S
+        N -->|Apologize and Offer Discount| T
+        S -->|Issue Compensation| U
+        S -->|Seek Customer Preferences| V
+        U -->|Offer Discount| W
+        U -->|Provide Gift Voucher| X
+        V -->|Product Replacement| Y
+        V -->|Refund Requested| Z
+        R -->|End| End
+        W -->|End| End
+        X -->|End| End
+        Y -->|End| End
+        Z -->|End| End
+        O -->|End| End
+        P -->|End| End
+        Q -->|End| End
+        T -->|End| End
+    end
+
+    subgraph EcoFashionHubWebsite
+        ProductPage[Visit Product Page]
+        ProductPage -->|Add to Cart| ShoppingCart[Add Items to Shopping Cart]
+        ShoppingCart -->|Proceed to Checkout| Payment[Proceed to Payment]
+        Payment --> OrderTracking[Track Order Status]
+        Payment --> PromoCodeManagement[Apply Promo Code]
+        Payment -->|Refund Requested| Refund[Process Refund]
+        Payment --> ProductManagement[Manage Products]
+        ProductManagement --> ReviewManagement[Manage Customer Reviews]
+        ProductManagement --> SustainabilityPage[View Sustainability Page]
+        ProductManagement -->|Update Product| README[Update README.md]
+        README --> baseHTML[Update base.html]
+        CustomerService --> ResolvingTickets[Resolve Customer Tickets]
+        CustomerService --> FAQ[Provide FAQs]
+        CustomerService --> Chat[Engage in Live Chat]
+        Homepage --> LoginSignUp[Login and Sign Up]
+        Homepage --> Wishlist[Manage Wishlist]
+        Homepage --> OrderStatusHistory[View Order Status and History]
+        Homepage --> AccountInformationPassword[Manage Account Information and Password]
+        Homepage --> AccountDeletion[Delete Account]
+        AccountInformationPassword -->|Update Password| PaymentMethods[Manage Payment Methods]
+    end
+
+    subgraph ProductManagementFlow
+        ProductManagementFlowStart((Start))
+        AA[Product Management Task 1]
+        AB[Product Management Task 2]
+        AC[Product Management Task 3]
+        AD[Product Management Task 4]
+        ProductManagementFlowEnd((End))
+
+        ProductManagementFlowStart -->|Task 1| AA
+        AA -->|Task 2| AB
+        AB -->|Task 3| AC
+        AC -->|Task 4| AD
+        AD -->|End| ProductManagementFlowEnd
+    end
+
+    subgraph AccountManagementFlow
+        AccountManagementFlowStart((Start))
+        BA[Account Management Task 1]
+        BB[Account Management Task 2]
+        BC[Account Management Task 3]
+        BD[Account Management Task 4]
+        AccountManagementFlowEnd((End))
+
+        AccountManagementFlowStart -->|Task 1| BA
+        BA -->|Task 2| BB
+        BB -->|Task 3| BC
+        BC -->|Task 4| BD
+        BD -->|End| AccountManagementFlowEnd
+    end
+
+    Start -->|Product Management| ProductManagementFlowStart
+    Start -->|Account Management| AccountManagementFlowStart
+    ProductManagementFlowEnd -->|End| End
+    AccountManagementFlowEnd -->|End| End
 
 
 ```
