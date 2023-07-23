@@ -140,7 +140,7 @@ To stop the development server, press `Ctrl + C` in the terminal or command prom
 ## UML
 ```mermaid
 erDiagram
-    CUSTOMER_SERVICE }|--o{ CUSTOMER : relates to
+    CUSTOMER_SERVICE ||--o{ CUSTOMER : relates to
     CUSTOMER_SERVICE {
         string userID
         string ticketTitle
@@ -148,7 +148,7 @@ erDiagram
         string status
     }
 
-    CUSTOMER }|--o{ REVIEW : writes
+    CUSTOMER ||--o{ REVIEW : writes
     CUSTOMER {
         string userID
         string name
@@ -156,7 +156,7 @@ erDiagram
         string gender
     }
 
-    REVIEW }|--o{ ORDER : describes
+    REVIEW }|..o{ ORDER : describes
     REVIEW {
         string reviewID
         string productID
@@ -166,7 +166,17 @@ erDiagram
         string description
     }
 
-    PRODUCT }|--o{ ORDER : contains
+    ORDER }|..o{ PRODUCT : contains
+    ORDER {
+        string orderID
+        string userID
+        string productID
+        datetime orderDate
+        string shipTo
+        string promoCode
+    }
+
+    PRODUCT ||--|{ PROMO_CODE : applies
     PRODUCT {
         string productID
         string name
@@ -178,21 +188,13 @@ erDiagram
         string category
     }
 
-    ORDER }|--o{ PROMO_CODE : applies
-    ORDER {
-        string orderID
-        string userID
-        string productID
-        datetime orderDate
-        string shipTo
-        string promoCode
-    }
-
+    ORDER }|--|{ PROMO_CODE
     PROMO_CODE {
         string code
         float discount
         string actions
     }
+
 
 ```
 
