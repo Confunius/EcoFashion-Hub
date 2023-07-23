@@ -137,6 +137,7 @@ python __init__.py
 
 To stop the development server, press `Ctrl + C` in the terminal or command prompt where the server is running.
 
+## Products
 ```mermaid
 graph LR;
     A[Start] --> B(Explore Sustainable Fashion);
@@ -157,7 +158,39 @@ graph LR;
     N --> O[Refund Process];
     O --> P[Refunded];
 ```
-
+## Customer Service
+```mermaid
+graph LR;
+    A[Start] --> B(Customer Raises Inquiry);
+    B --> C{Resolution Required?};
+    C --> |Yes| D[Resolve Inquiry];
+    C --> |No| E[Escalate to Supervisor];
+    D --> F[Customer Satisfied];
+    D --> G[Issue Resolved];
+    E --> H[Supervisor Intervention];
+    H --> I[Investigation];
+    I --> J[Resolution Provided];
+    J --> F;
+    J --> G;
+    G --> K[Close Ticket];
+    F --> K;
+```
+## Account Management
+```mermaid
+graph LR;
+    A[Start] --> B(Login to Account);
+    B --> C{Correct Credentials?};
+    C --> |Yes| D[Access Account Information];
+    C --> |No| E[Incorrect Credentials];
+    D --> F[View/Edit Account Details];
+    D --> G[Change Password];
+    F --> H[Save Changes];
+    G --> H;
+    B --> I[Create New Account];
+    I --> J[Enter Account Information];
+    J --> K[Submit Information];
+    K --> L[Account Created];
+```
 ## Conclusion
 
 Congratulations! You have successfully set up and run the EcoFashion Hub website on your local device. You can now explore the website and enjoy its eco-friendly fashion offerings. Happy shopping!
