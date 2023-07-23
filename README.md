@@ -44,7 +44,9 @@ Payment Methods | | | ✔️
 
 > **Ching Yi** is the mastermind behind our user-friendly interface. From the captivating *Homepage* to seamless *Account Information and Password* management, **Ching Yi's** artistry makes navigation a breeze.
 
-# Running EcoFashion Hub Website Locally
+<details>
+
+<summary># Running EcoFashion Hub Website Locally</summary>
 
 In this guide, we will walk you through the steps to run the EcoFashion Hub website on your local device. The website is hosted on GitHub, and you can run it using CodeSpaces or other methods.
 
@@ -108,7 +110,9 @@ pip install -r requirements.txt
 
 ## Running the Website
 
-### Method 1: Using CodeSpaces
+<details>
+
+<summary><strong>Method 1: Using CodeSpaces</strong></summary>
 
 If you are using GitHub CodeSpaces, follow these steps:
 
@@ -118,7 +122,11 @@ If you are using GitHub CodeSpaces, follow these steps:
 
 3. Access the EcoFashion Hub website by clicking on the URL provided by the development server.
 
-### Method 2: Using Python
+</details>
+
+<details>
+
+<summary><strong>Method 2: Using Python</strong></summary>
 
 If you prefer to run the website using Python, follow these steps:
 
@@ -132,10 +140,16 @@ python __init__.py
 
 3. Access the EcoFashion Hub website by visiting `http://localhost:5000` in your web browser.
 
+</details>
+
 ## Stopping the Server
 
 To stop the development server, press `Ctrl + C` in the terminal or command prompt where the server is running.
 
 ## Conclusion
 
-With **Wei Heng's** curated sustainable products, **Ethan's** exceptional customer service, and **Ching Yi's** seamless user interface, EcoFashion is your ultimate destination for eco-conscious fashion. Join us in our mission to redefine fashion with sustainability and innovation!
+Congratulations! You have successfully set up and run the EcoFashion Hub website on your local device. You can now explore the website and enjoy its eco-friendly fashion offerings. Happy shopping!
+
+Please note that when hosting the website in production, you should follow the necessary steps for deployment, including configuring the web server and setting up the database connection securely.
+
+</details>
