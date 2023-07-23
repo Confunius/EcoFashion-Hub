@@ -17,17 +17,19 @@
         <h1>Filters</h1>
         <h3>All Categories</h3>
         <ul>
-            <li>Men's Casual</li>
-            <li>Women's Casual</li>
-            <li>Women's Sportswear</li>
+            <li><a href="{{ url_for('products') }}">All</a></li>
+            <li><a href="{{ url_for('products', category='Men\'s Casual') }}">Men's Casual</a></li>
+            <li><a href="{{ url_for('products', category='Women\'s Casual') }}">Women's Casual</a></li>
+            <li><a href="{{ url_for('products', category='Women\'s Sportswear') }}">Women's Sportswear</a></li>
         </ul>
         <h3>Ratings</h3>
         <ul>
-            <li class="text-warning"><a>5 stars & up</a></li>
-            <li class="text-warning"><a>4 stars & up</a></li>
-            <li class="text-warning"><a>3 stars & up</a></li>
-            <li class="text-warning"><a>2 stars & up</a></li>
-            <li class="text-warning"><a>1 star & up</a></li>
+            <li><a href="{{ url_for('products') }}">All Ratings</a></li>
+            <li class="text-warning"><a href="{{ url_for('products', rating='5') }}">5 stars & up</a></li>
+            <li class="text-warning"><a href="{{ url_for('products', rating='4') }}">4 stars & up</a></li>
+            <li class="text-warning"><a href="{{ url_for('products', rating='3') }}">3 stars & up</a></li>
+            <li class="text-warning"><a href="{{ url_for('products', rating='2') }}">2 stars & up</a></li>
+            <li class="text-warning"><a href="{{ url_for('products', rating='1') }}">1 star & up</a></li>
         </ul>
     </div>
     <div class="d-flex flex-column flex-fill ml-5">
@@ -46,10 +48,12 @@
                 <div class="product-info d-flex flex-column bgd-dark txt-dark p-3" style="width:300px">
                     <a class="product-title h5 txt-dark" href="{{ url_for('product_info', product_id=product.product_id) }}">{{ product.name }}</a>
                     <div class="rating d-flex flex-row justify-content-around">
+                        <div class="d-flex flex-row">
                         {% for _ in range(product.average_rating) %}
-                            <p class="text-warning">&#9733;</p>
+                            <p class="text-warning mr-1">&#9733;</p>
                         {% endfor %}
-                        <p class="text-info">{{ product.num_reviews }} reviews</p>
+                        </div>
+                        <p class="text-info" style="text-shadow: 1px 1px 3px black">{{ product.num_reviews }} reviews</p>
                     </div>
                     <h4 class="price">${{ "%0.2f"|format(product.list_price) }}</h4>
                     <button class="align-self-end add-to-cart p-3">Add to Cart</button>

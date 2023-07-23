@@ -25,6 +25,7 @@
             <div class="form-group">
                 <label for="size">Size:</label>
                 <select class="form-control" id="size" name="size" required>
+
                     <option value="S">Small</option>
                     <option value="M">Medium</option>
                     <option value="L">Large</option>
@@ -33,7 +34,7 @@
             </div>
             <div class="form-group">
                 <label for="quantity">Quantity:</label>
-                <input type="number" class="form-control" id="quantity" name="quantity" min="1" required>
+                <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" required>
             </div>
             <p class="mb-3">Stock Left: {{ productobj.stock }}</p>
             <p class="mb-3">Product Details: {{ productobj.description }}</p>
@@ -44,9 +45,9 @@
 <!-- Floating Sidebar for Buttons -->
 <div class="position-fixed m-4" style="right:0;">
     <div class="d-flex flex-column">
-        <button class="btn btn-primary mb-2">Add to Cart</button>
-        <button class="btn btn-success mb-2">Add to Wishlist</button>
-        <button class="btn btn-secondary" href="/product">Continue Shopping</button>
+        <button class="btn bgd-light mb-2">Add to Cart</button>
+        <button class="btn bgd-light mb-2">Add to Wishlist</button>
+        <button class="btn bgd-light" href="/product">Continue Shopping</button>
     </div>
 </div>
 
@@ -76,7 +77,7 @@
             <label for="review_comment">Review Comment:</label>
             <textarea class="form-control" id="review_comment" name="review_comment" rows="4" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Submit Review</button>
+        <button type="submit" class="btn bgd-light">Submit Review</button>
     </form>
 </div>
 
@@ -87,7 +88,13 @@
     <ul>
         {% for review in review_list %}
         <li>
-            <p><strong>{{ review.author }}</strong> - Rating: {{ review.rating }}</p>
+            <p><strong>{{ review.author }}</strong>
+                 - Rating: <div class="d-flex flex-row">
+                {% for _ in range(product.average_rating) %}
+                    <p class="text-warning mr-1">&#9733;</p>
+                {% endfor %}
+                </div>
+            </p>
             <p>{{ review.description }}</p>
         </li>
         {% endfor %}
