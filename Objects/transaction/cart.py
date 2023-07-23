@@ -17,11 +17,6 @@ class Cart:
             total += item.price * item.quantity
         return total
 
-    def to_dict(self):
-        # Convert the cart items to a list of dictionaries
-        cart_items_dict = [item.__dict__ for item in self.cart_items]
-        return {"cart_items": cart_items_dict}
-
 class CartItem:
     def __init__(self, product_id, name, price, quantity, size):
         self.product_id = product_id

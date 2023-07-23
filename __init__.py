@@ -206,8 +206,8 @@ def cart_items_processor():
 @app.route('/product', methods=['POST'])
 def add_to_cart():
     product_id = request.form['product_id']
-    quantity = 1
-    size = ''
+    quantity = int(request.form['quantity'])
+    size = request.form['size']
 
     # Fetch the product details from the database
     db_path = 'Objects/transaction/product.db'
@@ -226,14 +226,71 @@ def add_to_cart():
 
     return redirect(url_for('cart'))
 
+@app.route('/update_cart_item/<cart_item_id>', methods=['POST'])
+def update_cart_item(cart_item_id):
+    action = request.form.get('action')
+    new_size = request.form.get('size')  # Get the selected size from the form
+
+    cart_items = cartobj.get_cart_items()
+
+    # Find the cart item with matching product_id
+    for cart_item in cart_items:
+        if cart_item.product_id == cart_item_id:
+            if action == 'increment':
+                cart_item.quantity += 1
+            elif action == 'decrement' and cart_item.quantity > 1:
+                cart_item.quantity -= 1
+            cart_item.size = new_size  # Update the size for the cart item
+
+
+    return redirect(url_for('cart'))
+
+
+@app.route('/delete_cart_item/<cart_item_id>', methods=['POST'])
+def delete_cart_item(cart_item_id):
+    cart_items = cartobj.get_cart_items()
+
+    # Find the cart item with matching product_id
+    for cart_item in cart_items:
+        if cart_item.product_id == cart_item_id:
+            cart_items.remove(cart_item)
+
+    return redirect(url_for('cart'))
+
 
 @app.route('/cart')
 def cart():
     cart_items = cartobj.get_cart_items()
-    cart_total = cartobj.get_cart_total()
     num_items_in_cart = sum(item.quantity for item in cart_items)
+    size_options = ['Small', 'Medium', 'Large']
 
-    return render_template('Customer/transaction/Cart.html', cart_items=cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart)
+
+    # Combine rows with the same item name, price, quantity, and size
+    combined_items = {}
+    for item in cart_items:
+        key = (item.name, item.price, item.size)
+        existing_item = combined_items.get(key)
+        if existing_item:
+            existing_item.quantity += item.quantity
+        else:
+            combined_items[key] = CartItem(
+                product_id=item.product_id,
+                name=item.name,
+                price=item.price,
+                quantity=item.quantity,
+                size=item.size,
+            )
+
+    # Convert the dictionary of combined items back to a list
+    combined_cart_items = list(combined_items.values())
+
+    cart_total = cartobj.get_cart_total()
+
+    return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart, size_options=size_options)
+
+
+
+
 
 # Customer Service
 @app.route('/FAQ')
