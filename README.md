@@ -253,6 +253,38 @@ graph LR;
     T --> A;
     P --> A;
     Q --> A;
+    
+    A --> ProductPage[Visit Product Page];
+    ProductPage -->|Add to Cart| ShoppingCart[Add Items to Shopping Cart];
+    ShoppingCart -->|Proceed to Checkout| Payment[Proceed to Payment];
+    Payment --> OrderTracking[Track Order Status];
+    Payment --> PromoCodeManagement[Apply Promo Code];
+    Payment -->|Refund Requested| Refund[Process Refund];
+    Payment --> ProductManagement[Manage Products];
+    ProductManagement --> ReviewManagement[Manage Customer Reviews];
+    ProductManagement --> SustainabilityPage[View Sustainability Page];
+    ProductManagement -->|Update Product| README[Update README.md];
+    README --> baseHTML[Update base.html];
+    
+    CustomerService --> ResolvingTickets[Resolve Customer Tickets];
+    CustomerService --> FAQ[Provide FAQs];
+    CustomerService --> Chat[Engage in Live Chat];
+    
+    Homepage --> LoginSignUp[Login and Sign Up];
+    Homepage --> Wishlist[Manage Wishlist];
+    Homepage --> OrderStatusHistory[View Order Status and History];
+    Homepage --> AccountInformationPassword[Manage Account Information and Password];
+    Homepage --> AccountDeletion[Delete Account];
+    
+    AccountInformationPassword -->|Update Password| PaymentMethods[Manage Payment Methods];
+    
+    LinkStyle style ProductPage fill:#F2E8FF,stroke:#985BFF,stroke-width:2px;
+    LinkStyle style ShoppingCart fill:#FFE6E6,stroke:#FF5959,stroke-width:2px;
+    LinkStyle style Payment fill:#FFEDCC,stroke:#FF9933,stroke-width:2px;
+    LinkStyle style CustomerService fill:#E0FBFC,stroke:#02C9C9,stroke-width:2px;
+    LinkStyle style Homepage fill:#E8F9FF,stroke:#4C9BFF,stroke-width:2px;
+    LinkStyle style AccountInformationPassword fill:#FFDCE0,stroke:#FF5959,stroke-width:2px;
+
 
 ```
 ## Account Management
