@@ -137,10 +137,25 @@ python __init__.py
 
 To stop the development server, press `Ctrl + C` in the terminal or command prompt where the server is running.
 
+graph LR;
+    A[Start] --> B(Explore Sustainable Fashion);
+    B --> C(Add Items to Wishlist);
+    C --> D(Review Wishlist and Proceed to Checkout);
+    D --> E[Payment];
+    E --> F{Payment Successful?};
+    F --> |Yes| G[Order Confirmed];
+    F --> |No| H[Payment Failed];
+    G --> I[Delivery Process];
+    I --> J[Delivered];
+    I --> K[In Transit];
+    I --> L[Out for Delivery];
+    J --> M[Order Complete];
+    K --> M;
+    L --> M;
+    H --> N[Order Cancelled];
+    N --> O[Refund Process];
+    O --> P[Refunded];
+
 ## Conclusion
 
 Congratulations! You have successfully set up and run the EcoFashion Hub website on your local device. You can now explore the website and enjoy its eco-friendly fashion offerings. Happy shopping!
-
-Please note that when hosting the website in production, you should follow the necessary steps for deployment, including configuring the web server and setting up the database connection securely.
-
-</details>
