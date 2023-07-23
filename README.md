@@ -46,7 +46,7 @@ Payment Methods | | | ✔️
 
 <details>
 
-<summary># Running EcoFashion Hub Website Locally</summary>
+# <summary> Running EcoFashion Hub Website Locally</summary>
 
 In this guide, we will walk you through the steps to run the EcoFashion Hub website on your local device. The website is hosted on GitHub, and you can run it using CodeSpaces or other methods.
 
