@@ -137,6 +137,7 @@ python __init__.py
 
 To stop the development server, press `Ctrl + C` in the terminal or command prompt where the server is running.
 
+```mermaid
 graph LR;
     A[Start] --> B(Explore Sustainable Fashion);
     B --> C(Add Items to Wishlist);
@@ -155,6 +156,7 @@ graph LR;
     H --> N[Order Cancelled];
     N --> O[Refund Process];
     O --> P[Refunded];
+```
 
 ## Conclusion
 
