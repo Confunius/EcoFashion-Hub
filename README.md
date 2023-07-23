@@ -17,7 +17,6 @@ Promo Code Management | ✔️ | |
 Review Management | ✔️ | | 
 README.md | ✔️ | | 
 base.html | ✔️ | | 
-Ratings | ✔️ | | 
 Sustainability Page | ✔️ | | 
 Customer Service | | ✔️ | 
 Resolving Tickets | | ✔️ | 
