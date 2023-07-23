@@ -44,14 +44,12 @@ Payment Methods | | | ✔️
 
 > **Ching Yi** is the mastermind behind our user-friendly interface. From the captivating *Homepage* to seamless *Account Information and Password* management, **Ching Yi's** artistry makes navigation a breeze.
 
-<details>
-
-# <summary> Running EcoFashion Hub Website Locally</summary>
+# Running EcoFashion Hub Website Locally
 
 In this guide, we will walk you through the steps to run the EcoFashion Hub website on your local device. The website is hosted on GitHub, and you can run it using CodeSpaces or other methods.
 
-## Prerequisites
-
+<details>
+  <summary>Prerequisites</summary>
 Before you begin, ensure that you have the following installed on your device:
 
 1. Python: Make sure you have Python installed. You can download the latest version from the official Python website (https://www.python.org/downloads/).
@@ -99,14 +97,7 @@ venv\Scripts\activate
 ```
 source venv/bin/activate
 ```
-
-## Installing Dependencies
-
-1. Install the required dependencies by running the following command:
-
-```
-pip install -r requirements.txt
-```
+</details>
 
 ## Running the Website
 
