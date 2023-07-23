@@ -137,6 +137,24 @@ python __init__.py
 
 To stop the development server, press `Ctrl + C` in the terminal or command prompt where the server is running.
 
+## UML
+```mermaid
+requirementDiagram
+
+    requirement test_req {
+    id: 1
+    text: the test text.
+    risk: high
+    verifymethod: test
+    }
+
+    element test_entity {
+    type: simulation
+    }
+
+    test_entity - satisfies -> test_req
+```
+
 ## Products
 ```mermaid
 graph LR;
