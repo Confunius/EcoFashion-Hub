@@ -17,6 +17,12 @@ Order Management | ✔️ | |
 Product Management | ✔️ | | 
 Promo Code Management | ✔️ | | 
 Review Management | ✔️ | | 
+README.md | ✔️ | | 
+base.html | ✔️ | | 
+Ratings | ✔️ | | 
+Sustainability Page | ✔️ | | 
+Necessary Shelves | ✔️ | | 
+Necessary Classes and Objects | ✔️ | | 
 Customer Service | | ✔️ | 
 Resolving Tickets | | ✔️ | 
 FAQ | | ✔️ | 
@@ -28,6 +34,8 @@ Wishlist | | | ✔️
 Order Status & History | | | ✔️
 Account Deletion | | | ✔️
 Payment Methods | | | ✔️
+
+This is the updated markdown table with the additional responsibilities for Wei Heng.
 Note: ✔️ represents the responsibilities handled by each team member.
 
 ### Wei Heng - The Product Maestro
