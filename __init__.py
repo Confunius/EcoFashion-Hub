@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g
 import shelve
 import sys, os
+from datetime import datetime
 # current_dir = os.path.dirname(os.path.abspath(__file__))
 # main_dir = os.path.dirname(current_dir)
 # sys.path.append(main_dir)
@@ -157,7 +158,7 @@ def product_info(product_id):
         db.close()
     except:
         review_list = []
-    
+
     # Calculate average rating
     total_rating = sum(review.rating for review in review_list)
     total_reviews = len(review_list)
@@ -288,7 +289,81 @@ def cart():
 
     return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart, size_options=size_options)
 
+@app.route('/update_shipping_cost', methods=['POST'])
+def update_shipping_cost():
+    delivery_option = request.form['delivery_option']
 
+    # Calculate the new shipping costs based on the selected delivery option
+    shipping_costs = 0 if delivery_option == 'collect_on_store' else 5
+
+    # Redirect back to the payment processing page with the updated shipping costs
+    return redirect(url_for('display_payment', shipping_costs=shipping_costs))
+
+
+
+@app.route('/payment', methods=['GET'])
+def display_payment():
+    # Retrieve cart items and promo code discount (if applicable) from the cart object
+    code_db_path = 'Objects/transaction/promo.db'
+    cart_items = cartobj.get_cart_items()
+    # promo_code = request.args.get('promo_code')  # Assuming the promo code is passed as a query parameter
+    promo_code_discount = 0
+
+    # Calculate the subtotal
+    subtotal = cartobj.get_cart_total()
+
+    # # Check if the promo code is valid
+    # promo_valid = False
+    # promo_discount = 0
+    # if promo_code:
+    #     with shelve.open(code_db_path) as code_db:
+    #         if promo_code in code_db:
+    #             promo = code_db[promo_code]
+    #             end_date = datetime.strptime(promo['end_date'], '%Y-%m-%d')
+    #             today = datetime.now().date()
+    #             if end_date >= today:
+    #                 promo_valid = True
+    #                 promo_discount = promo['discount']
+
+    # # Calculate the promo code discount (if applicable)
+    # promo_code_discount = 0
+    # if promo_valid:
+    #     promo_code_discount = subtotal * (promo_discount / 100)
+
+    # Calculate the total cost
+    shipping_costs = 5
+    total_cost = subtotal - promo_code_discount + shipping_costs
+
+    return render_template('/Customer/transaction/PaymentProcess.html', cart_items=cart_items, subtotal=subtotal,
+                           promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
+                           total_cost=total_cost)
+
+
+@app.route('/processpayment', methods=['POST'])
+def process_payment():
+    # Retrieve form data
+    # email = request.form['email']
+    # phone = request.form['phone']
+    delivery_option = request.form['delivery_option']
+    # address = request.form['address']
+    # postal_code = request.form['postal_code']
+    # card_number = request.form['card_number']
+    # expiry_date = request.form['expiry_date']
+    # cvc = request.form['cvc']
+    # save_payment = True if 'save_payment' in request.form else False
+    promo_code = request.form['promo_code']
+
+    # Process the form data and place the order (Implement your logic here)
+
+    # Redirect to the order confirmation page (replace 'order_confirmation' with the actual route)
+    return redirect(url_for('order_confirmation'))
+
+
+@app.route('/order_confirmation')
+def order_confirmation():
+    # This route will show the order confirmation page after the payment is processed
+    # Implement your logic to display the confirmation page here
+    return render_template('Customer/transaction/OrderConfirmation.html')
 
 
 
