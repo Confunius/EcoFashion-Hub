@@ -338,6 +338,31 @@ def display_payment():
                            promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
                            total_cost=total_cost)
 
+@app.route('/validate_promo_code', methods=['POST'])
+def validate_promo_code():
+    promo_code = request.form.get('promo_code')
+
+    if not promo_code:
+        return jsonify({'error': 'Promo code is missing.'}), 400
+
+    code_db_path = 'Objects/transaction/promo.db'
+
+    with shelve.open(code_db_path) as code_db:
+        if promo_code in code_db:
+            promo = code_db[promo_code]
+            end_date_str = promo.end_date
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()  # Convert to datetime.date
+            today = datetime.now().date()
+
+            if end_date >= today:
+                promo_discount = promo.discount
+                return jsonify({'valid': True, 'discount': promo_discount})
+            else:
+                return jsonify({'valid': False, 'error': 'Promo code has expired.'}), 400
+        else:
+            return jsonify({'valid': False, 'error': 'Invalid promo code.'}), 400
+
+
 
 @app.route('/processpayment', methods=['POST'])
 def process_payment():
