@@ -192,7 +192,6 @@
     function updatePromoCodeDisplay() {
     const promoCodeDiscount = parseFloat(promoCodeDiscountElement.innerText);
     if (promoCodeDiscount == '0') {
-      console.log('im going to hide it!')
       promoCodeDisplayElement.classList.add('hide-promo-code');
     } else {
       promoCodeDisplayElement.classList.remove('hide-promo-code');
@@ -201,9 +200,6 @@
     // Update the total cost and handle delivery option change when the page loads
     updateTotalCost();
     updatePromoCodeDisplay();
-    console.log('shippingCosts: ', shippingCostValue);
-    console.log('subtotal: ', subtotal);
-    console.log('promoCodeDiscount: ', promoCodeDiscount);
     deliveryOption.addEventListener('change', updateTotalCost);
   });
 </script>

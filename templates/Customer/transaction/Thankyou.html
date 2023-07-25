@@ -2,30 +2,112 @@
     
 {% block title %} Thank you for your purchase! {% endblock %}
 {% block content %}
+<style>
+/* css for timeline */
+.timeline-steps .timeline-step {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin: 1rem
+}
+
+@media (min-width:768px) {
+    .timeline-steps .timeline-step:not(:last-child):after {
+        content: "";
+        display: block;
+        border-top: .25rem dotted #f2ecd8;
+        width: 3.46rem;
+        position: absolute;
+        left: 7.5rem;
+        top: .3125rem
+    }
+    .timeline-steps .timeline-step:not(:first-child):before {
+        content: "";
+        display: block;
+        border-top: .25rem dotted #f2ecd8;
+        width: 3.8125rem;
+        position: absolute;
+        right: 7.5rem;
+        top: .3125rem
+    }
+}
+
+.timeline-steps .timeline-content {
+    width: 10rem;
+    text-align: center
+}
+
+.timeline-steps .timeline-content .inner-circle {
+    border-radius: 1.5rem;
+    height: 1rem;
+    width: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f2ecd8;
+    border-color: black;
+    position: relative
+}
+.timeline-steps .timeline-content .inner-circle i.fa-check {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.timeline-steps .timeline-content .inner-circle:before {
+    content: "";
+    background-color: #f2ecd8;
+    border: 2px solid black;
+    display: inline-block;
+    height: 3rem;
+    width: 3rem;
+    min-width: 3rem;
+    border-radius: 6.25rem;
+    opacity: .5
+}
+.timeline-steps .timeline-content .inner-circle.active:before {
+    opacity: 1;
+    background-color: #ab916c;
+}
+</style>
 <div style="text-align: center;">
     <h1>Thank you for your purchase!</h1>
 </div>
-<div>
-    <div style="display: flex; justify-content: space-between; margin-top: 30px;">
-        <div style="text-align: center;">
-            <div style="border: 2px solid #000; border-radius: 50%; width: 20px; height: 20px; margin: 0 auto; background-color: #000;"></div>
-            <p>Order Placed</p>
-        </div>
-        <div style="text-align: center;">
-            <div style="border: 2px solid #000; border-radius: 50%; width: 20px; height: 20px; margin: 0 auto;"></div>
-            <p>Processing</p>
-        </div>
-        <div style="text-align: center;">
-            <div style="border: 2px solid #000; border-radius: 50%; width: 20px; height: 20px; margin: 0 auto;"></div>
-            <p>Shipping</p>
-        </div>
-        <div style="text-align: center;">
-            <div style="border: 2px solid #000; border-radius: 50%; width: 20px; height: 20px; margin: 0 auto;"></div>
-            <p>Destination</p>
+<div class="container">                      
+    <div class="row">
+        <div class="col">
+            <div class="timeline-steps d-flex justify-content-center">
+                <div class="timeline-step">
+                    <div class="timeline-content">
+                        <div class="inner-circle active"></div>
+                        <p class="h6 mt-3 mb-1">Order Placed</p>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-content">
+                        <div class="inner-circle"></div>
+                        <p class="h6 mt-3 mb-1">Processing</p>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-content">
+                        <div class="inner-circle"></div>
+                        <p class="h6 mt-3 mb-1">Shipping</p>
+                    </div>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-content">
+                        <div class="inner-circle"></div>
+                        <p class="h6 mt-3 mb-1">Destination</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<div style="display: flex; justify-content: space-between; margin-top: 30px;">
+<div class="container d-flex flex-row justify-content-around">
     <div>
         {% if delivery_option == 'standard_delivery' %}
             <h3>Shipping Address:</h3>
@@ -35,8 +117,8 @@
             <p>{{ pickup_location }}</p>
         {% endif %}
         <div style="margin-top: 20px;">
-            <button class="btn bgd-dark">Continue Shopping</button>
-            <button class="btn bgd-dark">Cancel & Refund</button>
+            <button class="btn btn-block bgd-light mb-3">Continue Shopping</button>
+            <button class="btn btn-block bgd-dark">Cancel & Refund</button>
         </div>
     </div>
     <div>
@@ -62,4 +144,25 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Function to add the Font Awesome tick icon inside the active div
+  function addTickIcon() {
+    const activeDiv = document.querySelector('.inner-circle.active');
+    if (activeDiv) {
+      const tickIcon = document.createElement('i');
+      tickIcon.classList.add('fas', 'fa-check', 'fa-lg');
+      tickIcon.style.color = '#4b6043';
+      activeDiv.appendChild(tickIcon);
+    } else {
+    }
+  }
+
+  // Call the function to add the tick icon
+  addTickIcon();
+});
+</script>
 {% endblock %}
