@@ -1,0 +1,65 @@
+{% extends "Customer/base.html" %}
+    
+{% block title %} Thank you for your purchase! {% endblock %}
+{% block content %}
+<div style="text-align: center;">
+    <h1>Thank you for your purchase!</h1>
+</div>
+<div>
+    <div style="display: flex; justify-content: space-between; margin-top: 30px;">
+        <div style="text-align: center;">
+            <div style="border: 2px solid #000; border-radius: 50%; width: 20px; height: 20px; margin: 0 auto; background-color: #000;"></div>
+            <p>Order Placed</p>
+        </div>
+        <div style="text-align: center;">
+            <div style="border: 2px solid #000; border-radius: 50%; width: 20px; height: 20px; margin: 0 auto;"></div>
+            <p>Processing</p>
+        </div>
+        <div style="text-align: center;">
+            <div style="border: 2px solid #000; border-radius: 50%; width: 20px; height: 20px; margin: 0 auto;"></div>
+            <p>Shipping</p>
+        </div>
+        <div style="text-align: center;">
+            <div style="border: 2px solid #000; border-radius: 50%; width: 20px; height: 20px; margin: 0 auto;"></div>
+            <p>Destination</p>
+        </div>
+    </div>
+</div>
+<div style="display: flex; justify-content: space-between; margin-top: 30px;">
+    <div>
+        {% if delivery_option == 'standard_delivery' %}
+            <h3>Shipping Address:</h3>
+            <p>{{ shipping_address }}</p>
+        {% elif delivery_option == 'collect_on_store' %}
+            <h3>Pickup Store Location:</h3>
+            <p>{{ pickup_location }}</p>
+        {% endif %}
+        <div style="margin-top: 20px;">
+            <button class="btn bgd-dark">Continue Shopping</button>
+            <button class="btn bgd-dark">Cancel & Refund</button>
+        </div>
+    </div>
+    <div>
+        <h2>Order Summary</h2>
+        {% for item in cart_items %}
+            <div>
+                <img src="{{ product_dict[item.product_id].image }}" alt="Item Image" style="width: 180px; height: 300px;">
+                <div>
+                    <h4>{{ item.name }}</h4>
+                    <p>Price: ${{ item.price }} | Color: {{ item.color }} | Size: {{ item.size }}| Quantity: {{ item.quantity }}</p>
+                </div>
+            </div>
+        {% endfor %}
+        <hr>
+        <div>
+            <p>Subtotal: ${{ subtotal }}</p>
+            <p>Promo Code Discount: ${{ promo_code_discount }}</p>
+            <p>Shipping Costs: ${{ shipping_costs }}</p>
+        </div>
+        <hr>
+        <div>
+            <h3>Total: ${{ total_cost }}</h3>
+        </div>
+    </div>
+</div>
+{% endblock %}

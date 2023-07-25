@@ -312,7 +312,14 @@ def update_shipping_cost():
 def display_payment():
     # Retrieve cart items from the cart object
     cart_items = cartobj.get_cart_items()
-    # promo_code = request.args.get('promo_code')  # Assuming the promo code is passed as a query parameter
+    db_path = 'Objects/transaction/product.db'
+    product_dict = {}
+    try:
+        db = shelve.open(db_path, 'r')
+        product_dict = dict(db)
+        db.close()
+    except:
+        product_dict = {}    
     promo_code_discount = 0
 
     # Get the subtotal
@@ -324,7 +331,7 @@ def display_payment():
 
     return render_template('/Customer/transaction/PaymentProcess.html', cart_items=cart_items, subtotal=subtotal,
                            promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
-                           total_cost=total_cost)
+                           total_cost=total_cost, product_dict=product_dict)
 
 @app.route('/validate_promo_code', methods=['POST'])
 def validate_promo_code():
@@ -355,9 +362,9 @@ def validate_promo_code():
 @app.route('/processpayment', methods=['POST'])
 def process_payment():
     # Retrieve form data
-    # email = request.form['email']
-    # phone = request.form['phone']
-    delivery_option = request.form['delivery_option']
+
+    delivery = request.form['delivery_option']
+    
     # address = request.form['address']
     # postal_code = request.form['postal_code']
     # card_number = request.form['card_number']
@@ -365,18 +372,79 @@ def process_payment():
     # cvc = request.form['cvc']
     # save_payment = True if 'save_payment' in request.form else False
     promo_code = request.form['promo_code']
+    user_id = 0
+    order_date = datetime.now().strftime('%Y-%m-%d')
+    max_id = 0
+    db = shelve.open('Objects/transaction/order.db', 'w')
+    # Find the maximum existing ID in the database
+    for key in db:
+        order_id = int(key[1:])
+        if order_id > max_id:
+            max_id = order_id
+    order_id = "O" + str(order_id + 1)  # Assign a new ID based on the maximum ID + 1
 
-    # Process the form data and place the order (Implement your logic here)
+    order = Order(order_id, user_id, cartobj, order_date, delivery, promo_code)
+    db[order_id] = order
+    db.close()
+    
+    return redirect(url_for('thankyou', order_id=order_id))
 
-    # Redirect to the order confirmation page (replace 'order_confirmation' with the actual route)
-    return redirect(url_for('order_confirmation'))
 
+@app.route('/thankyou/<order_id>')
+def thankyou(order_id):
+    # Retrieve cart items and promo code discount (if applicable) from the cart object
+    code_db_path = 'Objects/transaction/promo.db'
+    order_db_path = 'Objects/transaction/order.db'
+    product_db_path = 'Objects/transaction/product.db'
+    cart_items = cartobj.get_cart_items()
+    promo_code = request.args.get('promo_code')  # Assuming the promo code is passed as a query parameter
 
-@app.route('/order_confirmation')
-def order_confirmation():
-    # This route will show the order confirmation page after the payment is processed
-    # Implement your logic to display the confirmation page here
-    return render_template('Customer/transaction/OrderConfirmation.html')
+    # Calculate the subtotal
+    subtotal =  cartobj.get_cart_total()
+
+    # Get the delivery option
+    db = shelve.open(order_db_path, 'r')
+    order = db.get(order_id)
+    delivery_option = order.delivery
+    db.close()
+
+    # Get the product dictionary
+    db = shelve.open(product_db_path, 'r')
+    product_dict = dict(db)
+    db.close()
+
+    # Check if the promo code is valid
+    promo_valid = False
+    promo_discount = 0
+    if promo_code:
+        with shelve.open(code_db_path) as code_db:
+            if promo_code in code_db:
+                promo = code_db[promo_code]
+                end_date = datetime.strptime(promo['end_date'], '%Y-%m-%d')
+                today = datetime.now().date()
+                if end_date >= today:
+                    promo_valid = True
+                    promo_discount = promo['discount']
+
+    # Calculate the promo code discount (if applicable)
+    promo_code_discount = 0
+    if promo_valid:
+        promo_code_discount = subtotal * (promo_discount / 100)
+
+    # Calculate the total cost
+    shipping_costs = 5
+    total_cost = subtotal - promo_code_discount + shipping_costs
+
+    # Determine delivery option and relevant information
+    # db = shelve.open('user_db_path', 'r')
+    # shipping_address = db.get(order.user_id).address  
+    shipping_address = "123 Main Street, City, Country"  # Replace this with the actual shipping address
+    pickup_location = "EcoFashion Store, Location"  # Replace this with the actual pickup location
+
+    return render_template('Customer/transaction/Thankyou.html', cart_items=cart_items, subtotal=subtotal,
+                           promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
+                           total_cost=total_cost, delivery_option=delivery_option,
+                           shipping_address=shipping_address, product_dict=product_dict, pickup_location=pickup_location)
 
 
 
@@ -476,7 +544,7 @@ def order():
                 "user_id": "U1",
                 "product_id": "P1",
                 "order_date": "2023-07-21",
-                "ship_to": "Singapore",
+                "delivery": "Standard Delivery",
                 "promo_code": "N/A"
             },
             {
@@ -484,7 +552,7 @@ def order():
                 "user_id": "U2",
                 "product_id": "P2",
                 "order_date": "2023-07-22",
-                "ship_to": "Singapore",
+                "ship_to": "Collect on Store",
                 "promo_code": "N/A"
             }
         ]
