@@ -74,6 +74,12 @@
           </div>
           <span id="promo_code_status"></span>
         </div>
+        {% for item in cart_items %}
+        <input type="hidden" name="size" value="{{ item.size }}">
+        <input type="hidden" name="color" value="{{ item.color }}">
+        <input type="hidden" name="quantity" value="{{ item.quantity }}">
+        <input type="hidden" name="product_id" value="{{ item.product_id }}">
+        {% endfor %}
 
         <!-- Place Order button -->
         <button type="submit" class="btn btn-success btn-lg btn-block" >Place Order</button>

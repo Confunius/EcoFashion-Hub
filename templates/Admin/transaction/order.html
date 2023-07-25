@@ -20,8 +20,11 @@
                 <th>Order_ID</th>
                 <th>User_ID</th>
                 <th>Product_ID</th>
+                <th>Size</th>
+                <th>Color</th>
+                <th>Quantity</th>
                 <th>Order_Date</th>
-                <th>Ship to</th>
+                <th>Delivery</th>
                 <th>Promo code</th>
                 <th>Actions</th>
             </tr>
@@ -32,8 +35,11 @@
                 <td>{{ order.order_id }}</td>
                 <td>{{ order.user_id }}</td>
                 <td>{{ order.product_id }}</td>
+                <td>{{ order.size }}</td>
+                <td>{{ order.color }}</td>
+                <td>{{ order.quantity }}</td>
                 <td>{{ order.order_date }}</td>
-                <td>{{ order.ship_to }}</td>
+                <td>{{ order.delivery }}</td>
                 <td>{{ order.promo_code }}</td>
                 <td>
                     <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#viewModal{{ order.order_id }}">View</button>
@@ -53,8 +59,11 @@
                             <!-- Display order details here -->
                             <p>User ID: {{ order.user_id }}</p>
                             <p>Product ID: {{ order.product_id }}</p>
+                            <p>Size: {{ order.size }}</p>
+                            <p>Color: {{ order.color }}</p>
+                            <p>Quantity: {{ order.quantity }}</p>
                             <p>Order Date: {{ order.order_date }}</p>
-                            <p>Ship to: {{ order.ship_to }}</p>
+                            <p>Delivery: {{ order.delivery }}</p>
                             <p>Promo Code: {{ order.promo_code }}</p>
                         </div>
                         <div class="modal-footer">

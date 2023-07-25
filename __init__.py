@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g
 import shelve
-import sys, os
+import sys
+import os
 from datetime import datetime
 # current_dir = os.path.dirname(os.path.abspath(__file__))
 # main_dir = os.path.dirname(current_dir)
@@ -22,31 +23,31 @@ faqs = [
     {
         "section": "Order Issues",
         "questions": ["How to check my order status?", "Why didn't I get an email about my order being shipped?",
-"How long will shipping take for my order?"],
+                      "How long will shipping take for my order?"],
         "answers": ["You will receive the shipping inform email within 1 business day after the order is shipped",
-"Answer 2", "Answer 3"]
+                    "Answer 2", "Answer 3"]
     },
     {
         "section": "Promotions",
         "questions": ["Question 4", "Question 5"],
         "answers": ["Answer 4", "Answer 5"]
     },
-{
+    {
         "section": "Account",
         "questions": ["Question 6", "Question 7"],
         "answers": ["Answer 6", "Answer 7"]
     },
-{
+    {
         "section": "Delivery",
         "questions": ["Question 8", "Question 9"],
         "answers": ["Answer 8", "Answer 9"]
     },
-{
+    {
         "section": "Refund",
         "questions": ["Question 10", "Question 11"],
         "answers": ["Answer 10", "Answer 11"]
     },
-    
+
 ]
 
 
@@ -57,31 +58,40 @@ def home():
 # Customer side
 
 # Account
+
+
 @app.route('/CustomerDelete')
 def CustomerDelete():
     return render_template('/Customer/account/CustomerDelete.html')
+
 
 @app.route('/CustomerInfo')
 def CustomerInfo():
     return render_template('/Customer/account/CustomerInfo.html')
 
+
 @app.route('/CustomerUpdate')
 def CustomerUpdate():
     return render_template('/Customer/account/CustomerUpdate.html')
+
 
 @app.route('/CustomerAccounts')
 def CustomerAccounts():
     return render_template('/Customer/account/CustomerAccounts.html')
 
+
 @app.route('/Profile')
 def Profile():
     return render_template('/Customer/account/Profile.html')
+
 
 @app.route('/EditProfile')
 def EditProfile():
     return render_template('/Customer/account/EditProfile.html')
 
 # Transaction
+
+
 @app.route('/product')
 def products():
     product_list = []
@@ -97,7 +107,8 @@ def products():
 
         for key in db:
             product = db[key]
-            product_reviews = [review for review in review_db.values() if review.product_id == product.product_id]
+            product_reviews = [review for review in review_db.values(
+            ) if review.product_id == product.product_id]
             num_reviews = len(product_reviews)
             if num_reviews > 0:
                 total_rating = sum(review.rating for review in product_reviews)
@@ -133,7 +144,9 @@ def generate_csrf():
         session['csrf_token'] = 'some_random_string_or_use_uuid_module_to_generate_one'
     return session['csrf_token']
 
+
 app.jinja_env.globals['csrf_token'] = generate_csrf
+
 
 @app.route('/product/<product_id>')
 def product_info(product_id):
@@ -141,8 +154,9 @@ def product_info(product_id):
     pdb_path = 'Objects/transaction/product.db'
     db_path = 'Objects/transaction/review.db'
     size_options = ['Small', 'Medium', 'Large']
-    color_options = ['White', 'Black', 'Blue', 'Red', 'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Grey']
-    
+    color_options = ['White', 'Black', 'Blue', 'Red',
+                     'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Grey']
+
     try:
         pdb = shelve.open(pdb_path, 'r')
         if product_id in pdb.keys():
@@ -150,7 +164,7 @@ def product_info(product_id):
         pdb.close()
     except:
         productobj = None
-    
+
     try:
         db = shelve.open(db_path, 'r')
         for key in db:
@@ -165,11 +179,12 @@ def product_info(product_id):
     total_rating = sum(review.rating for review in review_list)
     total_reviews = len(review_list)
     average_rating = total_rating / total_reviews if total_reviews > 0 else 0
-    
+
     # Round the average rating up to the nearest whole number
     rounded_rating = round(average_rating)
-    
+
     return render_template('/Customer/transaction/ProductInfo.html', productobj=productobj, review_list=review_list, count=len(review_list), rounded_rating=rounded_rating, size_options=size_options, color_options=color_options)
+
 
 @app.route('/review/<product_id>', methods=['POST'])
 def add_review(product_id):
@@ -186,12 +201,14 @@ def add_review(product_id):
     max_review_id = 0
     if db:
         # Check if the db is not empty before calculating the max_review_id
-        max_review_id = max((int(review_id[1:]) for review_id in db.keys() if review_id.startswith('R')), default=0)
+        max_review_id = max((int(review_id[1:]) for review_id in db.keys(
+        ) if review_id.startswith('R')), default=0)
 
     new_review_id = "R" + str(max_review_id + 1)
 
     # Create a new Review object
-    review = Review(new_review_id, product_id, "I need a User ID Ching Yi ", customer_name, rating, review_comment)
+    review = Review(new_review_id, product_id, "I need a User ID Ching Yi ",
+                    customer_name, rating, review_comment)
 
     # Save the review to the review_db
     db[new_review_id] = review
@@ -199,12 +216,15 @@ def add_review(product_id):
 
     return redirect(url_for('product_info', product_id=product_id))
 
+
 cartobj = Cart()
+
 
 @app.context_processor
 def cart_items_processor():
     num_items_in_cart = sum(item.quantity for item in cartobj.get_cart_items())
     return {'num_items_in_cart': num_items_in_cart}
+
 
 @app.route('/product', methods=['POST'])
 def add_to_cart():
@@ -223,12 +243,14 @@ def add_to_cart():
         return redirect(url_for('products'))
 
     # Create an item object with the product details and the selected quantity
-    item = CartItem(product_id=product.product_id, name=product.name, price=product.list_price, quantity=quantity, size=size, color=color)
+    item = CartItem(product_id=product.product_id, name=product.name,
+                    price=product.list_price, quantity=quantity, size=size, color=color)
 
     # Add the item to the cart
     cartobj.add_to_cart(item)
 
     return redirect(url_for('cart'))
+
 
 @app.route('/update_cart_item/<cart_item_id>', methods=['POST'])
 def update_cart_item(cart_item_id):
@@ -247,7 +269,6 @@ def update_cart_item(cart_item_id):
                 cart_item.quantity -= 1
             cart_item.size = new_size  # Update the size for the cart item
             cart_item.color = new_color
-
 
     return redirect(url_for('cart'))
 
@@ -269,8 +290,8 @@ def cart():
     cart_items = cartobj.get_cart_items()
     num_items_in_cart = sum(item.quantity for item in cart_items)
     size_options = ['Small', 'Medium', 'Large']
-    color_options = ['White', 'Black', 'Blue', 'Red', 'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Grey']
-
+    color_options = ['White', 'Black', 'Blue', 'Red',
+                     'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Grey']
 
     # Combine rows with the same item name, price, quantity, and size
     combined_items = {}
@@ -288,6 +309,8 @@ def cart():
                 size=item.size,
                 color=item.color
             )
+    # update the cart_obj with the combined items
+    cartobj.cart_items = list(combined_items.values())
 
     # Convert the dictionary of combined items back to a list
     combined_cart_items = list(combined_items.values())
@@ -295,6 +318,7 @@ def cart():
     cart_total = cartobj.get_cart_total()
 
     return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart, size_options=size_options, color_options=color_options)
+
 
 @app.route('/update_shipping_cost', methods=['POST'])
 def update_shipping_cost():
@@ -305,7 +329,6 @@ def update_shipping_cost():
 
     # Redirect back to the payment processing page with the updated shipping costs
     return redirect(url_for('display_payment', shipping_costs=shipping_costs))
-
 
 
 @app.route('/payment', methods=['GET'])
@@ -319,7 +342,7 @@ def display_payment():
         product_dict = dict(db)
         db.close()
     except:
-        product_dict = {}    
+        product_dict = {}
     promo_code_discount = 0
 
     # Get the subtotal
@@ -332,6 +355,7 @@ def display_payment():
     return render_template('/Customer/transaction/PaymentProcess.html', cart_items=cart_items, subtotal=subtotal,
                            promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
                            total_cost=total_cost, product_dict=product_dict)
+
 
 @app.route('/validate_promo_code', methods=['POST'])
 def validate_promo_code():
@@ -346,7 +370,8 @@ def validate_promo_code():
         if promo_code in code_db:
             promo = code_db[promo_code]
             end_date_str = promo.end_date
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()  # Convert to datetime.date
+            # Convert to datetime.date
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
             today = datetime.now().date()
 
             if end_date >= today:
@@ -357,37 +382,57 @@ def validate_promo_code():
         else:
             return jsonify({'valid': False, 'error': 'Invalid promo code.'}), 400
 
-
-
 @app.route('/processpayment', methods=['POST'])
 def process_payment():
     # Retrieve form data
-
     delivery = request.form['delivery_option']
-    
     # address = request.form['address']
     # postal_code = request.form['postal_code']
     # card_number = request.form['card_number']
     # expiry_date = request.form['expiry_date']
     # cvc = request.form['cvc']
     # save_payment = True if 'save_payment' in request.form else False
-    promo_code = request.form['promo_code']
-    user_id = 0
-    order_date = datetime.now().strftime('%Y-%m-%d')
-    max_id = 0
-    db = shelve.open('Objects/transaction/order.db', 'w')
-    # Find the maximum existing ID in the database
-    for key in db:
-        order_id = int(key[1:])
-        if order_id > max_id:
-            max_id = order_id
-    order_id = "O" + str(order_id + 1)  # Assign a new ID based on the maximum ID + 1
+    size = request.form.getlist('size')
+    color = request.form.getlist('color')
+    quantity = request.form.getlist('quantity')
+    product_id = request.form.getlist('product_id')
 
-    order = Order(order_id, user_id, cartobj, order_date, delivery, promo_code)
-    db[order_id] = order
-    db.close()
-    
+    for i, product_id in enumerate(product_id):
+        ele_product_id = product_id
+        ele_size = size[i]
+        ele_quantity = int(quantity[i])
+        ele_color = color[i]
+        max_id = 0
+        promo_code = request.form['promo_code']
+        user_id = 0
+        order_date = datetime.now().strftime('%Y-%m-%d')
+        try:
+            db = shelve.open('Objects/transaction/order.db', 'w')
+            # Find the maximum existing ID in the database
+
+            for key in db:
+                order_id = int(key[1:])
+                if order_id > max_id:
+                    max_id = order_id
+            # Assign a new ID based on the maximum ID + 1
+            order_id = "O" + str(max_id + 1)
+        except:
+            db = shelve.open('Objects/transaction/order.db', 'c')
+            order_id = "O1"
+
+        # Save each order in the database
+        order = Order(order_id, user_id, ele_product_id, ele_size, ele_color, ele_quantity,
+                    order_date, delivery, promo_code)
+        db[order_id] = order
+        db.close()
+
+
+
+
+    print("Final order_id:", order_id)  # Print the final order_id for debugging
+
     return redirect(url_for('thankyou', order_id=order_id))
+
 
 
 @app.route('/thankyou/<order_id>')
@@ -397,16 +442,16 @@ def thankyou(order_id):
     order_db_path = 'Objects/transaction/order.db'
     product_db_path = 'Objects/transaction/product.db'
     cart_items = cartobj.get_cart_items()
-    promo_code = request.args.get('promo_code')  # Assuming the promo code is passed as a query parameter
+    # Assuming the promo code is passed as a query parameter
+    promo_code = request.args.get('promo_code')
 
     # Calculate the subtotal
-    subtotal =  cartobj.get_cart_total()
+    subtotal = cartobj.get_cart_total()
 
     # Get the delivery option
     db = shelve.open(order_db_path, 'r')
     order = db.get(order_id)
     delivery_option = order.delivery
-    db.close()
 
     # Get the product dictionary
     db = shelve.open(product_db_path, 'r')
@@ -437,9 +482,11 @@ def thankyou(order_id):
 
     # Determine delivery option and relevant information
     # db = shelve.open('user_db_path', 'r')
-    # shipping_address = db.get(order.user_id).address  
-    shipping_address = "123 Main Street, City, Country"  # Replace this with the actual shipping address
-    pickup_location = "EcoFashion Store, Location"  # Replace this with the actual pickup location
+    # shipping_address = db.get(order.user_id).address
+    # Replace this with the actual shipping address
+    shipping_address = "123 Main Street, City, Country"
+    # Replace this with the actual pickup location
+    pickup_location = "EcoFashion Store, Location"
 
     return render_template('Customer/transaction/Thankyou.html', cart_items=cart_items, subtotal=subtotal,
                            promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
@@ -447,21 +494,20 @@ def thankyou(order_id):
                            shipping_address=shipping_address, product_dict=product_dict, pickup_location=pickup_location)
 
 
-
 # Customer Service
 @app.route('/FAQ')
 def FAQ():
     return render_template('/Customer/custservice/FAQ.html', faqs=faqs)
 
+
 @app.route('/CustomerService')
 def CustomerService():
     return render_template('/Customer/custservice/CustomerService.html')
 
+
 @app.route('/ServiceRecord')
 def ServiceRecord():
     return render_template('/Customer/custservice/ServiceRecord.html')
-
-
 
 
 # Admin side
@@ -469,6 +515,8 @@ def ServiceRecord():
 @app.route('/admin')
 def ahome():
     return render_template('/Admin/login.html')
+
+
 @app.route('/admin/homepage')
 def ahomepage():
     return render_template('/Admin/homepage.html')
@@ -479,29 +527,36 @@ def ahomepage():
 def AdminAccounts():
     return render_template('/Admin/account/AdminAccounts.html')
 
+
 @app.route('/admin/AdminDelete')
 def AdminDelete():
     return render_template('/Admin/account/AdminDelete.html')
+
 
 @app.route('/admin/AdminFrom')
 def AdminFrom():
     return render_template('/Admin/account/AdminFrom.html')
 
+
 @app.route('/admin/AdminInfo')
 def AdminInfo():
     return render_template('/Admin/account/AdminInfo.html')
+
 
 @app.route('/admin/AdminPasswordForm')
 def AdminPasswordForm():
     return render_template('/Admin/account/AdminPasswordForm.html')
 
+
 @app.route('/admin/AdminUpdate')
 def AdminUpdate():
     return render_template('/Admin/account/AdminUpdate.html')
 
+
 @app.route('/admin/Navbar')
 def Navbar():
     return render_template('/Navbar.html')
+
 
 @app.route('/admin/Sidebar')
 def Sidebar():
@@ -519,6 +574,7 @@ def view_order(order_id):
     # Render the view modal with the order details
     return render_template('view_order.html', order=order)
 
+
 @app.route('/delete_order/<order_id>', methods=['POST'])
 def delete_order(order_id):
     # Open the shelve database
@@ -533,40 +589,13 @@ def delete_order(order_id):
     # Redirect back to the order page
     return redirect(url_for('order'))
 
+
 @app.route('/admin/order')
 def order():
     order_list = []
     db_path = 'Objects/transaction/order.db'
     if not os.path.exists(db_path):
-        placeholder_data = [
-            {
-                "order_id": "O1",
-                "user_id": "U1",
-                "product_id": "P1",
-                "order_date": "2023-07-21",
-                "delivery": "Standard Delivery",
-                "promo_code": "N/A"
-            },
-            {
-                "order_id": "O2",
-                "user_id": "U2",
-                "product_id": "P2",
-                "order_date": "2023-07-22",
-                "ship_to": "Collect on Store",
-                "promo_code": "N/A"
-            }
-        ]
         db = shelve.open(db_path, 'c')
-        for data in placeholder_data:
-            order = Order(
-                data["order_id"],
-                data["user_id"],
-                data["product_id"],
-                data["order_date"],
-                data["ship_to"],
-                data["promo_code"],
-            )
-            db[order.order_id] = order
         db.close()
 
     db = shelve.open(db_path, 'r')
@@ -575,6 +604,7 @@ def order():
         order_list.append(order)
     db.close()
     return render_template('/Admin/transaction/order.html', order_list=order_list, count=len(order_list))
+
 
 @app.route('/admin/add_product', methods=['POST'])
 def add_product():
@@ -597,13 +627,16 @@ def add_product():
         if product_id > max_id:
             max_id = product_id
 
-    new_product_id = "P" + str(max_id + 1)  # Assign a new ID based on the maximum ID + 1
-    new_product = Product(new_product_id, name, color, cost_price, list_price, stock, description, image, category)
+    # Assign a new ID based on the maximum ID + 1
+    new_product_id = "P" + str(max_id + 1)
+    new_product = Product(new_product_id, name, color, cost_price,
+                          list_price, stock, description, image, category)
     db[new_product_id] = new_product
     db.close()
 
     # Redirect back to the product page
     return redirect(url_for('product'))
+
 
 @app.route('/update_product/<product_id>', methods=['POST'])
 def update_product(product_id):
@@ -636,6 +669,7 @@ def update_product(product_id):
     # Redirect back to the product page
     return redirect(url_for('product'))
 
+
 @app.route('/delete_product/<product_id>', methods=['POST'])
 def delete_product(product_id):
     # Open the shelve database
@@ -649,6 +683,7 @@ def delete_product(product_id):
 
     # Redirect back to the product page
     return redirect(url_for('product'))
+
 
 @app.route('/admin/product')
 def product():
@@ -708,7 +743,7 @@ def product():
             )
             db[product.product_id] = product
         db.close()
-    
+
     db = shelve.open(db_path, 'r')
     # open the db and retrieve the dictionary
     for key in db:
@@ -721,6 +756,7 @@ def product():
         product_list.append(product)
     return render_template('/Admin/transaction/product.html', product_list=product_list, count=len(product_list))
 
+
 @app.route('/admin/delete_review/<int:review_id>', methods=['POST'])
 def delete_review(review_id):
     db_path = 'Objects/transaction/review.db'
@@ -731,6 +767,7 @@ def delete_review(review_id):
         pass
     db.close()
     return redirect(url_for('review'))
+
 
 @app.route('/admin/review')
 def review():
@@ -796,16 +833,18 @@ def review():
         db.close()
 
     db = shelve.open(db_path, 'r')
-    review_list = list(db.values())  # Assuming reviews are stored in the 'review' shelve
+    # Assuming reviews are stored in the 'review' shelve
+    review_list = list(db.values())
     db.close()
 
     return render_template('Admin/transaction/review.html', review_list=review_list, count=len(review_list))
+
 
 @app.route('/admin/code')
 def promocode():
     code_list = []
     db_path = 'Objects/transaction/promo.db'
-    
+
     if not os.path.exists(db_path):
         placeholder_data = [
             {
@@ -842,6 +881,7 @@ def promocode():
     db.close()
     return render_template('/Admin/transaction/promocode.html', code_list=code_list, count=len(code_list))
 
+
 @app.route('/admin/add_promo', methods=['POST'])
 def add_promo():
     if request.method == 'POST':
@@ -854,6 +894,7 @@ def add_promo():
         db.close()
     return redirect(url_for('promocode'))
 
+
 @app.route('/update_code/<code>', methods=['POST'])
 def update_code(code):
     if request.method == 'POST':
@@ -865,6 +906,7 @@ def update_code(code):
         db.close()
     return redirect(url_for('promocode'))
 
+
 @app.route('/delete_code/<code>', methods=['POST'])
 def delete_code(code):
     db = shelve.open('Objects/transaction/promo.db', 'w')
@@ -872,7 +914,6 @@ def delete_code(code):
         del db[code]
     db.close()
     return redirect(url_for('promocode'))
-
 
 
 if __name__ == '__main__':

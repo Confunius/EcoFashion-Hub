@@ -117,7 +117,7 @@
             <p>{{ pickup_location }}</p>
         {% endif %}
         <div style="margin-top: 20px;">
-            <button class="btn btn-block bgd-light mb-3">Continue Shopping</button>
+            <button class="btn btn-block bgd-light mb-3" action="{{ url_for('product')}}">Continue Shopping</button>
             <button class="btn btn-block bgd-dark">Cancel & Refund</button>
         </div>
     </div>
