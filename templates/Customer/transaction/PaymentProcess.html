@@ -2,6 +2,11 @@
 {% block title %}Ecofashion Hub - Payment Processing{% endblock %}
 
 {% block content %}
+<style>
+  .hide-promo-code {
+  display: none!important;
+}
+</style>
 <div class="container mt-4">
   <div class="d-flex">
     <!-- Left side - Payment details form -->
@@ -67,7 +72,7 @@
         </div>
 
         <!-- Place Order button -->
-        <button type="submit" class="btn btn-success btn-lg btn-block">Place Order</button>
+        <button type="submit" class="btn btn-success btn-lg btn-block" >Place Order</button>
       </form>
     </div>
 
@@ -81,7 +86,7 @@
         <img src="{{ item.image_url }}" alt="Item Image" class="order-item-image">
         <div class="flex-grow-1 ml-3">
           <h6 class="mb-0 text-truncate">{{ item.name }}</h6>
-          <p class="mb-0">Price: ${{ item.price }} | Color: {{ item.color }} | Quantity: {{ item.quantity }}</p>
+          <p class="mb-0">Price: ${{"%0.2f"|format(item.price)}} | Color: {{ item.color }} | Size: {{ item.size}} | Quantity: {{ item.quantity }}</p>
         </div>
       </div>
     </div>
@@ -94,7 +99,7 @@
     <div>Subtotal:</div>
     <div id="subtotal">${{ subtotal }}</div>
   </div>
-  <div class="d-flex justify-content-between">
+  <div class="d-flex justify-content-between" id="promo_code_display">
     <div>Promo Code Discount:</div>
     <div id="promo_code_discount">{{ promo_code_discount }}</div>
   </div>
@@ -105,7 +110,7 @@
   <hr class="bgd-light">
   <div class="d-flex justify-content-between font-weight-bold">
     <div>Total:</div>
-    <div id="total_cost">{{ total_cost }}</div>
+    <div id="total_cost">${{ total_cost }}</div>
   </div>
   <!-- End of Subtotal, Promo code discount, Shipping costs, and Total cost -->
 
@@ -120,6 +125,9 @@
     const checkPromoCodeButton = document.getElementById('check_promo_code');
     const promoCodeInput = document.getElementById('promo_code');
     const promoCodeStatus = document.getElementById('promo_code_status');
+    const promoCodeDiscountElement = document.getElementById('promo_code_discount');
+    const promoCodeDisplayElement = document.getElementById('promo_code_display');
+    const subtotal = parseFloat(document.getElementById('subtotal').innerText.replace('$', ''));
 
     checkPromoCodeButton.addEventListener('click', () => {
       const promoCode = promoCodeInput.value;
@@ -140,6 +148,7 @@
           promoCodeDiscountElement.innerText = `$${promoCodeDiscount}`;
           // Recalculate the total cost
           updateTotalCost();
+          updatePromoCodeDisplay()
         } else {
           promoCodeStatus.innerText = 'Invalid promo code. Please try again.';
         }
@@ -149,6 +158,8 @@
         console.error('Error:', error);
       });
     });
+    
+    let promoCodeDiscount = parseFloat(document.getElementById('promo_code_discount').innerText);
 
     // JavaScript code to handle updates
     const deliveryOption = document.getElementById('delivery_option');
@@ -157,15 +168,14 @@
     const totalCost = document.getElementById('total_cost');
     const deliveryAddressField = document.getElementById('address-form-group');
 
-    // Get the subtotal value and promo code discount from the server-side rendering
-    let subtotal = parseFloat(document.getElementById('subtotal').innerText);
-    let promoCodeDiscount = parseFloat(document.getElementById('promo_code_discount').innerText);
-
     function updateTotalCost() {
       const shippingCost = deliveryOption.value === 'collect_on_store' ? 0 : shippingCostValue;
-      const total = '$' + (subtotal - promoCodeDiscount + shippingCost).toFixed(2);
+      const total = (subtotal - promoCodeDiscount + shippingCost).toFixed(2);
+
+      console.log('total: ', total)
+
       shippingCosts.innerText = '$' + shippingCost.toFixed(2);
-      totalCost.innerText = total;
+      totalCost.innerText = '$' + total;
 
       // Show/hide delivery address field based on the selected delivery option
       if (deliveryOption.value === 'collect_on_store') {
@@ -175,8 +185,21 @@
       }
     }
 
+    function updatePromoCodeDisplay() {
+    const promoCodeDiscount = parseFloat(promoCodeDiscountElement.innerText);
+    if (promoCodeDiscount == '0') {
+      console.log('im going to hide it!')
+      promoCodeDisplayElement.classList.add('hide-promo-code');
+    } else {
+      promoCodeDisplayElement.classList.remove('hide-promo-code');
+    }
+  }
     // Update the total cost and handle delivery option change when the page loads
     updateTotalCost();
+    updatePromoCodeDisplay();
+    console.log('shippingCosts: ', shippingCostValue);
+    console.log('subtotal: ', subtotal);
+    console.log('promoCodeDiscount: ', promoCodeDiscount);
     deliveryOption.addEventListener('change', updateTotalCost);
   });
 </script>

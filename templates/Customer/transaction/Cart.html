@@ -15,6 +15,7 @@
         <th>Price</th>
         <th>Quantity</th>
         <th>Size</th>
+        <th>Color</th>
         <th>Total</th>
         <th>Actions</th>
       </tr>
@@ -37,17 +38,27 @@
 </form>
         </td>
         <td>
+          <form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
           <select name="size" onchange="this.form.submit()">
             {% for size_option in size_options %}
               <option value="{{ size_option }}" {% if item.size == size_option %}selected{% endif %}>{{ size_option }}</option>
             {% endfor %}
           </select>
-        </td>      
+        </td>
+        <td>
+          <select name="color" onchange="this.form.submit()">
+          {% for color_option in color_options %}
+            <option value="{{ color_option }}" {% if item.color == color_option %}selected{% endif %}>{{ color_option }}</option>
+          {% endfor %}
+          </select>
+          </form>
+        </td>
         <td>${{ "%0.2f"|format(item.price * item.quantity) }}</td>
         <td>
           <form action="{{ url_for('delete_cart_item', cart_item_id=item.product_id) }}" method="POST">
             <button type="submit" class="btn bgd-dark">Delete</button>
           </form>
+        </td>
       </tr>
       {% endfor %}
     </tbody>

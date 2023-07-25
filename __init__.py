@@ -140,6 +140,8 @@ def product_info(product_id):
     review_list = []
     pdb_path = 'Objects/transaction/product.db'
     db_path = 'Objects/transaction/review.db'
+    size_options = ['Small', 'Medium', 'Large']
+    color_options = ['White', 'Black', 'Blue', 'Red', 'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Grey']
     
     try:
         pdb = shelve.open(pdb_path, 'r')
@@ -167,7 +169,7 @@ def product_info(product_id):
     # Round the average rating up to the nearest whole number
     rounded_rating = round(average_rating)
     
-    return render_template('/Customer/transaction/ProductInfo.html', productobj=productobj, review_list=review_list, count=len(review_list), rounded_rating=rounded_rating)
+    return render_template('/Customer/transaction/ProductInfo.html', productobj=productobj, review_list=review_list, count=len(review_list), rounded_rating=rounded_rating, size_options=size_options, color_options=color_options)
 
 @app.route('/review/<product_id>', methods=['POST'])
 def add_review(product_id):
@@ -209,6 +211,7 @@ def add_to_cart():
     product_id = request.form['product_id']
     quantity = int(request.form['quantity'])
     size = request.form['size']
+    color = request.form['color']
 
     # Fetch the product details from the database
     db_path = 'Objects/transaction/product.db'
@@ -220,7 +223,7 @@ def add_to_cart():
         return redirect(url_for('products'))
 
     # Create an item object with the product details and the selected quantity
-    item = CartItem(product_id=product.product_id, name=product.name, price=product.list_price, quantity=quantity, size=size)
+    item = CartItem(product_id=product.product_id, name=product.name, price=product.list_price, quantity=quantity, size=size, color=color)
 
     # Add the item to the cart
     cartobj.add_to_cart(item)
@@ -231,6 +234,7 @@ def add_to_cart():
 def update_cart_item(cart_item_id):
     action = request.form.get('action')
     new_size = request.form.get('size')  # Get the selected size from the form
+    new_color = request.form.get('color')
 
     cart_items = cartobj.get_cart_items()
 
@@ -242,6 +246,7 @@ def update_cart_item(cart_item_id):
             elif action == 'decrement' and cart_item.quantity > 1:
                 cart_item.quantity -= 1
             cart_item.size = new_size  # Update the size for the cart item
+            cart_item.color = new_color
 
 
     return redirect(url_for('cart'))
@@ -264,12 +269,13 @@ def cart():
     cart_items = cartobj.get_cart_items()
     num_items_in_cart = sum(item.quantity for item in cart_items)
     size_options = ['Small', 'Medium', 'Large']
+    color_options = ['White', 'Black', 'Blue', 'Red', 'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Grey']
 
 
     # Combine rows with the same item name, price, quantity, and size
     combined_items = {}
     for item in cart_items:
-        key = (item.name, item.price, item.size)
+        key = (item.name, item.price, item.size, item.color)
         existing_item = combined_items.get(key)
         if existing_item:
             existing_item.quantity += item.quantity
@@ -280,6 +286,7 @@ def cart():
                 price=item.price,
                 quantity=item.quantity,
                 size=item.size,
+                color=item.color
             )
 
     # Convert the dictionary of combined items back to a list
@@ -287,7 +294,7 @@ def cart():
 
     cart_total = cartobj.get_cart_total()
 
-    return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart, size_options=size_options)
+    return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart, size_options=size_options, color_options=color_options)
 
 @app.route('/update_shipping_cost', methods=['POST'])
 def update_shipping_cost():
@@ -303,34 +310,15 @@ def update_shipping_cost():
 
 @app.route('/payment', methods=['GET'])
 def display_payment():
-    # Retrieve cart items and promo code discount (if applicable) from the cart object
-    code_db_path = 'Objects/transaction/promo.db'
+    # Retrieve cart items from the cart object
     cart_items = cartobj.get_cart_items()
     # promo_code = request.args.get('promo_code')  # Assuming the promo code is passed as a query parameter
     promo_code_discount = 0
 
-    # Calculate the subtotal
+    # Get the subtotal
     subtotal = cartobj.get_cart_total()
 
-    # # Check if the promo code is valid
-    # promo_valid = False
-    # promo_discount = 0
-    # if promo_code:
-    #     with shelve.open(code_db_path) as code_db:
-    #         if promo_code in code_db:
-    #             promo = code_db[promo_code]
-    #             end_date = datetime.strptime(promo['end_date'], '%Y-%m-%d')
-    #             today = datetime.now().date()
-    #             if end_date >= today:
-    #                 promo_valid = True
-    #                 promo_discount = promo['discount']
-
-    # # Calculate the promo code discount (if applicable)
-    # promo_code_discount = 0
-    # if promo_valid:
-    #     promo_code_discount = subtotal * (promo_discount / 100)
-
-    # Calculate the total cost
+    # Calculate the total cost to display first
     shipping_costs = 5
     total_cost = subtotal - promo_code_discount + shipping_costs
 

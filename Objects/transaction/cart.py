@@ -18,9 +18,10 @@ class Cart:
         return total
 
 class CartItem:
-    def __init__(self, product_id, name, price, quantity, size):
+    def __init__(self, product_id, name, price, quantity, size, color):
         self.product_id = product_id
         self.name = name
         self.price = price
         self.quantity = quantity
         self.size = size
+        self.color = color
