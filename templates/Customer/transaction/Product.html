@@ -17,24 +17,24 @@
         <h1>Filters</h1>
         <h3>All Categories</h3>
         <ul>
-            <li><a href="{{ url_for('products') }}">All</a></li>
-            <li><a href="{{ url_for('products', category='Men\'s Casual') }}">Men's Casual</a></li>
-            <li><a href="{{ url_for('products', category='Women\'s Casual') }}">Women's Casual</a></li>
-            <li><a href="{{ url_for('products', category='Women\'s Sportswear') }}">Women's Sportswear</a></li>
+            <li><a class="txt-light" href="{{ url_for('products') }}">All</a></li>
+            <li><a class="txt-light" href="{{ url_for('products', category='Men\'s Casual') }}">Men's Casual</a></li>
+            <li><a class="txt-light" href="{{ url_for('products', category='Women\'s Casual') }}">Women's Casual</a></li>
+            <li><a class="txt-light" href="{{ url_for('products', category='Women\'s Sportswear') }}">Women's Sportswear</a></li>
         </ul>
         <h3>Ratings</h3>
         <ul>
-            <li><a href="{{ url_for('products') }}">All Ratings</a></li>
-            <li class="text-warning"><a href="{{ url_for('products', rating='5') }}">5 stars & up</a></li>
-            <li class="text-warning"><a href="{{ url_for('products', rating='4') }}">4 stars & up</a></li>
-            <li class="text-warning"><a href="{{ url_for('products', rating='3') }}">3 stars & up</a></li>
-            <li class="text-warning"><a href="{{ url_for('products', rating='2') }}">2 stars & up</a></li>
-            <li class="text-warning"><a href="{{ url_for('products', rating='1') }}">1 star & up</a></li>
+            <li><a class="txt-light" href="{{ url_for('products') }}">All Ratings</a></li>
+            <li class="text-warning"><a class="d-flex text-warning" href="{{ url_for('products', rating='5') }}"><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p></a></li>
+            <li class="text-warning"><a class="d-flex text-warning" href="{{ url_for('products', rating='4') }}"><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p> & up</a></li>
+            <li class="text-warning"><a class="d-flex text-warning" href="{{ url_for('products', rating='3') }}"><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p> & up</a></li>
+            <li class="text-warning"><a class="d-flex text-warning" href="{{ url_for('products', rating='2') }}"><p class="mr-1 mb-0">&#9733;</p><p class="mr-1 mb-0">&#9733;</p> & up</a></li>
+            <li class="text-warning"><a class="d-flex text-warning" href="{{ url_for('products', rating='1') }}"><p class="mr-1 mb-0">&#9733;</p> & up</a></li>
         </ul>
     </div>
     <div class="d-flex flex-column flex-fill ml-5">
         <div class="search mb-3">
-            <input class="form-control bgd-light" placeholder="Search" type="text">
+            <input class="form-control bgd-light" id="search" placeholder="Search" type="text">
         </div>
         {% if product_list|length == 0 %}
         <h1 class="text-center">No products found</h1>
@@ -46,7 +46,7 @@
                     <img src="{{ product.image }}" width="300px" height="500px">
                 </div>
                 <div class="product-info d-flex flex-column bgd-dark txt-dark p-3" style="width:300px">
-                    <a class="product-title h5 txt-dark" href="{{ url_for('product_info', product_id=product.product_id) }}">{{ product.name }}</a>
+                    <a class="product-title h5 txt-dark" id="title" href="{{ url_for('product_info', product_id=product.product_id) }}">{{ product.name }}</a>
                     <div class="rating d-flex flex-row justify-content-around">
                         <div class="d-flex flex-row">
                         {% for _ in range(product.average_rating) %}
@@ -70,4 +70,29 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+// Function to handle search logic
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.getElementById('search');
+  const productItems = document.querySelectorAll('.product');
+
+  // Function to handle search logic
+  function handleSearch() {
+    const searchTerm = searchInput.value.trim().toLowerCase();
+    productItems.forEach(item => {
+      const title = item.querySelector('#title').innerText.toLowerCase();
+      if (title.includes(searchTerm)) {
+        item.style.display = 'block'; // Show the product item
+      } else {
+        item.style.display = 'none'; // Hide the product item
+      }
+    });
+  }
+
+  // Add event listener to the search input
+  searchInput.addEventListener('input', handleSearch);
+});
+</script>
 {% endblock %}

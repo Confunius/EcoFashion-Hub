@@ -194,8 +194,10 @@ def add_review(product_id):
     customer_name = request.form['customer_name']
     rating = int(request.form['rating'])
     review_comment = request.form['review_comment']
-
-    db = shelve.open(db_path, 'w')  # Open the review.db in read-write mode
+    try: 
+        db = shelve.open(db_path, 'w')  # Open the review.db in read-write mode
+    except:
+        db = shelve.open(db_path, 'c')
 
     # Generate a new review_id by finding the highest review_id and incrementing it by 1
     max_review_id = 0
@@ -209,6 +211,7 @@ def add_review(product_id):
     # Create a new Review object
     review = Review(new_review_id, product_id, "I need a User ID Ching Yi ",
                     customer_name, rating, review_comment)
+
 
     # Save the review to the review_db
     db[new_review_id] = review
@@ -426,10 +429,9 @@ def process_payment():
         db[order_id] = order
         db.close()
 
+    # Remove all items from the cart
+    cartobj.cart_items = []
 
-
-
-    print("Final order_id:", order_id)  # Print the final order_id for debugging
 
     return redirect(url_for('thankyou', order_id=order_id))
 
@@ -757,7 +759,7 @@ def product():
     return render_template('/Admin/transaction/product.html', product_list=product_list, count=len(product_list))
 
 
-@app.route('/admin/delete_review/<int:review_id>', methods=['POST'])
+@app.route('/admin/delete_review/<review_id>', methods=['POST'])
 def delete_review(review_id):
     db_path = 'Objects/transaction/review.db'
     db = shelve.open(db_path, 'w')
@@ -846,32 +848,7 @@ def promocode():
     db_path = 'Objects/transaction/promo.db'
 
     if not os.path.exists(db_path):
-        placeholder_data = [
-            {
-                "code": "CODE1",
-                "discount": 10.0,
-                "end_date": "2023-12-31",
-            },
-            {
-                "code": "CODE2",
-                "discount": 20.0,
-                "end_date": "2023-11-30",
-            },
-            {
-                "code": "CODE3",
-                "discount": 15.0,
-                "end_date": "2023-10-31",
-            },
-        ]
-
         db = shelve.open(db_path, 'c')
-        for data in placeholder_data:
-            promo = Code(
-                data["code"],
-                data["discount"],
-                data["end_date"],
-            )
-            db[promo.code] = promo
         db.close()
 
     db = shelve.open(db_path, 'r')
