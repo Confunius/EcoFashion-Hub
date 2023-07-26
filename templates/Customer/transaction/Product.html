@@ -18,9 +18,9 @@
         <h3>All Categories</h3>
         <ul>
             <li><a class="txt-light" href="{{ url_for('products') }}">All</a></li>
-            <li><a class="txt-light" href="{{ url_for('products', category='Men\'s Casual') }}">Men's Casual</a></li>
-            <li><a class="txt-light" href="{{ url_for('products', category='Women\'s Casual') }}">Women's Casual</a></li>
-            <li><a class="txt-light" href="{{ url_for('products', category='Women\'s Sportswear') }}">Women's Sportswear</a></li>
+            {% for category in categories %}
+            <li><a class="txt-light" href="{{ url_for('products', category=category) }}">{{ category }}</a></li>
+            {% endfor %}
         </ul>
         <h3>Ratings</h3>
         <ul>
@@ -70,29 +70,28 @@
         {% endif %}
     </div>
 </div>
-{% endblock %}
-{% block scripts %}
 <script>
-// Function to handle search logic
-document.addEventListener('DOMContentLoaded', () => {
-  const searchInput = document.getElementById('search');
-  const productItems = document.querySelectorAll('.product');
-
-  // Function to handle search logic
-  function handleSearch() {
-    const searchTerm = searchInput.value.trim().toLowerCase();
-    productItems.forEach(item => {
-      const title = item.querySelector('#title').innerText.toLowerCase();
-      if (title.includes(searchTerm)) {
-        item.style.display = 'block'; // Show the product item
-      } else {
-        item.style.display = 'none'; // Hide the product item
+    // Function to handle search logic
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchInput = document.getElementById('search');
+      const productItems = document.querySelectorAll('.product');
+    
+      // Function to handle search logic
+      function handleSearch() {
+        const searchTerm = searchInput.value.trim().toLowerCase();
+        productItems.forEach(item => {
+          const title = item.querySelector('#title').innerText.toLowerCase();
+          if (title.includes(searchTerm)) {
+            item.style.display = 'block'; // Show the product item
+          } else {
+            item.style.display = 'none'; // Hide the product item
+          }
+        });
       }
+    
+      // Add event listener to the search input
+      searchInput.addEventListener('input', handleSearch);
     });
-  }
-
-  // Add event listener to the search input
-  searchInput.addEventListener('input', handleSearch);
-});
-</script>
+    </script>
 {% endblock %}
+

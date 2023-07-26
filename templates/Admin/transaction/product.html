@@ -13,7 +13,7 @@
     {% endif %}
 </div>
 <div class="mb-3">
-    <a href="#" class="btn btn-success" data-toggle="modal" data-target="#addProductModal">Add Product</a>
+    <a class="btn btn-success" data-toggle="modal" data-target="#addProductModal">Add Product</a>
 </div>
 <div class="table-responsive">
     <table class="table table-striped">
@@ -27,6 +27,7 @@
                 <th>Stock</th>
                 <th>Description</th>
                 <th>Category</th>
+                <th>Image</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -41,6 +42,7 @@
                 <td>{{ product.stock }}</td>
                 <td><p class="text-truncate" style="width:200px">{{ product.description }}</p></td>
                 <td>{{ product.category }}</td>
+                <td><img src="{{ product.image }}" alt="{{ product.name }}" style="width:100px"></td>
                 <td>
                     <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateModal{{ product.product_id }}">Update</button>
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ product.product_id }}">Delete</button>
@@ -62,39 +64,40 @@
                                 <!-- Add your update product form fields here -->
                                 <div class="form-group">
                                     <label for="name">Name:</label>
-                                    <input type="text" class="form-control" id="name" name="name" value="{{ product.name }}">
+                                    <input type="text" class="form-control" id="name-{{ product.product_id }}" name="name" value="{{ product.name }}" required>
                                 </div>
                                 <!-- Add more fields as needed -->
                                 <div class="form-group">
                                     <label for="color">Color:</label>
-                                    <input type="text" class="form-control" id="color" name="color" value="{{ product.color }}">
+                                    <input type="text" class="form-control" id="color-{{ product.product_id }}" name="color" value="{{ product.color }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="cost_price">Cost Price:</label>
-                                    <input type="number" class="form-control" id="cost_price" name="cost_price" value="{{ product.cost_price }}">
+                                    <input type="number" class="form-control" id="cost_price-{{ product.product_id }}" name="cost_price" step="0.01" value="{{ product.cost_price }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="list_price">List Price:</label>
-                                    <input type="number" class="form-control" id="list_price" name="list_price" value="{{ product.list_price }}">
+                                    <input type="number" class="form-control" id="list_price-{{ product.product_id }}" name="list_price" step="0.01" value="{{ product.list_price }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="stock">Stock:</label>
-                                    <input type="number" class="form-control" id="stock" name="stock" value="{{ product.stock }}">
+                                    <input type="number" class="form-control" id="stock-{{ product.product_id }}" name="stock" value="{{ product.stock }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="description">Description:</label>
-                                    <textarea class="form-control" id="description" name="description">{{ product.description }}</textarea>
+                                    <textarea class="form-control" id="description-{{ product.product_id }}" name="description" rows="4" required>{{ product.description }}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label for="image">Image URL:</label>
-                                    <input type="text" class="form-control" id="image" name="image" value="{{ product.image }}">
+                                    <input type="text" class="form-control" id="image-{{ product.product_id }}" name="image" value="{{ product.image }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label for="category">Category:</label>
-                                    <input type="text" class="form-control" id="category" name="category" value="{{ product.category }}">
+                                    <input type="text" class="form-control" id="category-{{ product.product_id }}" name="category" value="{{ product.category }}" required>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="submit" class="btn bgd-dark">Save Changes</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                    <button type="submit" class="btn btn-primary updateProductBtn" data-modal-id="{{ product.product_id }}">Save Changes</button>
                                 </div>
                             </form>
                         </div>
@@ -131,7 +134,7 @@
     </table>
 </div>
 <!-- Add Product Modal -->
-<div class="modal fade" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel" aria-hidden="true">
+<div class="modal" id="addProductModal" tabindex="-1" role="dialog" aria-labelledby="addProductModalLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content bgd-light txt-dark">
             <div class="modal-header">
@@ -153,11 +156,21 @@
                     </div>
                     <div class="form-group">
                         <label for="cost_price">Cost Price:</label>
-                        <input type="number" class="form-control" id="cost_price" name="cost_price" step="0.01" required>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" class="form-control" id="cost_price" name="cost_price" step="0.01" required>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="list_price">List Price:</label>
-                        <input type="number" class="form-control" id="list_price" name="list_price" step="0.01" required>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" class="form-control" id="list_price" name="list_price" step="0.01" required>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="stock">Stock:</label>
@@ -178,7 +191,7 @@
 
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Product</button>
+                        <button type="submit" id="addProductBtn" class="btn btn-primary">Add Product</button>
                     </div>
                 </form>
             </div>
@@ -186,4 +199,85 @@
     </div>
 </div>
 </div>
+<script>
+    // Validate form fields using JavaScript
+    const updateProductBtns = document.querySelectorAll('.updateProductBtn');
+    updateProductBtns.forEach((btn) => {
+        btn.addEventListener('click', (event) => {
+            const modalId = btn.dataset.modalId;
+            const nameInput = document.getElementById(`name-${modalId}`);
+            const colorInput = document.getElementById(`color-${modalId}`);
+            const imageInput = document.getElementById(`image-${modalId}`);
+
+            // Check if the product name is too long (more than 100 characters)
+            if (nameInput.value.length > 100) {
+                alert('Product name cannot exceed 100 characters.');
+                event.preventDefault();
+                return;
+            }
+
+            // Check if the image URL is valid
+            if (!isValidURL(imageInput.value)) {
+                alert('Please enter a valid image URL.');
+                event.preventDefault();
+                return;
+            }
+
+            // Continue with form submission if all validations pass
+        });
+    });
+    const addProductBtn = document.getElementById('addProductBtn');
+    addProductBtn.addEventListener('click', (event) => {
+        const nameInput = document.getElementById('name');
+        const colorInput = document.getElementById('color');
+        const imageInput = document.getElementById('image');
+
+        // Check if the product name is too long (more than 100 characters)
+        if (nameInput.value.length > 100) {
+            alert('Product name cannot exceed 100 characters.');
+            event.preventDefault();
+            return;
+        }
+
+        // Check if the image URL is valid
+        if (!isValidURL(imageInput.value)) {
+            alert('Please enter a valid image URL.');
+            event.preventDefault();
+            return;
+        }
+
+        // Continue with form submission if all validations pass
+    });
+
+    // Function to check if a URL is valid
+    function isValidURL(url) {
+        // Regular expression to match common image file extensions
+        const imageExtensionsRegex = /\.(jpg|jpeg|png|gif|bmp|svg)$/i;
+        
+        // Regular expression to match common image hosting domains
+        const imageDomainsRegex = /^(https?:\/\/)?(www\.)?(imgur\.com|unsplash\.com|pixabay\.com|giphy\.com|tenor\.com)\/.*$/i;
+        
+        // Check if the URL has a valid format for an image
+        if (!imageExtensionsRegex.test(url) && !imageDomainsRegex.test(url)) {
+            return false;
+        }
+
+        // Check if the URL has a valid format for a direct image link
+        const directLinkRegex = /\.(jpg|jpeg|png|gif|bmp|svg)(\?.*)?$/i;
+        if (directLinkRegex.test(url)) {
+            return true;
+        }
+
+        // If the URL is a link to a common image hosting domain, we will need to fetch the image to validate it
+        return fetch(url, { method: 'HEAD' })
+            .then(response => {
+            // Check if the response has a successful status code and Content-Type header indicates an image
+            return response.ok && response.headers.get('Content-Type')?.startsWith('image/');
+            })
+            .catch(error => {
+            console.error('Error fetching the image:', error);
+            return false;
+            });
+    }
+</script>
 {% endblock %}

@@ -1,0 +1,101 @@
+Test Case: Valid Inputs
+Input:
+Name: "t-shirt"
+Color: "blue"
+Cost Price: "25.50"
+List Price: "35.99"
+Stock: "100"
+Description: "this is a product description. it is for testing purposes."
+Image URL: "https://example.com/image.jpg"
+Category: "clothing"
+
+Expected Output:
+Name: "T-Shirt"
+Color: "Blue"
+Cost Price: "$25.50"
+List Price: "$35.99"
+Stock: 100
+Description: "This is a product description. It is for testing purposes."
+Image URL: "https://example.com/image.jpg"
+Category: "Clothing"
+
+
+Test Case: Long Name
+Input:
+Name: "this is a very long product name that exceeds the maximum length"
+(Other fields with valid inputs)
+
+Expected Output:
+Name: "This is a very long product..."
+Test Case: All Fields Empty
+
+Input: All fields empty
+Expected Output: All fields remain empty
+
+Test Case: Negative Stock Value
+Input:
+Stock: "-5"
+(Other fields with valid inputs)
+
+Expected Output:
+Stock: 0
+
+Test Case: Invalid Image URL
+Input:
+Image URL: "example.com/image.jpg"
+(Other fields with valid inputs)
+
+Expected Output: Image URL remains "example.com/image.jpg" (not a valid URL)
+
+Test Case: Description with Multiple Sentences
+Input:
+Description: "this is a product description. this is another sentence."
+(Other fields with valid inputs)
+
+Expected Output:
+Description: "This is a product description. This is another sentence."
+
+Test Case: Cost Price with Leading and Trailing Spaces
+Input:
+Cost Price: " 15.99 "
+(Other fields with valid inputs)
+
+Expected Output:
+Cost Price: "$15.99"
+
+Test Case: List Price with Incorrect Decimal Format
+Input:
+List Price: "35,99"
+(Other fields with valid inputs)
+
+Expected Output:
+List Price: "$35.00" (Parsed as 35)
+
+Test Case: Category with Multiple Words
+Input:
+Category: "electronics and gadgets"
+(Other fields with valid inputs)
+
+Expected Output:
+Category: "Electronics And Gadgets"
+
+Test Case: Mixed Inputs (Combination of Valid and Invalid Inputs)
+Input:
+Name: " t-shirt "
+Color: "Red"
+Cost Price: " 20.50"
+List Price: " 24.99 "
+Stock: "50"
+Description: "this is a product description. "
+Image URL: "https://example.com"
+Category: " electronics and gadgets "
+
+Expected Output:
+Name: "T-Shirt"
+Color: "Red"
+Cost Price: "$20.50"
+List Price: "$24.99"
+Stock: 50
+Description: "This is a product description."
+Image URL: "https://example.com"
+Category: "Electronics And Gadgets"

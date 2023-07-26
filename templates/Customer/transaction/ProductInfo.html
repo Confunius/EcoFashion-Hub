@@ -114,27 +114,24 @@
     <p class="text-center">No reviews yet. Be the first one to review this product!</p>
     {% endif %}
 </div>
-{% endblock %}
-
-{% block scripts %}
 <script>
-    function addtocart() {
-        var size = document.getElementById("size").value;
-        var quantity = document.getElementById("quantity").value;
-        var color = document.getElementById("color").value;
-    
-        if (size === "" || quantity === "") {
-            alert("Please select a valid Size and Quantity.");
-            return false;
-        }
+function addtocart() {
+    var size = document.getElementById("size").value;
+    var quantity = document.getElementById("quantity").value;
+    var color = document.getElementById("color").value;
 
-        // Set the selected Size and Quantity values to hidden input fields
-        document.getElementById("size_input").value = size;
-        document.getElementById("quantity_input").value = quantity;
-        document.getElementById("color_input").value = color;
-
-        // Submit the form
-        return true;
+    if (size === "" || quantity === "") {
+        alert("Please select a valid Size and Quantity.");
+        return false;
     }
-    </script>
+
+    // Set the selected Size and Quantity values to hidden input fields
+    document.getElementById("size_input").value = size;
+    document.getElementById("quantity_input").value = quantity;
+    document.getElementById("color_input").value = color;
+
+    // Submit the form
+    return true;
+}
+</script>
 {% endblock %}

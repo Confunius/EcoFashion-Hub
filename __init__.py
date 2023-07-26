@@ -136,7 +136,11 @@ def products():
         review_db.close()
     except:
         product_list = []
-    return render_template('/Customer/transaction/Product.html', product_list=product_list, count=len(product_list))
+
+    # Create a list of unique categories from the product_list
+    categories = list(set(product.category for product in product_list))
+
+    return render_template('/Customer/transaction/Product.html', product_list=product_list, count=len(product_list), categories=categories)
 
 
 def generate_csrf():
@@ -194,7 +198,7 @@ def add_review(product_id):
     customer_name = request.form['customer_name']
     rating = int(request.form['rating'])
     review_comment = request.form['review_comment']
-    try: 
+    try:
         db = shelve.open(db_path, 'w')  # Open the review.db in read-write mode
     except:
         db = shelve.open(db_path, 'c')
@@ -211,7 +215,6 @@ def add_review(product_id):
     # Create a new Review object
     review = Review(new_review_id, product_id, "I need a User ID Ching Yi ",
                     customer_name, rating, review_comment)
-
 
     # Save the review to the review_db
     db[new_review_id] = review
@@ -385,6 +388,7 @@ def validate_promo_code():
         else:
             return jsonify({'valid': False, 'error': 'Invalid promo code.'}), 400
 
+
 @app.route('/processpayment', methods=['POST'])
 def process_payment():
     # Retrieve form data
@@ -425,16 +429,14 @@ def process_payment():
 
         # Save each order in the database
         order = Order(order_id, user_id, ele_product_id, ele_size, ele_color, ele_quantity,
-                    order_date, delivery, promo_code)
+                      order_date, delivery, promo_code)
         db[order_id] = order
         db.close()
 
     # Remove all items from the cart
     cartobj.cart_items = []
 
-
     return redirect(url_for('thankyou', order_id=order_id))
-
 
 
 @app.route('/thankyou/<order_id>')
@@ -610,15 +612,15 @@ def order():
 
 @app.route('/admin/add_product', methods=['POST'])
 def add_product():
-    # Retrieve the form data
-    name = request.form['name']
-    color = request.form['color']
+    name = request.form['name'].strip().title()
+    color = request.form['color'].strip().title()
     cost_price = float(request.form['cost_price'])
     list_price = float(request.form['list_price'])
-    stock = int(request.form['stock'])
-    description = request.form['description']
-    image = request.form['image']
-    category = request.form['category']
+    stock = max(int(request.form['stock']), 0)
+    description = request.form['description'].strip()
+    image = request.form['image'].strip()
+    category = request.form['category'].strip()
+
 
     # Update the product_dict with the new product
     db = shelve.open('Objects/transaction/product.db', 'w')
@@ -637,20 +639,20 @@ def add_product():
     db.close()
 
     # Redirect back to the product page
-    return redirect(url_for('product'))
+    return redirect(url_for('product_admin'))
 
 
 @app.route('/update_product/<product_id>', methods=['POST'])
 def update_product(product_id):
     # Retrieve the form data
-    name = request.form['name']
-    color = request.form['color']
+    name = request.form['name'].strip().title()
+    color = request.form['color'].strip().title()
     cost_price = float(request.form['cost_price'])
     list_price = float(request.form['list_price'])
-    stock = int(request.form['stock'])
-    description = request.form['description']
-    image = request.form['image']
-    category = request.form['category']
+    stock = max(int(request.form['stock']), 0)
+    description = request.form['description'].strip()
+    image = request.form['image'].strip()
+    category = request.form['category'].strip()
 
     # Update the product in the database
     db = shelve.open('Objects/transaction/product.db', 'w')
@@ -669,7 +671,7 @@ def update_product(product_id):
     db.close()
 
     # Redirect back to the product page
-    return redirect(url_for('product'))
+    return redirect(url_for('product_admin'))
 
 
 @app.route('/delete_product/<product_id>', methods=['POST'])
@@ -684,11 +686,11 @@ def delete_product(product_id):
         db.close()
 
     # Redirect back to the product page
-    return redirect(url_for('product'))
+    return redirect(url_for('product_admin'))
 
 
 @app.route('/admin/product')
-def product():
+def product_admin():
     product_list = []
     product_dict = {}
     db_path = 'Objects/transaction/product.db'
@@ -736,8 +738,8 @@ def product():
                 data["product_id"],
                 data["name"],
                 data["color"],
-                data["cost_price"],
-                data["list_price"],
+                float(data["cost_price"]),
+                float(data["list_price"]),
                 data["stock"],
                 data["description"],
                 data["image"],
@@ -894,4 +896,4 @@ def delete_code(code):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
