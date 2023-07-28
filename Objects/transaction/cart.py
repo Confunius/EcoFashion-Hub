@@ -25,3 +25,13 @@ class CartItem:
         self.quantity = quantity
         self.size = size
         self.color = color
+
+    def to_dict(self):
+        return {
+            'product_id': self.product_id,
+            'name': self.name,
+            'price': self.price,
+            'quantity': self.quantity,
+            'size': self.size,
+            'color': self.color
+        }

@@ -404,101 +404,109 @@ def process_payment():
     quantity = request.form.getlist('quantity')
     product_id = request.form.getlist('product_id')
 
+    max_id = 0
+    try:
+        db = shelve.open('Objects/transaction/order.db', 'w')
+        # Find the maximum existing ID in the database
+        for key in db:
+            order_id = int(key[1:])
+            if order_id > max_id:
+                max_id = order_id
+        # Assign a new ID based on the maximum ID + 1
+        order_id = "O" + str(max_id + 1)
+        db.close()
+    except:
+        db = shelve.open('Objects/transaction/order.db', 'c')
+        order_id = "O1"
+
     for i, product_id in enumerate(product_id):
         ele_product_id = product_id
         ele_size = size[i]
         ele_quantity = int(quantity[i])
         ele_color = color[i]
-        max_id = 0
         promo_code = request.form['promo_code']
         user_id = 0
         order_date = datetime.now().strftime('%Y-%m-%d')
-        try:
-            db = shelve.open('Objects/transaction/order.db', 'w')
-            # Find the maximum existing ID in the database
-
-            for key in db:
-                order_id = int(key[1:])
-                if order_id > max_id:
-                    max_id = order_id
-            # Assign a new ID based on the maximum ID + 1
-            order_id = "O" + str(max_id + 1)
-        except:
-            db = shelve.open('Objects/transaction/order.db', 'c')
-            order_id = "O1"
 
         # Save each order in the database
+        db = shelve.open('Objects/transaction/order.db', 'w')
         order = Order(order_id, user_id, ele_product_id, ele_size, ele_color, ele_quantity,
-                      order_date, delivery, promo_code)
+                    order_date, delivery, promo_code)
         db[order_id] = order
         db.close()
 
+    # Store payment info in a dictionary
+    payment_info = {
+        'delivery': delivery,
+        'order_id': order_id,
+        'subtotal': request.form['subtotal'],
+        'promo_code_discount': request.form['promo_code_discount'],
+        'shipping_costs': request.form['shipping_costs'],
+        'total_cost': request.form['total_cost'],
+    }
+    session['payment_info'] = payment_info
+    session['cart_item'] = [item.to_dict() for item in cartobj.cart_items]
+
     # Remove all items from the cart
     cartobj.cart_items = []
+    print("order: ", order_id)
 
-    return redirect(url_for('thankyou', order_id=order_id))
+    return redirect(url_for('thankyou', payment_info=payment_info))
 
 
-@app.route('/thankyou/<order_id>')
-def thankyou(order_id):
+@app.route('/thankyou')
+def thankyou():
     # Retrieve cart items and promo code discount (if applicable) from the cart object
-    code_db_path = 'Objects/transaction/promo.db'
-    order_db_path = 'Objects/transaction/order.db'
     product_db_path = 'Objects/transaction/product.db'
-    cart_items = cartobj.get_cart_items()
-    # Assuming the promo code is passed as a query parameter
-    promo_code = request.args.get('promo_code')
+    payment_info = session['payment_info']
+    session.pop('payment_info', None)
 
-    # Calculate the subtotal
-    subtotal = cartobj.get_cart_total()
+    delivery_option = payment_info['delivery']
+    order_id = payment_info['order_id']
+    subtotal = payment_info['subtotal']
+    promo_code_discount = payment_info['promo_code_discount']
+    shipping_costs = payment_info['shipping_costs']
+    total_cost = payment_info['total_cost']
+    cart_items = session['cart_item']
 
-    # Get the delivery option
-    db = shelve.open(order_db_path, 'r')
-    order = db.get(order_id)
-    delivery_option = order.delivery
+    # Create product_dict
+    product_dict = {}
+    with shelve.open(product_db_path) as product_db:
+        for key in product_db:
+            product = product_db[key]
+            product_dict[key] = product
 
-    # Get the product dictionary
-    db = shelve.open(product_db_path, 'r')
-    product_dict = dict(db)
-    db.close()
-
-    # Check if the promo code is valid
-    promo_valid = False
-    promo_discount = 0
-    if promo_code:
-        with shelve.open(code_db_path) as code_db:
-            if promo_code in code_db:
-                promo = code_db[promo_code]
-                end_date = datetime.strptime(promo['end_date'], '%Y-%m-%d')
-                today = datetime.now().date()
-                if end_date >= today:
-                    promo_valid = True
-                    promo_discount = promo['discount']
-
-    # Calculate the promo code discount (if applicable)
-    promo_code_discount = 0
-    if promo_valid:
-        promo_code_discount = subtotal * (promo_discount / 100)
-
-    # Calculate the total cost
-    shipping_costs = 5
-    total_cost = subtotal - promo_code_discount + shipping_costs
-
-    # Determine delivery option and relevant information
-    # db = shelve.open('user_db_path', 'r')
-    # shipping_address = db.get(order.user_id).address
-    # Replace this with the actual shipping address
     shipping_address = "123 Main Street, City, Country"
-    # Replace this with the actual pickup location
     pickup_location = "EcoFashion Store, Location"
+    print("order: ", order_id)
 
     return render_template('Customer/transaction/Thankyou.html', cart_items=cart_items, subtotal=subtotal,
                            promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
                            total_cost=total_cost, delivery_option=delivery_option,
-                           shipping_address=shipping_address, product_dict=product_dict, pickup_location=pickup_location)
+                           shipping_address=shipping_address, product_dict=product_dict,
+                           pickup_location=pickup_location, order_id=order_id)
 
+
+@app.route('/cancel_and_refund/<order_id>', methods=['GET'])
+def cancel_and_refund(order_id):
+    # Fetch the order_id from the session or some other mechanism
+    db_path = 'Objects/transaction/order.db'
+
+    if order_id:
+        # Open the shelve database
+        db = shelve.open(db_path, 'w')
+
+        # Delete the order from the database
+        del db[order_id]
+
+        # Close the shelve database
+        db.close()
+
+    return render_template('transaction/CancelAndRefund.html')
 
 # Customer Service
+
+
 @app.route('/FAQ')
 def FAQ():
     return render_template('/Customer/custservice/FAQ.html', faqs=faqs)
@@ -620,7 +628,6 @@ def add_product():
     description = request.form['description'].strip()
     image = request.form['image'].strip()
     category = request.form['category'].strip()
-
 
     # Update the product_dict with the new product
     db = shelve.open('Objects/transaction/product.db', 'w')

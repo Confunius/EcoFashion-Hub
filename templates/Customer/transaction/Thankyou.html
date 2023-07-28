@@ -117,8 +117,8 @@
             <p>{{ pickup_location }}</p>
         {% endif %}
         <div style="margin-top: 20px;">
-            <button class="btn btn-block bgd-light mb-3" action="{{ url_for('product')}}">Continue Shopping</button>
-            <button class="btn btn-block bgd-dark">Cancel & Refund</button>
+            <a class="btn btn-block bgd-light mb-3" href="{{ url_for('products') }}">Continue Shopping</a>
+            <a class="btn btn-block bgd-dark" href="{{ url_for('cancel_and_refund', order_id=order_id) }}">Cancel & Refund</a>
         </div>
     </div>
     <div>
@@ -128,7 +128,7 @@
                 <img src="{{ product_dict[item.product_id].image }}" alt="Item Image" style="width: 180px; height: 300px;">
                 <div>
                     <h4>{{ item.name }}</h4>
-                    <p>Price: ${{ item.price }} | Color: {{ item.color }} | Size: {{ item.size }}| Quantity: {{ item.quantity }}</p>
+                    <p>Price: ${{ item.price }} | Color: {{ item.color }} | Size: {{ item.size }} | Quantity: {{ item.quantity }}</p>
                 </div>
             </div>
         {% endfor %}

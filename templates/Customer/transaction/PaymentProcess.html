@@ -15,7 +15,7 @@
       <div class="mb-3">
         <a href="/cart" class="btn bgd-light">Back to cart</a>
       </div>
-      <form action="{{ url_for('process_payment')}}" method="post">
+      <form action="{{ url_for('process_payment')}}" id="order_form" method="post">
         <!-- <div class="form-group">
           <label for="email">Email:</label>
           <input type="email" class="form-control" id="email" name="email" required>
@@ -34,6 +34,9 @@
           </select>
           <!-- Hidden field to update the shipping costs -->
           <input type="hidden" name="shipping_costs" value="{{ shipping_costs }}">
+          <input type="hidden" name="subtotal" value="{{ subtotal }}">
+          <input type="hidden" name="total_cost" value="{{ total_cost }}">
+          <input type="hidden" name="promo_code_discount" value="{{ promo_code_discount }}">
         </div>
         <div id="address-form-group">
         <div class="form-group" id="address-form-group">
@@ -82,7 +85,7 @@
         {% endfor %}
 
         <!-- Place Order button -->
-        <button type="submit" class="btn btn-success btn-lg btn-block" >Place Order</button>
+        <button type="submit" class="btn btn-success btn-lg btn-block">Place Order</button>
       </form>
     </div>
 
@@ -203,6 +206,47 @@
       promoCodeDisplayElement.classList.remove('hide-promo-code');
     }
   }
+
+  const orderForm = document.getElementById('order_form'); // Replace with your actual form id
+
+  function handleOrderFormSubmit(event) {
+    const promoCode = promoCodeInput.value;
+
+    // If the promo code input is empty, change the promo code value to "N/A" and allow the form to be submitted
+    if (!promoCode) {
+        promoCodeInput.value = "N/A";
+        return;
+    }
+
+    // Prevent the form from being submitted immediately
+    event.preventDefault();
+
+    // Validate the promo code before placing the order
+    fetch('/validate_promo_code', {
+        method: 'POST',
+        body: new URLSearchParams({ promo_code: promoCode }),
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.valid) {
+            // If the promo code is valid, submit the form
+            orderForm.submit();
+        } else {
+            // If the promo code is not valid, alert the user
+            alert('Please enter a valid promo code before placing your order.');
+        }
+    })
+    .catch(error => {
+        // If an error occurs while validating the promo code, alert the user
+        alert('An error occurred while validating the promo code.');
+        console.error('Error:', error);
+    });
+  }
+
+orderForm.addEventListener('submit', handleOrderFormSubmit);
     // Update the total cost and handle delivery option change when the page loads
     updateTotalCost();
     updatePromoCodeDisplay();
