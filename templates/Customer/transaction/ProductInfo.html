@@ -25,7 +25,7 @@
             <div class="form-group">
                 <label for="size">Size:</label>
                 <select class="form-control" id="size" name="size" required> {# this is the drop down box for size#}
-                    {% for size_option in size_options%}
+                    {% for size_option in productobj.size_options %}
                         <option value="{{ size_option }}" {% if productobj.size == size_option %}selected{% endif %}>{{ size_option }}</option>
                     {% endfor %}
                 </select>
@@ -33,13 +33,13 @@
             <div class="form-group">
                 <label for="color">Color:</label>
                 <select class="form-control" id="color" name="color" required> {# this is the drop down box for color #}
-                    {% for color_option in color_options%}
+                    {% for color_option in productobj.color_options %}
                         <option value="{{ color_option }}" {% if productobj.color == color_option %}selected{% endif %}>{{ color_option }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="form-group">
-                <label for="quantity">Quantity:</label>  {# this is the input for quantity #}
+                <label for="quantity">Quantity:</label>
                 <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" required>
             </div>
             <p class="mb-3">Stock Left: {{ productobj.stock }}</p>
@@ -120,7 +120,7 @@ function addtocart() {
     var quantity = document.getElementById("quantity").value;
     var color = document.getElementById("color").value;
 
-    if (size === "" || quantity === "") {
+    if (size === "" || quantity === "" || quantity === "0") {
         alert("Please select a valid Size and Quantity.");
         return false;
     }

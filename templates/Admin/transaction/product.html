@@ -21,7 +21,8 @@
             <tr class="bgd-dark">
                 <th>Product ID</th>
                 <th>Name</th>
-                <th>Color</th>
+                <th>Colors</th>
+                <th>Sizes</th>
                 <th>Cost Price</th>
                 <th>List Price</th>
                 <th>Stock</th>
@@ -36,7 +37,8 @@
             <tr class="bgd-light">
                 <td>{{ product.product_id }}</td>
                 <td>{{ product.name }}</td>
-                <td>{{ product.color }}</td>
+                <td>{{ product.color_options|join_and }}</td>
+                <td>{{ product.size_options|join_and }}</td>
                 <td>{{ product.cost_price }}</td>
                 <td>{{ product.list_price }}</td>
                 <td>{{ product.stock }}</td>
@@ -68,8 +70,14 @@
                                 </div>
                                 <!-- Add more fields as needed -->
                                 <div class="form-group">
-                                    <label for="color">Color:</label>
-                                    <input type="text" class="form-control" id="color-{{ product.product_id }}" name="color" value="{{ product.color }}" required>
+                                    <label for="color_options">Color Options:</label>
+                                    <input type="text" class="form-control" id="color_options-{{ product.product_id }}" name="color_options" value="{{ product.color_options|join(', ') }}" required>
+                                    <small class="form-text text-muted">Enter color options separated by commas.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="size_options">Size Options:</label>
+                                    <input type="text" class="form-control" id="size_options-{{ product.product_id }}" name="size_options" value="{{ product.size_options|join(', ') }}" required>
+                                    <small class="form-text text-muted">Enter size options separated by commas.</small>
                                 </div>
                                 <div class="form-group">
                                     <label for="cost_price">Cost Price:</label>
@@ -151,8 +159,14 @@
                         <input type="text" class="form-control" id="name" name="name" required>
                     </div>
                     <div class="form-group">
-                        <label for="color">Color:</label>
-                        <input type="text" class="form-control" id="color" name="color" required>
+                        <label for="color_options">Color Options:</label>
+                        <input type="text" class="form-control" id="color_options" name="color_options" required>
+                        <small class="form-text text-muted">Enter color options separated by commas.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="size_options">Size Options:</label>
+                        <input type="text" class="form-control" id="size_options" name="size_options" required>
+                        <small class="form-text text-muted">Enter size options separated by commas.</small>
                     </div>
                     <div class="form-group">
                         <label for="cost_price">Cost Price:</label>

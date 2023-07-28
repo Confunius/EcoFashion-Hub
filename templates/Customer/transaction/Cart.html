@@ -40,14 +40,14 @@
         <td>
           <form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
           <select name="size" onchange="this.form.submit()">
-            {% for size_option in size_options %}
+            {% for size_option in item.size_options %}
               <option value="{{ size_option }}" {% if item.size == size_option %}selected{% endif %}>{{ size_option }}</option>
             {% endfor %}
           </select>
         </td>
         <td>
           <select name="color" onchange="this.form.submit()">
-          {% for color_option in color_options %}
+          {% for color_option in item.color_options %}
             <option value="{{ color_option }}" {% if item.color == color_option %}selected{% endif %}>{{ color_option }}</option>
           {% endfor %}
           </select>

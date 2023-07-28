@@ -157,9 +157,6 @@ def product_info(product_id):
     review_list = []
     pdb_path = 'Objects/transaction/product.db'
     db_path = 'Objects/transaction/review.db'
-    size_options = ['Small', 'Medium', 'Large']
-    color_options = ['White', 'Black', 'Blue', 'Red',
-                     'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Grey']
 
     try:
         pdb = shelve.open(pdb_path, 'r')
@@ -175,6 +172,7 @@ def product_info(product_id):
             review = db[key]
             if review.product_id == product_id:
                 review_list.append(review)
+        
         db.close()
     except:
         review_list = []
@@ -186,6 +184,12 @@ def product_info(product_id):
 
     # Round the average rating up to the nearest whole number
     rounded_rating = round(average_rating)
+
+    # Create a list of unique colors from the productobj object.
+    color_options = ', '.join(productobj.color_options)
+
+    # Create a list of unique sizes from the productobj object.
+    size_options = ', '.join(productobj.size_options)
 
     return render_template('/Customer/transaction/ProductInfo.html', productobj=productobj, review_list=review_list, count=len(review_list), rounded_rating=rounded_rating, size_options=size_options, color_options=color_options)
 
@@ -294,28 +298,27 @@ def delete_cart_item(cart_item_id):
 @app.route('/cart')
 def cart():
     cart_items = cartobj.get_cart_items()
+    db_path = 'Objects/transaction/product.db'
+    db = shelve.open(db_path, 'r')
     num_items_in_cart = sum(item.quantity for item in cart_items)
-    size_options = ['Small', 'Medium', 'Large']
-    color_options = ['White', 'Black', 'Blue', 'Red',
-                     'Green', 'Yellow', 'Orange', 'Purple', 'Pink', 'Grey']
 
     # Combine rows with the same item name, price, quantity, and size
     combined_items = {}
     for item in cart_items:
-        key = (item.name, item.price, item.size, item.color)
+        product = db.get(item.product_id)
+        size_options = product.size_options
+        color_options = product.color_options
+        key = (item.name, item.price, item.size, item.color, tuple(size_options), tuple(color_options))
         existing_item = combined_items.get(key)
         if existing_item:
             existing_item.quantity += item.quantity
         else:
-            combined_items[key] = CartItem(
-                product_id=item.product_id,
-                name=item.name,
-                price=item.price,
-                quantity=item.quantity,
-                size=item.size,
-                color=item.color
-            )
+            item.size_options = size_options
+            item.color_options = color_options
+            combined_items[key] = item
+
     # update the cart_obj with the combined items
+    print(list(combined_items.values()))
     cartobj.cart_items = list(combined_items.values())
 
     # Convert the dictionary of combined items back to a list
@@ -323,7 +326,7 @@ def cart():
 
     cart_total = cartobj.get_cart_total()
 
-    return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart, size_options=size_options, color_options=color_options)
+    return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart)
 
 
 @app.route('/update_shipping_cost', methods=['POST'])
@@ -621,7 +624,10 @@ def order():
 @app.route('/admin/add_product', methods=['POST'])
 def add_product():
     name = request.form['name'].strip().title()
-    color = request.form['color'].strip().title()
+    color_options = request.form.get('color_options').split(',')
+    color_options = [option.strip() for option in color_options]  # Remove leading/trailing spaces
+    size_options = request.form.get('size_options').split(',')
+    size_options = [option.strip() for option in size_options]
     cost_price = float(request.form['cost_price'])
     list_price = float(request.form['list_price'])
     stock = max(int(request.form['stock']), 0)
@@ -640,7 +646,7 @@ def add_product():
 
     # Assign a new ID based on the maximum ID + 1
     new_product_id = "P" + str(max_id + 1)
-    new_product = Product(new_product_id, name, color, cost_price,
+    new_product = Product(new_product_id, name, color_options, size_options, cost_price,
                           list_price, stock, description, image, category)
     db[new_product_id] = new_product
     db.close()
@@ -653,7 +659,10 @@ def add_product():
 def update_product(product_id):
     # Retrieve the form data
     name = request.form['name'].strip().title()
-    color = request.form['color'].strip().title()
+    color_options = request.form.get('color_options').split(',')
+    color_options = [option.strip() for option in color_options]
+    size_options = request.form.get('size_options').split(',')
+    size_options = [option.strip() for option in size_options]
     cost_price = float(request.form['cost_price'])
     list_price = float(request.form['list_price'])
     stock = max(int(request.form['stock']), 0)
@@ -667,7 +676,8 @@ def update_product(product_id):
     if product_id in db:
         productobj = db[product_id]
         productobj.name = name
-        productobj.color = color
+        productobj.color_options = color_options
+        productobj.size_options = size_options
         productobj.cost_price = cost_price
         productobj.list_price = list_price
         productobj.stock = stock
@@ -695,6 +705,16 @@ def delete_product(product_id):
     # Redirect back to the product page
     return redirect(url_for('product_admin'))
 
+def join_and_filter(list_):
+    """This function joins a list of strings with commas and spaces, but with 'and' before the last item. This would be used
+    to display the color_options."""
+    if len(list_) > 1:
+        return ', '.join(list_[:-1]) + ' and ' + list_[-1]
+    elif list_:
+        return list_[0]
+    else:
+        return ''
+app.jinja_env.filters['join_and'] = join_and_filter
 
 @app.route('/admin/product')
 def product_admin():
@@ -707,7 +727,8 @@ def product_admin():
             {
                 "product_id": "P1",
                 "name": "Men 100% Cotton Linen Long Sleeve Shirt",
-                "color": "White",
+                "color_options": ["White", "Blue", "Green"],
+                "size_options": ["M", "L", "XL"],
                 "cost_price": 8,
                 "list_price": 16,
                 "stock": 3,
@@ -718,7 +739,8 @@ def product_admin():
             {
                 "product_id": "P2",
                 "name": "Women Organic Dye Casual Jacket",
-                "color": "White",
+                "color_options": ["White", "Blue", "Green"],
+                "size_options": ["S", "L", "XL"],
                 "cost_price": 14,
                 "list_price": 18,
                 "stock": 5,
@@ -729,7 +751,8 @@ def product_admin():
             {
                 "product_id": "P3",
                 "name": "Women Tank Top 100% Recycled Fibers",
-                "color": "White",
+                "color_options": ["White", "Blue", "Green"],
+                "size_options": ["S", "M", "XL"],
                 "cost_price": 6,
                 "list_price": 12,
                 "stock": 2,
@@ -744,7 +767,8 @@ def product_admin():
             product = Product(
                 data["product_id"],
                 data["name"],
-                data["color"],
+                data["color_options"],
+                data["size_options"],
                 float(data["cost_price"]),
                 float(data["list_price"]),
                 data["stock"],

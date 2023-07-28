@@ -18,13 +18,15 @@ class Cart:
         return total
 
 class CartItem:
-    def __init__(self, product_id, name, price, quantity, size, color):
+    def __init__(self, product_id, name, price, quantity, size, color, size_options=None, color_options=None):
         self.product_id = product_id
         self.name = name
         self.price = price
         self.quantity = quantity
         self.size = size
         self.color = color
+        self.size_options = size_options if size_options else []
+        self.color_options = color_options if color_options else []
 
     def to_dict(self):
         return {
