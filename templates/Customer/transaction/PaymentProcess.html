@@ -36,7 +36,8 @@
           <input type="hidden" name="shipping_costs" value="{{ shipping_costs }}">
           <input type="hidden" name="subtotal" value="{{ subtotal }}">
           <input type="hidden" name="total_cost" value="{{ total_cost }}">
-          <input type="hidden" name="promo_code_discount" value="{{ promo_code_discount }}">
+          <input type="hidden" name="promo_code_discount" id="hidden_promo_code_discount">
+          <input type="hidden" id="validated_promo_code">
         </div>
         <div id="address-form-group">
         <div class="form-group" id="address-form-group">
@@ -159,10 +160,14 @@
           const promoCodeDiscountElement = document.getElementById('promo_code_discount');
           promoCodeDiscount = parseFloat((subtotal * (data.discount / 100)).toFixed(2));
           promoCodeDiscountElement.innerText = `$${promoCodeDiscount}`;
+          // update the hidden validated promo code input
+          document.getElementById('validated_promo_code').value = "true";
+          document.getElementById('hidden_promo_code_discount').value = promoCodeDiscount;
           // Recalculate the total cost
           updateTotalCost();
-          updatePromoCodeDisplay()
+          updatePromoCodeDisplay();
         } else {
+          promoCodeDiscountElement.innerText = '$0.00';
           promoCodeStatus.innerText = 'Invalid promo code. Please try again.';
         }
       })
@@ -184,8 +189,6 @@
     function updateTotalCost() {
       const shippingCost = deliveryOption.value === 'collect_on_store' ? 0 : shippingCostValue;
       const total = (subtotal - promoCodeDiscount + shippingCost).toFixed(2);
-
-      console.log('total: ', total)
 
       shippingCosts.innerText = '$' + shippingCost.toFixed(2);
       totalCost.innerText = '$' + total;
@@ -213,37 +216,20 @@
     const promoCode = promoCodeInput.value;
 
     // If the promo code input is empty, change the promo code value to "N/A" and allow the form to be submitted
-    if (!promoCode) {
-        promoCodeInput.value = "N/A";
-        return;
+    if (!promoCode || promoCodeDiscount == '0') {
+      promoCodeInput.value = "N/A";
+      return true;
     }
 
-    // Prevent the form from being submitted immediately
-    event.preventDefault();
+    // If validated promo code exists, allow the form to be submitted
+    if (document.getElementById('validated_promo_code').value != "true") {
+      // Prevent the form from being submitted immediately
+      event.preventDefault();
+      // If a promo code has been entered but not validated, alert the user
+      alert('Please check the promo code before placing your order.');
+      return false;
+    }
 
-    // Validate the promo code before placing the order
-    fetch('/validate_promo_code', {
-        method: 'POST',
-        body: new URLSearchParams({ promo_code: promoCode }),
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.valid) {
-            // If the promo code is valid, submit the form
-            orderForm.submit();
-        } else {
-            // If the promo code is not valid, alert the user
-            alert('Please enter a valid promo code before placing your order.');
-        }
-    })
-    .catch(error => {
-        // If an error occurs while validating the promo code, alert the user
-        alert('An error occurred while validating the promo code.');
-        console.error('Error:', error);
-    });
   }
 
 orderForm.addEventListener('submit', handleOrderFormSubmit);
