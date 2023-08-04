@@ -1,3 +1,6 @@
+to do: 
+make point system instead of promocode system
+delete delivery options
 # EcoFashion - Transforming Fashion with *Sustainability* and **Innovation**
 
 > Welcome to EcoFashion, where fashion meets sustainability in perfect harmony! Our team of dedicated experts is committed to providing you with an exceptional shopping experience while making a positive impact on the environment.
