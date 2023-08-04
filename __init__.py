@@ -1,8 +1,10 @@
+import json
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g
 import shelve
 import sys
 import os
 from datetime import datetime
+import stripe
 # current_dir = os.path.dirname(os.path.abspath(__file__))
 # main_dir = os.path.dirname(current_dir)
 # sys.path.append(main_dir)
@@ -17,6 +19,8 @@ from Objects.account.Customer import User, userPayment
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Replace with your own secret key
+
+stripe.api_key = 'sk_test_51NbJAUL0EO5j7e8js0jOonkCjFkHksaoITSyuD8YR34JLHMBkX3Uy4SwejTVr6XAvL8amqm4kMjmXtedg2I1oNTI00wnaqFYJJ'  # Replace with your own secret key
 
 
 # FAQ data
@@ -329,18 +333,6 @@ def cart():
 
     return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart)
 
-
-@app.route('/update_shipping_cost', methods=['POST'])
-def update_shipping_cost():
-    delivery_option = request.form['delivery_option']
-
-    # Calculate the new shipping costs based on the selected delivery option
-    shipping_costs = 0 if delivery_option == 'collect_on_store' else 5
-
-    # Redirect back to the payment processing page with the updated shipping costs
-    return redirect(url_for('display_payment', shipping_costs=shipping_costs))
-
-
 @app.route('/payment', methods=['GET'])
 def display_payment():
     # Retrieve cart items from the cart object
@@ -362,10 +354,34 @@ def display_payment():
     shipping_costs = 5
     total_cost = subtotal - promo_code_discount + shipping_costs
 
+    max_id = 0
+    try:
+        db = shelve.open('Objects/transaction/order.db', 'w')
+        # Find the maximum existing ID in the database
+        for key in db:
+            order_id = int(key[1:])
+            if order_id > max_id:
+                max_id = order_id
+        # Assign a new ID based on the maximum ID + 1
+        order_id = "O" + str(max_id + 1)
+        db.close()
+    except:
+        db = shelve.open('Objects/transaction/order.db', 'c')
+        order_id = "O1"
+    
     return render_template('/Customer/transaction/PaymentProcess.html', cart_items=cart_items, subtotal=subtotal,
                            promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
                            total_cost=total_cost, product_dict=product_dict)
 
+@app.route('/update_shipping_cost', methods=['POST'])
+def update_shipping_cost():
+    delivery_option = request.form['delivery_option']
+
+    # Calculate the new shipping costs based on the selected delivery option
+    shipping_costs = 0 if delivery_option == 'collect_on_store' else 5
+
+    # Redirect back to the payment processing page with the updated shipping costs
+    return redirect(url_for('display_payment', shipping_costs=shipping_costs))
 
 @app.route('/validate_promo_code', methods=['POST'])
 def validate_promo_code():
@@ -392,8 +408,9 @@ def validate_promo_code():
         else:
             return jsonify({'valid': False, 'error': 'Invalid promo code.'}), 400
 
+Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/"
 
-@app.route('/processpayment', methods=['POST'])
+@app.route('/processpayment', methods=['GET', 'POST'])
 def process_payment():
     # Retrieve form data
     delivery = request.form['delivery_option']
@@ -422,6 +439,7 @@ def process_payment():
     except:
         db = shelve.open('Objects/transaction/order.db', 'c')
         order_id = "O1"
+    
 
     for i, product_id in enumerate(product_id):
         ele_product_id = product_id
@@ -450,16 +468,53 @@ def process_payment():
     }
     session['payment_info'] = payment_info
     session['cart_item'] = [item.to_dict() for item in cartobj.cart_items]
-
+    
     # Remove all items from the cart
     cartobj.cart_items = []
-    print("order: ", order_id)
+    
+    return redirect(url_for('thankyou'))
 
-    return redirect(url_for('thankyou', payment_info=payment_info))
+@app.route('/totalcostcalculator')
+def calculate_total_cost(cart_items, delivery_option, promo_code):
+    subtotal = 0
+    for item in cart_items:
+        subtotal += item.price * item.quantity
+    shipping_costs = 0 if delivery_option == 'collect_on_store' else 5
+    code_db_path = 'Objects/transaction/promo.db'
 
+    with shelve.open(code_db_path) as code_db:
+        if promo_code in code_db:
+            promo = code_db[promo_code]
+            end_date_str = promo.end_date
+            # Convert to datetime.date
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            today = datetime.now().date()
+
+            if end_date >= today:
+                promo_discount = promo.discount
+        else:
+            promo_discount = 0
+    total_cost = subtotal - promo_discount + shipping_costs
+    return total_cost
+
+@app.route('/create_intent', methods=['POST'])
+def create_intent():
+    amount = int(float(calculate_total_cost(cartobj.cart_items, 'standard_delivery', '')) * 100)
+    intent = stripe.PaymentIntent.create(
+        amount = amount,  # Stripe expects the amount in cents
+        currency='sgd',
+        automatic_payment_methods={
+            'enabled': True,
+        },
+    )
+    return jsonify({
+        'clientSecret': intent['client_secret'],
+        'amount' : amount
+    })
 
 @app.route('/thankyou')
 def thankyou():
+
     # Retrieve cart items and promo code discount (if applicable) from the cart object
     product_db_path = 'Objects/transaction/product.db'
     payment_info = session['payment_info']
@@ -638,19 +693,23 @@ def add_product():
 
     # Update the product_dict with the new product
     db = shelve.open('Objects/transaction/product.db', 'w')
-    max_id = 0
-    # Find the maximum existing ID in the database
-    for key in db:
-        product_id = int(key[1:])
-        if product_id > max_id:
-            max_id = product_id
+    # Add stripe product
+    product = stripe.Product.create(
+        name=name,
+        default_price_data={
+            "unit_amount": int(list_price * 100),
+            "currency": "sgd",
+        },
+        expand=["default_price"],
+        )
+    product_id = product["id"]
 
-    # Assign a new ID based on the maximum ID + 1
-    new_product_id = "P" + str(max_id + 1)
-    new_product = Product(new_product_id, name, color_options, size_options, cost_price,
+    new_product = Product(product_id, name, color_options, size_options, cost_price,
                           list_price, stock, description, image, category)
-    db[new_product_id] = new_product
+    db[product_id] = new_product
     db.close()
+
+
 
     # Redirect back to the product page
     return redirect(url_for('product_admin'))
@@ -688,6 +747,12 @@ def update_product(product_id):
         db[product_id] = productobj
     db.close()
 
+    stripe.Product.modify(
+        product_id,
+        name=name,
+        unit_amount=int(list_price * 100),
+        )
+
     # Redirect back to the product page
     return redirect(url_for('product_admin'))
 
@@ -702,6 +767,8 @@ def delete_product(product_id):
         # Delete the product from the database
         del db[product_id]
         db.close()
+    
+    stripe.Product.delete(product_id)
 
     # Redirect back to the product page
     return redirect(url_for('product_admin'))
@@ -726,7 +793,7 @@ def product_admin():
         placeholder_data = [
 
             {
-                "product_id": "P1",
+                "product_id": "",
                 "name": "Men 100% Cotton Linen Long Sleeve Shirt",
                 "color_options": ["White", "Blue", "Green"],
                 "size_options": ["M", "L", "XL"],
@@ -738,7 +805,7 @@ def product_admin():
                 "category": "Men's Casual"
             },
             {
-                "product_id": "P2",
+                "product_id": "",
                 "name": "Women Organic Dye Casual Jacket",
                 "color_options": ["White", "Blue", "Green"],
                 "size_options": ["S", "L", "XL"],
@@ -750,7 +817,7 @@ def product_admin():
                 "category": "Women's Casual"
             },
             {
-                "product_id": "P3",
+                "product_id": "",
                 "name": "Women Tank Top 100% Recycled Fibers",
                 "color_options": ["White", "Blue", "Green"],
                 "size_options": ["S", "M", "XL"],
@@ -762,6 +829,21 @@ def product_admin():
                 "category": "Women's Sportswear"
             },
         ]
+        # stripe payment
+        for product in placeholder_data:
+            try:
+                stripe_product = stripe.Product.create(
+                    name=product["name"],
+                    default_price_data={
+                        "unit_amount": int(product["list_price"] * 100),
+                        "currency": "sgd",
+                    },
+                    expand=["default_price"],
+                )
+                product["product_id"] = stripe_product['id']
+
+            except Exception as e:
+                print(f"Failed to create product {product['product_id']}: {str(e)}")
 
         db = shelve.open(db_path, 'c')
         for data in placeholder_data:
@@ -791,6 +873,8 @@ def product_admin():
         product = product_dict.get(key)
         product_list.append(product)
     return render_template('/Admin/transaction/product.html', product_list=product_list, count=len(product_list))
+
+
 
 
 @app.route('/admin/delete_review/<review_id>', methods=['POST'])
