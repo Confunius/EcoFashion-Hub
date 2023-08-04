@@ -15,6 +15,7 @@ from Objects.transaction.Review import Review
 from Objects.transaction.code import Code
 from Objects.transaction.cart import Cart, CartItem
 from Objects.account.Customer import User, userPayment
+from Objects.CustomerService.Record import Record
 # sys.path.remove(main_dir)
 
 app = Flask(__name__)
@@ -564,10 +565,12 @@ def cancel_and_refund(order_id):
     return render_template('transaction/CancelAndRefund.html')
 
 # Customer Service
-
+service_records_db = shelve.open("service_records.db", writeback=True)
 
 @app.route('/FAQ')
 def FAQ():
+    with shelve.open("faqs.db") as db:
+        faqs = db.get("faqs", [])
     return render_template('/Customer/custservice/FAQ.html', faqs=faqs)
 
 
@@ -579,6 +582,75 @@ def CustomerService():
 @app.route('/ServiceRecord')
 def ServiceRecord():
     return render_template('/Customer/custservice/ServiceRecord.html')
+    
+@app.route('/record_detail/<record_id>')
+def record_detail(record_id):
+    record = service_records_db.get(record_id)
+    if record is None:
+        return jsonify({'error': 'Record not found'}), 404
+
+    subject = record.subject
+    chat = record.chat
+    date = record.date
+    status = record.status
+    auto = record.auto
+
+    # Parse the string as a list of dictionaries
+    chat_list = json.loads(chat)
+    # Initialize lists to store senders and contents
+    senders = []
+    contents = []
+
+    # Loop through the list of dictionaries to retrieve the sender and content
+    for entry in chat_list:
+        sender = entry['sender']
+        content = entry['content']
+        senders.append(sender)
+        contents.append(content)
+
+    return render_template('/Customer/custservice/record_detail.html', record=record, senders=senders, contents=contents,
+                           subject=subject, date=date, status=status, auto=auto)
+
+@app.route('/save_service_record', methods=['POST'])
+def save_service_record():
+    # Get the data from the request
+    data = request.get_json()
+
+    # Check if the record_id already exists in the service_records dictionary
+    record_id = data.get('record_id')
+    if record_id and record_id in service_records_db:
+        # Update the existing record
+        record = service_records_db[record_id]
+        record.date = data['dateInitiated']
+        record.chat = data['chatHistory']
+        record.subject = data['subject']
+        record.status = data['status']
+        record.auto = data['auto']
+    else:
+        # Create a new Record object and add it to the service_records dictionary
+        record = Record(
+            record_id=f"record_{len(service_records_db) + 1}",
+            date=data['dateInitiated'],
+            chat=data['chatHistory'],
+            subject=data['subject'],
+            status=data['status'],
+            auto=data['auto']
+        )
+        service_records_db[record.record_id] = record
+
+    # Return a success response
+    return jsonify({'message': 'Record saved successfully'})
+
+@app.route('/delete_record/<record_id>', methods=['DELETE'])
+def delete_record(record_id):
+    # Check if the record_id exists in the service_records dictionary
+    if record_id in service_records_db:
+        # If the record exists, delete it from the dictionary
+        del service_records_db[record_id]
+        return jsonify({'message': 'Record deleted successfully'})
+    else:
+        # If the record_id does not exist, return an error message
+        return jsonify({'error': 'Record not found'}), 404
 
 
 # Admin side
