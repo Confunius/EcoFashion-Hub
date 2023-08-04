@@ -92,8 +92,16 @@
         .faq-section.active {
             display: block;
         }
+        .faq-question.hidden{
+            display: none;
+        }
+
+        .faq-question{
+            display: block;
+        }
+
     </style>
-    {% extends "Customer/base.html" %} {% block title %}Ecofashion Hub - FAQ{% endblock %} {% block content %}
+    {% extends "base.html" %} {% block title %}Ecofashion Hub - FAQ{% endblock %} {% block content %}
 
 </head>
 <body>
@@ -136,7 +144,7 @@
     </div>
     <!-- End of Flexbox container for sections -->
 
-    <div class="faq-content"> <!-- Add a wrapper div for the questions and answers -->
+    <div class="faq-content txt-dark"> <!-- Add a wrapper div for the questions and answers -->
         {% for section in faqs %}
         <div class="faq-section" data-section="{{ section.section | lower }}">
             {% for i in range(section.questions | length) %}
@@ -166,19 +174,24 @@
 
     // Click event handler for section boxes
     var sectionBoxes = document.querySelectorAll('.section-box');
-    sectionBoxes.forEach(function(sectionBox) {
-        sectionBox.addEventListener('click', function() {
-            var dataSection = this.getAttribute('data-section');
-            var faqSections = document.querySelectorAll('.faq-section');
-            faqSections.forEach(function(faqSection) {
-                if (faqSection.getAttribute('data-section') === dataSection) {
-                    faqSection.classList.toggle('active');
-                } else {
-                    faqSection.classList.remove('active');
-                }
-            });
+sectionBoxes.forEach(function (sectionBox) {
+    sectionBox.addEventListener('click', function () {
+        var dataSection = this.getAttribute('data-section');
+        var faqSections = document.querySelectorAll('.faq-section');
+
+        faqSections.forEach(function (faqSection) {
+            if (faqSection.getAttribute('data-section') === dataSection) {
+                faqSection.classList.add('active');
+            } else {
+                faqSection.classList.remove('active');
+                var questions = faqSection.querySelectorAll('.faq-question');
+                questions.forEach(function (question) {
+                    question.classList.remove('active');
+                });
+            }
         });
     });
+});
 
     // Click event handler for FAQ questions to show/hide answers
     var faqQuestions = document.querySelectorAll('.faq-question');
@@ -190,25 +203,24 @@
 
     // Search functionality
     searchInput.addEventListener('input', function() {
-        var keyword = searchInput.value.toLowerCase();
-        var allQuestions = document.querySelectorAll('.faq-question');
-
-        allQuestions.forEach(function(question) {
-            var questionText = question.textContent.toLowerCase();
-            var faqSection = question.closest('.faq-section');
-
-            if (questionText.includes(keyword)) {
-                question.style.display = 'block';
-                faqSection.style.display = 'block';
-            } else {
-                question.style.display = 'none';
-                // Check if there are visible questions in the section
-                var visibleQuestions = faqSection.querySelectorAll('.faq-question');
-                var visible = Array.from(visibleQuestions).some(q => q.style.display === 'block');
-                faqSection.style.display = visible ? 'block' : 'none';
-            }
-        });
+    var faqSections = document.querySelectorAll('.faq-section');
+    faqSections.forEach(function(section) {
+        if (!section.classList.contains('active')) {
+            section.classList.add('active');
+        }
     });
+    var keyword = searchInput.value.toLowerCase();
+    var allQuestions = document.querySelectorAll('.faq-question');
+
+    allQuestions.forEach(function(question) {
+        var questionText = question.textContent.toLowerCase();
+        if (questionText.includes(keyword)) {
+            question.classList.remove('hidden');
+        } else {
+            question.classList.add('hidden');
+        }
+    });
+});
     </script>
 </body>
 </html>
