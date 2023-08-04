@@ -12,6 +12,7 @@ from Objects.transaction.Order import Order
 from Objects.transaction.Review import Review
 from Objects.transaction.code import Code
 from Objects.transaction.cart import Cart, CartItem
+from Objects.account.Customer import User, userPayment
 # sys.path.remove(main_dir)
 
 app = Flask(__name__)

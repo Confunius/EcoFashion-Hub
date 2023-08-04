@@ -40,34 +40,34 @@
           <input type="hidden" id="validated_promo_code">
         </div>
         <div id="address-form-group">
-        <div class="form-group" id="address-form-group">
-          <label for="address">Delivery Address:</label>
-          <textarea class="form-control" id="address" name="address" required></textarea>
-        </div>
-        <div class="form-group">
-          <label for="postal_code">Postal Code / ZIP:</label>
-          <input type="text" class="form-control" id="postal_code" name="postal_code" required>
-        </div>
+          <div class="form-group" id="address-form-group">
+            <label for="address">Delivery Address:</label>
+            <textarea class="form-control" id="address" name="address" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="postal_code">Postal Code:</label>
+            <input type="number" class="form-control" id="postal_code" name="postal_code" maxlength="6" pattern="\d{5}(-\d{4})?" required>
+          </div>
         </div>
         <div class="form-group">
           <label for="card_number">Card Number:</label>
-          <input type="text" class="form-control" id="card_number" name="card_number" required>
+          <input type="nubmer" class="form-control" id="card_number" name="card_number" maxlength="19" pattern="\d{4} \d{4} \d{4} \d{4}" required>
         </div>
         <div class="form-row">
           <div class="form-group col-md-6">
             <label for="expiry_date">Expiry Date:</label>
-            <input type="text" class="form-control" id="expiry_date" name="expiry_date" required>
+            <input type="text" class="form-control" id="expiry_date" name="expiry_date" pattern="(0[1-9]|1[0-2])\/([0-9]{2})" required>
           </div>
           <div class="form-group col-md-6">
             <label for="cvc">CVC:</label>
-            <input type="text" class="form-control" id="cvc" name="cvc" required>
+            <input type="number" class="form-control" id="cvc" name="cvc" pattern="\d{3}" maxlength="3" required>
           </div>
         </div>
-
+        
         <div class="form-check mb-3">
           <input type="checkbox" class="form-check-input" id="save_payment" name="save_payment">
           <label class="form-check-label" for="save_payment">Save payment details for future use</label>
-        </div>
+        </div>        
 
         <!-- Promo code -->
         <div class="form-group">
@@ -135,6 +135,15 @@
 
 {% block scripts %}
 <script>
+  window.onload = function() {
+  document.getElementById('card_number').addEventListener('input', function (e) {
+    e.target.value = e.target.value.replace(/[^\dA-Z]/g, '').replace(/(.{4})/g, '$1 ').trim();
+  });
+
+  document.getElementById('expiry_date').addEventListener('input', function (e) {
+    e.target.value = e.target.value.replace(/[^\dA-Z]/g, '').replace(/(.{2})/, '$1/').trim();
+  });
+};
   document.addEventListener('DOMContentLoaded', () => {
     const checkPromoCodeButton = document.getElementById('check_promo_code');
     const promoCodeInput = document.getElementById('promo_code');
