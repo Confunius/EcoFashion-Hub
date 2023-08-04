@@ -370,6 +370,12 @@ def display_payment():
         db = shelve.open('Objects/transaction/order.db', 'c')
         order_id = "O1"
     
+    session_cart_items = []
+    for item in cart_items:
+        session_cart_items.append(item.to_dict())
+
+    session['intent_metadata'] = {'order_id': order_id, 'cart': session_cart_items}
+    
     return render_template('/Customer/transaction/PaymentProcess.html', cart_items=cart_items, subtotal=subtotal,
                            promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
                            total_cost=total_cost, product_dict=product_dict)
@@ -413,65 +419,89 @@ Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.
 
 @app.route('/processpayment', methods=['GET', 'POST'])
 def process_payment():
+    intent_id = request.args.get("payment_intent")
+    intent = stripe.PaymentIntent.retrieve(intent_id)
+    order_id = intent['metadata']['order_id']
+    cart_json = intent['metadata']['cart']
+    cart = json.loads(cart_json)
+    product_ids = [item['product_id'] for item in cart]
+    for i, product_id in enumerate(product_ids):
+        ele_product_id = product_id
+        ele_size = cart[i]['size']
+        ele_color = cart[i]['color']
+        ele_quantity = cart[i]['quantity']
+        promocode ="N/A"
+        delivery = "N/A"
+        user_id = 0
+        order_date = datetime.now().strftime("%Y-%m-%d")
+
+        db = shelve.open('Objects/transaction/order.db', 'w')
+        order = Order(order_id, user_id, ele_product_id, ele_size, ele_color, ele_quantity, order_date, delivery, promocode)
+        db[order_id] = order
+
+
+    print(intent)
     # Retrieve form data
-    delivery = request.form['delivery_option']
+    # delivery = request.form['delivery_option']
     # address = request.form['address']
     # postal_code = request.form['postal_code']
     # card_number = request.form['card_number']
     # expiry_date = request.form['expiry_date']
     # cvc = request.form['cvc']
     # save_payment = True if 'save_payment' in request.form else False
-    size = request.form.getlist('size')
-    color = request.form.getlist('color')
-    quantity = request.form.getlist('quantity')
-    product_id = request.form.getlist('product_id')
+    # size = request.form.getlist('size')
+    # color = request.form.getlist('color')
+    # quantity = request.form.getlist('quantity')
+    # product_id = request.form.getlist('product_id')
 
-    max_id = 0
-    try:
-        db = shelve.open('Objects/transaction/order.db', 'w')
-        # Find the maximum existing ID in the database
-        for key in db:
-            order_id = int(key[1:])
-            if order_id > max_id:
-                max_id = order_id
-        # Assign a new ID based on the maximum ID + 1
-        order_id = "O" + str(max_id + 1)
-        db.close()
-    except:
-        db = shelve.open('Objects/transaction/order.db', 'c')
-        order_id = "O1"
+
+
+    # max_id = 0
+    # try:
+    #     db = shelve.open('Objects/transaction/order.db', 'w')
+    #     # Find the maximum existing ID in the database
+    #     for key in db:
+    #         order_id = int(key[1:])
+    #         if order_id > max_id:
+    #             max_id = order_id
+    #     # Assign a new ID based on the maximum ID + 1
+    #     order_id = "O" + str(max_id + 1)
+    #     db.close()
+    # except:
+    #     db = shelve.open('Objects/transaction/order.db', 'c')
+    #     order_id = "O1"
     
 
-    for i, product_id in enumerate(product_id):
-        ele_product_id = product_id
-        ele_size = size[i]
-        ele_quantity = int(quantity[i])
-        ele_color = color[i]
-        promo_code = request.form['promo_code']
-        user_id = 0
-        order_date = datetime.now().strftime('%Y-%m-%d')
+    # for i, product_id in enumerate(product_id):
+    #     ele_product_id = product_id
+    #     ele_size = size[i]
+    #     ele_quantity = int(quantity[i])
+    #     ele_color = color[i]
+    #     promo_code = request.form['promo_code']
+    #     user_id = 0
+    #     order_date = datetime.now().strftime('%Y-%m-%d')
 
-        # Save each order in the database
-        db = shelve.open('Objects/transaction/order.db', 'w')
-        order = Order(order_id, user_id, ele_product_id, ele_size, ele_color, ele_quantity,
-                    order_date, delivery, promo_code)
-        db[order_id] = order
-        db.close()
+    #     # Save each order in the database
+    #     db = shelve.open('Objects/transaction/order.db', 'w')
+    #     order = Order(order_id, user_id, ele_product_id, ele_size, ele_color, ele_quantity,
+    #                 order_date, delivery, promo_code)
+    #     db[order_id] = order
+    #     db.close()
 
-    # Store payment info in a dictionary
-    payment_info = {
-        'delivery': delivery,
-        'order_id': order_id,
-        'subtotal': request.form['subtotal'],
-        'promo_code_discount': request.form['promo_code_discount'],
-        'shipping_costs': request.form['shipping_costs'],
-        'total_cost': request.form['total_cost'],
-    }
-    session['payment_info'] = payment_info
-    session['cart_item'] = [item.to_dict() for item in cartobj.cart_items]
+    # # Store payment info in a dictionary
+    # payment_info = {
+    #     'delivery': delivery,
+    #     'order_id': order_id,
+    #     'subtotal': request.form['subtotal'],
+    #     'promo_code_discount': request.form['promo_code_discount'],
+    #     'shipping_costs': request.form['shipping_costs'],
+    #     'total_cost': request.form['total_cost'],
+    # }
+    # session['payment_info'] = payment_info
+    # session['cart_item'] = [item.to_dict() for item in cartobj.cart_items]
     
-    # Remove all items from the cart
-    cartobj.cart_items = []
+    # # Remove all items from the cart
+    # cartobj.cart_items = []
     
     return redirect(url_for('thankyou'))
 
@@ -500,6 +530,12 @@ def calculate_total_cost(cart_items, delivery_option, promo_code):
 
 @app.route('/create_intent', methods=['POST'])
 def create_intent():
+    intent_metadata = session['intent_metadata']
+    order_id = intent_metadata['order_id']
+    cart = intent_metadata['cart']
+    cart_json = json.dumps(cart)
+
+    session.pop('intent_metadata', None)
     amount = int(float(calculate_total_cost(cartobj.cart_items, 'standard_delivery', '')) * 100)
     intent = stripe.PaymentIntent.create(
         amount = amount,  # Stripe expects the amount in cents
@@ -507,6 +543,10 @@ def create_intent():
         automatic_payment_methods={
             'enabled': True,
         },
+        metadata={
+            'order_id': order_id,
+            'cart': cart_json,
+        }
     )
     return jsonify({
         'clientSecret': intent['client_secret'],

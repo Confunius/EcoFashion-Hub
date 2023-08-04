@@ -88,6 +88,8 @@
       <div class="mb-3">
         <a href="/cart" class="btn bgd-light">Back to cart</a>
       </div>
+      <!-- <div id="express-checkout-element"></div> -->
+
       <form action="{{ url_for('process_payment')}}" id="order_form" method="post">
         <!-- <div class="form-group">
           <label for="email">Email:</label>
@@ -118,7 +120,6 @@
         </div> -->
         <span>Please enter your email so that you can one-click checkout</span>
         <div class="form-group" id="link-authentication-element"></div>
-        <div class="form-group" id="express-checkout-element"></div>
         <div class="form-group" id="address-element"></div>
         <div class="form-group" id="payment-element">
           <!--Stripe.js injects the Payment Element-->
@@ -266,13 +267,29 @@ async function initialize() {
   const paymentElement = elements.create("payment", paymentElementOptions);
   paymentElement.mount("#payment-element");
 
-  elements = stripe.elements({
-    mode: 'payment',
-    amount: amount,
-    currency: 'sgd',
-  })
-  const expressCheckoutElement = elements.create('expressCheckout');
-  expressCheckoutElement.mount('#express-checkout-element');
+//   elements = stripe.elements({
+//     mode: 'payment',
+//     amount: amount,
+//     currency: 'sgd',
+//   })
+//   const expressCheckoutElement = elements.create('expressCheckout');
+//   expressCheckoutElement.mount('#express-checkout-element');
+
+//   expressCheckoutElement.on('confirm', function(event) {
+//   // call Stripe function to initiate payment confirmation
+//   stripe.confirmPayment({
+//     elements,
+//     clientSecret,
+//     confirmParams: {
+//       return_url: 'https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/processpayment',
+//     },
+//   })
+//   .then(function(result) {
+//     if (result.error) {
+//       // Inform the customer that there's an error.
+//     }
+//   });
+// });
 }
 async function handleSubmit(e) {
   e.preventDefault();

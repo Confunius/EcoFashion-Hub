@@ -10,3 +10,17 @@ class Product:
         self.description = description
         self.image = image
         self.category = category
+    
+    def to_dict(self):
+        return {
+            'product_id': self.product_id,
+            'name': self.name,
+            'color_options': self.color_options,
+            'size_options': self.size_options,
+            'cost_price': self.cost_price,
+            'list_price': self.list_price,
+            'stock': self.stock,
+            'description': self.description,
+            'image': self.image,
+            'category': self.category
+        }
