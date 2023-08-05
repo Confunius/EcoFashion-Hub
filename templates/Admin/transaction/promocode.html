@@ -22,6 +22,8 @@
                 <th>Code</th>
                 <th>Discount</th>
                 <th>End date</th>
+                <th>Coupon ID</th>
+                <th>Promo ID</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -29,8 +31,10 @@
             {% for code in code_list %}
             <tr class="bgd-light">
                 <td>{{ code.code }}</td>
-                <td>{{ code.discount }}</td>
+                <td>{{ code.discount }}%</td>
                 <td>{{ code.end_date }}</td>
+                <td>{{ code.coupon_id }}</td>
+                <td>{{ code.promocode_id }}</td>
                 <td>
                     <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#updateModal{{ code.code }}">Update</button>
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ code.code }}">Delete</button>
@@ -56,7 +60,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="discount">Discount:</label>
-                                    <input type="number" class="form-control" id="discount" name="discount" step="0.01" value="{{ code.discount }}">
+                                    <input type="number" class="form-control" id="discount" name="discount" step="1" value="{{ code.discount }}">
                                 </div>
                                 <div class="form-group">
                                     <label for="end_date">End Date:</label>

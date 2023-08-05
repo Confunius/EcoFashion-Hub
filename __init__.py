@@ -4,6 +4,7 @@ import shelve
 import sys
 import os
 from datetime import datetime
+import time
 import stripe
 # current_dir = os.path.dirname(os.path.abspath(__file__))
 # main_dir = os.path.dirname(current_dir)
@@ -332,53 +333,86 @@ def cart():
 
     cart_total = cartobj.get_cart_total()
 
-    return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart)
-
-@app.route('/payment', methods=['GET'])
-def display_payment():
-    # Retrieve cart items from the cart object
-    cart_items = cartobj.get_cart_items()
-    db_path = 'Objects/transaction/product.db'
-    product_dict = {}
-    try:
-        db = shelve.open(db_path, 'r')
-        product_dict = dict(db)
-        db.close()
-    except:
-        product_dict = {}
-    promo_code_discount = 0
-
-    # Get the subtotal
-    subtotal = cartobj.get_cart_total()
-
-    # Calculate the total cost to display first
-    shipping_costs = 5
-    total_cost = subtotal - promo_code_discount + shipping_costs
-
-    max_id = 0
-    try:
-        db = shelve.open('Objects/transaction/order.db', 'w')
-        # Find the maximum existing ID in the database
-        for key in db:
-            order_id = int(key[1:])
-            if order_id > max_id:
-                max_id = order_id
-        # Assign a new ID based on the maximum ID + 1
-        order_id = "O" + str(max_id + 1)
-        db.close()
-    except:
-        db = shelve.open('Objects/transaction/order.db', 'c')
-        order_id = "O1"
-    
     session_cart_items = []
     for item in cart_items:
         session_cart_items.append(item.to_dict())
 
-    session['intent_metadata'] = {'order_id': order_id, 'cart': session_cart_items}
+    session['intent_metadata'] = session_cart_items
+
+    return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart)
+
+@app.route('/payment', methods=['GET'])
+def display_payment():
+    cart_items = cartobj.get_cart_items()
+    line_items = []
+    db_file = 'Objects/transaction/promo.db'
+
+    auto_promo = os.path.isfile(db_file)
+    for item in cart_items:
+        line_item = {
+            'price_data': {
+                'currency': 'usd',
+                'product_data': {
+                    'name': item.name,
+                },
+                'unit_amount': int(item.price * 100),  # Stripe expects prices in cents
+            },
+            'quantity': item.quantity,
+            }
+        
+        line_items.append(line_item)
+
+
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            line_items=line_items,
+            mode='payment',
+            success_url=Domain + '/thankyou',
+            cancel_url=Domain + '/product',
+            automatic_tax={'enabled': True},
+            allow_promotion_codes=auto_promo,
+        )
+    except Exception as e:
+        return str(e)
+
+    return redirect(checkout_session.url, code=303)
+    # Retrieve cart items from the cart object
+    # cart_items = cartobj.get_cart_items()
+    # db_path = 'Objects/transaction/product.db'
+    # product_dict = {}
+    # try:
+    #     db = shelve.open(db_path, 'r')
+    #     product_dict = dict(db)
+    #     db.close()
+    # except:
+    #     product_dict = {}
+    # promo_code_discount = 0
+
+    # # Get the subtotal
+    # subtotal = cartobj.get_cart_total()
+
+    # # Calculate the total cost to display first
+    # shipping_costs = 5
+    # total_cost = subtotal - promo_code_discount + shipping_costs
+
+    # max_id = 0
+    # try:
+    #     db = shelve.open('Objects/transaction/order.db', 'w')
+    #     # Find the maximum existing ID in the database
+    #     for key in db:
+    #         order_id = int(key[1:])
+    #         if order_id > max_id:
+    #             max_id = order_id
+    #     # Assign a new ID based on the maximum ID + 1
+    #     order_id = "O" + str(max_id + 1)
+    #     db.close()
+    # except:
+    #     db = shelve.open('Objects/transaction/order.db', 'c')
+    #     order_id = "O1"
     
-    return render_template('/Customer/transaction/PaymentProcess.html', cart_items=cart_items, subtotal=subtotal,
-                           promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
-                           total_cost=total_cost, product_dict=product_dict)
+    # return render_template('/Customer/transaction/PaymentProcess.html', cart_items=cart_items, subtotal=subtotal,
+    #                        promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
+    #                        total_cost=total_cost, product_dict=product_dict)
 
 @app.route('/update_shipping_cost', methods=['POST'])
 def update_shipping_cost():
@@ -421,7 +455,7 @@ Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.
 def process_payment():
     intent_id = request.args.get("payment_intent")
     intent = stripe.PaymentIntent.retrieve(intent_id)
-    order_id = intent['metadata']['order_id']
+    order_id = intent['id']
     cart_json = intent['metadata']['cart']
     cart = json.loads(cart_json)
     product_ids = [item['product_id'] for item in cart]
@@ -530,9 +564,7 @@ def calculate_total_cost(cart_items, delivery_option, promo_code):
 
 @app.route('/create_intent', methods=['POST'])
 def create_intent():
-    intent_metadata = session['intent_metadata']
-    order_id = intent_metadata['order_id']
-    cart = intent_metadata['cart']
+    cart = session['intent_metadata']
     cart_json = json.dumps(cart)
 
     session.pop('intent_metadata', None)
@@ -544,7 +576,6 @@ def create_intent():
             'enabled': True,
         },
         metadata={
-            'order_id': order_id,
             'cart': cart_json,
         }
     )
@@ -890,7 +921,14 @@ def add_product():
             "currency": "sgd",
         },
         expand=["default_price"],
+        images=image,
+        shippable=True,
         )
+
+    stripe.Product.modify(
+        product["id"],
+        url=Domain+"/product/"+product["id"],
+    )
     product_id = product["id"]
 
     new_product = Product(product_id, name, color_options, size_options, cost_price,
@@ -1172,29 +1210,54 @@ def add_promo():
         code = request.form['code']
         discount = float(request.form['discount'])
         end_date = request.form['end_date']
-        promo = Code(code, discount, end_date)
-        db = shelve.open('Objects/transaction/promo.db', 'c')
-        db[promo.code] = promo
+        date = datetime.strptime(str(end_date), '%Y-%m-%d')
+        db = shelve.open('Objects/transaction/promo.db', 'w')
+        unix_timestamp = int(time.mktime(date.timetuple()))
+        if code not in db:
+            coupon = stripe.Coupon.create(
+                percent_off = discount,
+                duration = 'once',
+                redeem_by = unix_timestamp,
+            )
+            promocode = stripe.PromotionCode.create(
+                coupon = coupon['id'],
+                code = code, 
+            )
+            promo = Code(code, discount, end_date, coupon['id'], promocode['id'])
+            db[promo.code] = promo
         db.close()
     return redirect(url_for('promocode'))
 
 
-@app.route('/update_code/<code>', methods=['POST'])
+@app.route('/admin/update_code/<code>', methods=['POST'])
 def update_code(code):
     if request.method == 'POST':
         discount = float(request.form['discount'])
         end_date = request.form['end_date']
-        promo = Code(code, discount, end_date)
+        date = datetime.strptime(str(end_date), '%Y-%m-%d')
+        unix_timestamp = int(time.mktime(date.timetuple()))
         db = shelve.open('Objects/transaction/promo.db', 'w')
+        stripe.Coupon.delete(db[code].coupon_id)
+        coupon = stripe.Coupon.create(
+            percent_off = discount,
+            duration = 'once',
+            redeem_by = unix_timestamp,
+        )
+        promocode = stripe.PromotionCode.create(
+            coupon = coupon['id'],
+            code = code,
+        )
+        promo = Code(code, discount, end_date, coupon['id'], promocode['id'])
         db[promo.code] = promo
         db.close()
     return redirect(url_for('promocode'))
 
 
-@app.route('/delete_code/<code>', methods=['POST'])
+@app.route('/admin/delete_code/<code>', methods=['POST'])
 def delete_code(code):
     db = shelve.open('Objects/transaction/promo.db', 'w')
     if code in db:
+        stripe.Coupon.delete(db[code].coupon_id)
         del db[code]
     db.close()
     return redirect(url_for('promocode'))

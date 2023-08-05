@@ -76,13 +76,15 @@
   }
 }
 </style>
+<script src="https://js.stripe.com/v3/"></script>
 <div class="container mt-4">
   <h1 class="text-center">Your Cart</h1>
   <div class="mb-3">
     <a href="/product" class="btn bgd-light">Back to Products</a>
   </div>
+  <div class="d-flex flex-column">
   {% if cart_items %}
-  <table class="table table-striped mt-4">
+  <table class="table table-striped mt-4 mr-4">
     <thead class="bgd-dark">
       <tr>
         <th>Product Name</th>
@@ -137,16 +139,35 @@
       {% endfor %}
     </tbody>
   </table>
-  <div id="express-checkout-element"></div>
-  <div class="text-center">
-    <h3>Total: ${{ "%0.2f"|format(cart_total) }}</h3>
-    <a href="/payment" class="btn bgd-light">Checkout with card</a>
+  <!-- Right side - Order summary -->
+<div class="flex-grow-1">
+  <h2 class="mb-4">Order Summary</h2>
+  <!-- Subtotal, Promo code discount, Shipping costs, and Total cost -->
+  <hr class="bgd-light">
+  <div class="d-flex justify-content-between">
+    <div>Subtotal:</div>
+    <div id="subtotal">${{ "%0.2f"|format(cart_total) }}</div>
+  </div>
+  <div class="d-flex justify-content-between">
+    <div>Shipping Costs:</div>
+    <div id="shipping_costs">$5</div>
+  </div>
+  <hr class="bgd-light">
+  <div class="d-flex justify-content-between font-weight-bold">
+    <div>Total:</div>
+    <div id="total_cost">${{ "%0.2f"|format(cart_total + 5) }}</div>
+  </div>
+
+  <div class="d-flex justify-content-around">
+    <div id="express-checkout-element" class="mr-2"></div>
+    <a href="/payment" class="btn bgd-light">Checkout with card & redeem points</a>
   </div>
   {% else %}
   <div class="text-center mt-4">
     <h3>Your cart is empty</h3>
   </div>
   {% endif %}
+</div>
 </div>
 <script>
   const stripe = Stripe("pk_test_51NbJAUL0EO5j7e8jnG1wekAMtbCRj97AnTHjfWjiqYWtVAEFli8hfYCfs0vc1C60owBtTjcEiOjMRSH9X7v8V4sU00qLJ1f0Xr");
