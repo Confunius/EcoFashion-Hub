@@ -351,7 +351,7 @@ def display_payment():
     for item in cart_items:
         line_item = {
             'price_data': {
-                'currency': 'usd',
+                'currency': 'sgd',
                 'product_data': {
                     'name': item.name,
                 },
@@ -361,17 +361,59 @@ def display_payment():
             }
         
         line_items.append(line_item)
-
-
     try:
         checkout_session = stripe.checkout.Session.create(
             line_items=line_items,
             mode='payment',
-            success_url=Domain + '/thankyou',
-            cancel_url=Domain + '/product',
+            success_url=Domain + 'thankyou',
+            cancel_url=Domain + 'product',
             automatic_tax={'enabled': True},
             allow_promotion_codes=auto_promo,
+            shipping_address_collection={
+                'allowed_countries': ['SG'],
+            },
+            shipping_options=[{
+                'shipping_rate_data': {
+                    'display_name': 'Standard Delivery',
+                    'type': 'fixed_amount',
+                    'fixed_amount': {
+                        'amount': 500,
+                        'currency': 'sgd',
+                    },
+                    'delivery_estimate': {
+                        'minimum': {
+                            'unit': 'day',
+                            'value': 1
+                        },
+                        'maximum': {
+                            'unit': 'day',
+                            'value': 3
+                        },
+                    },
+                },
+            },
+            {
+                'shipping_rate_data': {
+                    'display_name': 'Express Delivery',
+                    'type': 'fixed_amount',
+                    'fixed_amount': {
+                        'amount': 1000,
+                        'currency': 'sgd',
+                    },
+                    'delivery_estimate': {
+                        'minimum': {
+                            'unit': 'hour',
+                            'value': 6
+                        },
+                        'maximum': {
+                            'unit': 'day',
+                            'value': 1
+                        },
+                    },
+                },
+            }],
         )
+        session['checkout_session_id'] = checkout_session.id
     except Exception as e:
         return str(e)
 
@@ -414,67 +456,67 @@ def display_payment():
     #                        promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
     #                        total_cost=total_cost, product_dict=product_dict)
 
-@app.route('/update_shipping_cost', methods=['POST'])
-def update_shipping_cost():
-    delivery_option = request.form['delivery_option']
+# @app.route('/update_shipping_cost', methods=['POST'])
+# def update_shipping_cost():
+#     delivery_option = request.form['delivery_option']
 
-    # Calculate the new shipping costs based on the selected delivery option
-    shipping_costs = 0 if delivery_option == 'collect_on_store' else 5
+#     # Calculate the new shipping costs based on the selected delivery option
+#     shipping_costs = 0 if delivery_option == 'collect_on_store' else 5
 
-    # Redirect back to the payment processing page with the updated shipping costs
-    return redirect(url_for('display_payment', shipping_costs=shipping_costs))
+#     # Redirect back to the payment processing page with the updated shipping costs
+#     return redirect(url_for('display_payment', shipping_costs=shipping_costs))
 
-@app.route('/validate_promo_code', methods=['POST'])
-def validate_promo_code():
-    promo_code = request.form.get('promo_code')
+# @app.route('/validate_promo_code', methods=['POST'])
+# def validate_promo_code():
+#     promo_code = request.form.get('promo_code')
 
-    if not promo_code:
-        return jsonify({'error': 'Promo code is missing.'}), 400
+#     if not promo_code:
+#         return jsonify({'error': 'Promo code is missing.'}), 400
 
-    code_db_path = 'Objects/transaction/promo.db'
+#     code_db_path = 'Objects/transaction/promo.db'
 
-    with shelve.open(code_db_path) as code_db:
-        if promo_code in code_db:
-            promo = code_db[promo_code]
-            end_date_str = promo.end_date
-            # Convert to datetime.date
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-            today = datetime.now().date()
+#     with shelve.open(code_db_path) as code_db:
+#         if promo_code in code_db:
+#             promo = code_db[promo_code]
+#             end_date_str = promo.end_date
+#             # Convert to datetime.date
+#             end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+#             today = datetime.now().date()
 
-            if end_date >= today:
-                promo_discount = promo.discount
-                return jsonify({'valid': True, 'discount': promo_discount})
-            else:
-                return jsonify({'valid': False, 'error': 'Promo code has expired.'}), 400
-        else:
-            return jsonify({'valid': False, 'error': 'Invalid promo code.'}), 400
+#             if end_date >= today:
+#                 promo_discount = promo.discount
+#                 return jsonify({'valid': True, 'discount': promo_discount})
+#             else:
+#                 return jsonify({'valid': False, 'error': 'Promo code has expired.'}), 400
+#         else:
+#             return jsonify({'valid': False, 'error': 'Invalid promo code.'}), 400
 
 Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/"
 
-@app.route('/processpayment', methods=['GET', 'POST'])
-def process_payment():
-    intent_id = request.args.get("payment_intent")
-    intent = stripe.PaymentIntent.retrieve(intent_id)
-    order_id = intent['id']
-    cart_json = intent['metadata']['cart']
-    cart = json.loads(cart_json)
-    product_ids = [item['product_id'] for item in cart]
-    for i, product_id in enumerate(product_ids):
-        ele_product_id = product_id
-        ele_size = cart[i]['size']
-        ele_color = cart[i]['color']
-        ele_quantity = cart[i]['quantity']
-        promocode ="N/A"
-        delivery = "N/A"
-        user_id = 0
-        order_date = datetime.now().strftime("%Y-%m-%d")
+# @app.route('/processpayment', methods=['GET', 'POST'])
+# def process_payment():
+#     intent_id = request.args.get("payment_intent")
+#     intent = stripe.PaymentIntent.retrieve(intent_id)
+#     order_id = intent['id']
+#     cart_json = intent['metadata']['cart']
+#     cart = json.loads(cart_json)
+#     product_ids = [item['product_id'] for item in cart]
+#     for i, product_id in enumerate(product_ids):
+#         ele_product_id = product_id
+#         ele_size = cart[i]['size']
+#         ele_color = cart[i]['color']
+#         ele_quantity = cart[i]['quantity']
+#         promocode ="N/A"
+#         delivery = "N/A"
+#         user_id = 0
+#         order_date = datetime.now().strftime("%Y-%m-%d")
 
-        db = shelve.open('Objects/transaction/order.db', 'w')
-        order = Order(order_id, user_id, ele_product_id, ele_size, ele_color, ele_quantity, order_date, delivery, promocode)
-        db[order_id] = order
+#         db = shelve.open('Objects/transaction/order.db', 'w')
+#         order = Order(order_id, user_id, ele_product_id, ele_size, ele_color, ele_quantity, order_date, delivery, promocode)
+#         db[order_id] = order
 
 
-    print(intent)
+#     print(intent)
     # Retrieve form data
     # delivery = request.form['delivery_option']
     # address = request.form['address']
@@ -537,7 +579,7 @@ def process_payment():
     # # Remove all items from the cart
     # cartobj.cart_items = []
     
-    return redirect(url_for('thankyou'))
+    # return redirect(url_for('thankyou'))
 
 @app.route('/totalcostcalculator')
 def calculate_total_cost(cart_items, delivery_option, promo_code):
@@ -589,17 +631,21 @@ def thankyou():
 
     # Retrieve cart items and promo code discount (if applicable) from the cart object
     product_db_path = 'Objects/transaction/product.db'
-    payment_info = session['payment_info']
-    session.pop('payment_info', None)
+    checkout_info = stripe.checkout.Session.retrieve(session['checkout_session_id'])
+    checkout_line_items = stripe.checkout.Session.list_line_items(checkout_info['id'])
+    print(checkout_line_items)
+    subtotal = checkout_info['amount_subtotal']
+    total_cost = checkout_info['amount_total']
+    order_id = checkout_info['payment_intent']
+    # payment_intent = stripe.PaymentIntent.retrieve(order_id)
+    shipping_costs = checkout_info['shipping_cost']['amount_total']
+    shipping_rate_id = checkout_info['shipping_cost']['shipping_rate']
+    delivery_option = stripe.ShippingRate.retrieve(shipping_rate_id)['display_name']
+    shipping_details_dict = checkout_info['shipping_details']
+    shipping_address = f"{shipping_details_dict['address']['line1']}, {shipping_details_dict['address']['city']}, {shipping_details_dict['address']['country']}"
 
-    delivery_option = payment_info['delivery']
-    order_id = payment_info['order_id']
-    subtotal = payment_info['subtotal']
-    promo_code_discount = payment_info['promo_code_discount']
-    shipping_costs = payment_info['shipping_costs']
-    total_cost = payment_info['total_cost']
-    cart_items = session['cart_item']
-
+    cart_items = cartobj.cart_items
+    cartobj.cart_items = []
     # Create product_dict
     product_dict = {}
     with shelve.open(product_db_path) as product_db:
@@ -914,26 +960,34 @@ def add_product():
     # Update the product_dict with the new product
     db = shelve.open('Objects/transaction/product.db', 'w')
     # Add stripe product
-    product = stripe.Product.create(
-        name=name,
-        default_price_data={
-            "unit_amount": int(list_price * 100),
-            "currency": "sgd",
-        },
-        expand=["default_price"],
-        images=image,
-        shippable=True,
-        )
+    max_id = 0
+    for key in db:
+        if int(key) > max_id:
+            max_id = int(key)
+    product_id = "P" + int(max_id + 1)
 
-    stripe.Product.modify(
-        product["id"],
-        url=Domain+"/product/"+product["id"],
-    )
-    product_id = product["id"]
-
-    new_product = Product(product_id, name, color_options, size_options, cost_price,
+    product = Product(product_id, name, color_options, size_options, cost_price,
                           list_price, stock, description, image, category)
-    db[product_id] = new_product
+        # stripe payment
+    for color in product["color_options"]:
+        for size in product["size_options"]:
+            try:
+                stripe_details = stripe.Product.create(
+                    name=f"{product['name']} | {color} | {size}",
+                    default_price_data={
+                        "unit_amount": int(float(list_price) * 100),
+                        "currency": "sgd",
+                    },
+                    images=[product["image"]],
+                )
+                stripe.Product.modify(
+                    stripe_details["id"],
+                    url=Domain+"/product/"+product["id"],
+                )
+            except Exception as e:
+                print(f"Failed to create product {product['product_id']}: {str(e)}")
+    product_id = product["id"]
+    db[product_id] = product
     db.close()
 
 
@@ -942,7 +996,7 @@ def add_product():
     return redirect(url_for('product_admin'))
 
 
-@app.route('/update_product/<product_id>', methods=['POST'])
+@app.route('/admin/update_product/<product_id>', methods=['POST'])
 def update_product(product_id):
     # Retrieve the form data
     name = request.form['name'].strip().title()
@@ -972,19 +1026,65 @@ def update_product(product_id):
         productobj.image = image
         productobj.category = category
         db[product_id] = productobj
-    db.close()
 
-    stripe.Product.modify(
-        product_id,
-        name=name,
-        unit_amount=int(list_price * 100),
-        )
+    stripe_product = find_product(name)
+
+    # Find the base product
+    base_product = find_product(name)
+    if base_product is None:
+        # If the base product doesn't exist, create it
+        base_product = stripe.Product.create(name=name)
+
+    base_product = base_product[0]  # Assuming find_product returns a list
+
+    # Save the old default price ID
+    old_default_price_id = base_product['default_price']
+
+    # Create a new price for the base product
+    default_price = stripe.Price.create(
+        product=base_product['id'],
+        unit_amount=int(float(list_price) * 100),
+        currency="sgd",
+    )
+
+    stripe.Product.modify(base_product['id'], default_price = default_price)
+    # Now you should be able to archive the old default price
+    stripe.Price.modify(old_default_price_id, active=False)
+
+    # Now handle the product variants
+    for color in color_options:
+        for size in size_options:
+            variant_name = f"{name} | {color} | {size}"
+
+            # Check if the variant already exists
+            variant_product = find_product(variant_name)
+
+            if variant_product is None:
+                # If the variant doesn't exist, create it
+                variant_product = stripe.Product.create(name=variant_name)
+
+            variant_product = variant_product[0]  # Assuming find_product returns a list
+
+            # Create a new price for the variant
+            variant_price = stripe.Price.create(
+                product=variant_product['id'],
+                unit_amount=int(float(list_price) * 100),
+                currency="sgd",
+            )
+
+            # Save the old default price ID for the variant
+            old_default_price_id = variant_product['default_price']
+
+            # Now you should be able to archive the old default price for the variant
+            stripe.Price.modify(old_default_price_id, active=False)
+
+    db.close()
 
     # Redirect back to the product page
     return redirect(url_for('product_admin'))
 
 
-@app.route('/delete_product/<product_id>', methods=['POST'])
+@app.route('/admin/delete_product/<product_id>', methods=['POST'])
 def delete_product(product_id):
     # Open the shelve database
     db = shelve.open('Objects/transaction/product.db', 'w')
@@ -992,11 +1092,14 @@ def delete_product(product_id):
     # Check if the product_id exists in the database
     if product_id in db:
         # Delete the product from the database
+        product = db[product_id]
+        product_name = product.name
+        stripe_product_list = find_product(product_name)
+        for item in stripe_product_list:
+            stripe.Product.delete(item["id"])
         del db[product_id]
         db.close()
     
-    stripe.Product.delete(product_id)
-
     # Redirect back to the product page
     return redirect(url_for('product_admin'))
 
@@ -1020,57 +1123,61 @@ def product_admin():
         placeholder_data = [
 
             {
-                "product_id": "",
+                "product_id": "P1",
                 "name": "Men 100% Cotton Linen Long Sleeve Shirt",
-                "color_options": ["White", "Blue", "Green"],
-                "size_options": ["M", "L", "XL"],
+                "color_options": ["White", "Green"],
+                "size_options": ["M"],
                 "cost_price": 8,
                 "list_price": 16,
                 "stock": 3,
                 "description": "Introducing the \"Men 100% Cotton Linen Long Sleeve Shirt\"! Crafted with the finest blend of cotton and linen, this classic white shirt boasts both style and comfort. Perfect for casual outings or semi-formal occasions, its long sleeves add an air of sophistication to any ensemble. The breathable fabric ensures you stay cool and relaxed all day long. Embrace a timeless, versatile look with this essential wardrobe piece that pairs effortlessly with jeans, chinos, or tailored trousers. Designed to exude elegance and confidence, this shirt is a must-have for every fashion-forward gentleman. Get ready to make a lasting impression.",
                 "image": "https://m.media-amazon.com/images/I/615Cby-DciL._AC_SX679_.jpg",
                 "category": "Men's Casual"
-            },
-            {
-                "product_id": "",
-                "name": "Women Organic Dye Casual Jacket",
-                "color_options": ["White", "Blue", "Green"],
-                "size_options": ["S", "L", "XL"],
-                "cost_price": 14,
-                "list_price": 18,
-                "stock": 5,
-                "description": "Women Organic Dye Casual Jacket! Elevate your style with this eco-friendly \"Women Organic Dye Casual Jacket.\" Crafted with organic dyes and sustainably sourced materials, this jacket embodies a perfect blend of fashion and environmental consciousness. The soft and breathable fabric ensures comfort without compromising on style. Its pristine white color complements any outfit, making it a versatile addition to your wardrobe. Embrace the essence of modern femininity as you step out in this chic jacket, designed to make a statement at casual gatherings or outings with friends. Embrace sustainability with flair and inspire others to do the same.",
-                "image": "https://m.media-amazon.com/images/I/81mrNU4gF3L._AC_SX569_.jpg",
-                "category": "Women's Casual"
-            },
-            {
-                "product_id": "",
-                "name": "Women Tank Top 100% Recycled Fibers",
-                "color_options": ["White", "Blue", "Green"],
-                "size_options": ["S", "M", "XL"],
-                "cost_price": 6,
-                "list_price": 12,
-                "stock": 2,
-                "description": "Women Tank Top 100% Recycled Fibers! Embrace a greener lifestyle with our \"Women Tank Top 100% Recycled Fibers.\" Made from environmentally friendly materials, this white tank top not only enhances your workout performance but also reduces your carbon footprint. The soft and stretchable fabric provides a comfortable and supportive fit, making it ideal for any active lifestyle. Whether you're hitting the gym, going for a run, or practicing yoga, this tank top ensures you stay cool and dry throughout your workout. Embrace sustainability without compromising on style, and let this tank top be a reflection of your commitment to a healthier planet.",
-                "image": "https://m.media-amazon.com/images/I/61a9kY47XPL._AC_SX679_.jpg",
-                "category": "Women's Sportswear"
-            },
+            }
+            # {
+            #     "product_id": "P2",
+            #     "name": "Women Organic Dye Casual Jacket",
+            #     "color_options": ["White", "Blue"],
+            #     "size_options": ["S", "L"],
+            #     "cost_price": 14,
+            #     "list_price": 18,
+            #     "stock": 5,
+            #     "description": "Women Organic Dye Casual Jacket! Elevate your style with this eco-friendly \"Women Organic Dye Casual Jacket.\" Crafted with organic dyes and sustainably sourced materials, this jacket embodies a perfect blend of fashion and environmental consciousness. The soft and breathable fabric ensures comfort without compromising on style. Its pristine white color complements any outfit, making it a versatile addition to your wardrobe. Embrace the essence of modern femininity as you step out in this chic jacket, designed to make a statement at casual gatherings or outings with friends. Embrace sustainability with flair and inspire others to do the same.",
+            #     "image": "https://m.media-amazon.com/images/I/81mrNU4gF3L._AC_SX569_.jpg",
+            #     "category": "Women's Casual"
+            # },
+            # {
+            #     "product_id": "P3",
+            #     "name": "Women Tank Top 100% Recycled Fibers",
+            #     "color_options": ["White", "Red"],
+            #     "size_options": ["S", "M"],
+            #     "cost_price": 6,
+            #     "list_price": 12,
+            #     "stock": 2,
+            #     "description": "Women Tank Top 100% Recycled Fibers! Embrace a greener lifestyle with our \"Women Tank Top 100% Recycled Fibers.\" Made from environmentally friendly materials, this white tank top not only enhances your workout performance but also reduces your carbon footprint. The soft and stretchable fabric provides a comfortable and supportive fit, making it ideal for any active lifestyle. Whether you're hitting the gym, going for a run, or practicing yoga, this tank top ensures you stay cool and dry throughout your workout. Embrace sustainability without compromising on style, and let this tank top be a reflection of your commitment to a healthier planet.",
+            #     "image": "https://m.media-amazon.com/images/I/61a9kY47XPL._AC_SX679_.jpg",
+            #     "category": "Women's Sportswear"
+            # },
         ]
         # stripe payment
         for product in placeholder_data:
-            try:
-                stripe_product = stripe.Product.create(
-                    name=product["name"],
-                    default_price_data={
-                        "unit_amount": int(product["list_price"] * 100),
-                        "currency": "sgd",
-                    },
-                    expand=["default_price"],
-                )
-                product["product_id"] = stripe_product['id']
-
-            except Exception as e:
-                print(f"Failed to create product {product['product_id']}: {str(e)}")
+            for color in product["color_options"]:
+                for size in product["size_options"]:
+                    try:
+                        stripe_details = stripe.Product.create(
+                            name=f"{product['name']} | {color} | {size}",
+                            default_price_data={
+                                "unit_amount": int(product["list_price"] * 100),
+                                "currency": "sgd",
+                            },
+                            images=[product["image"]],
+                        )
+                        # stripe.Product.modify(
+                        #     stripe_details["id"],
+                        #     url=Domain+"/product/"+product["id"],
+                        # )
+                    except Exception as e:
+                        print(f"Failed to create product {product['product_id']}: {str(e)}")
 
         db = shelve.open(db_path, 'c')
         for data in placeholder_data:
@@ -1101,8 +1208,20 @@ def product_admin():
         product_list.append(product)
     return render_template('/Admin/transaction/product.html', product_list=product_list, count=len(product_list))
 
-
-
+def find_product(name, color=None, size=None):
+    matching_products = []
+    stripe_product_dict = stripe.Product.list()["data"]
+    for product in stripe_product_dict:
+        product_name = product["name"]
+        if color and size:
+            # if color and size are specified, check for exact match
+            if product_name == f"{name} | {color} | {size}":
+                return [product]
+        else:
+            # if color and size are not specified, check if the product name matches
+            if name in product_name:
+                matching_products.append(product)
+    return matching_products if matching_products else None
 
 @app.route('/admin/delete_review/<review_id>', methods=['POST'])
 def delete_review(review_id):
@@ -1312,10 +1431,6 @@ def delete_record_admin(record_id):
         else:
             # If the record_id does not exist, return an error message
             return jsonify({'error': 'Record not found'}), 404
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
 
 if __name__ == '__main__':
     app.run(debug=True)

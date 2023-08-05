@@ -109,10 +109,10 @@
 </div>
 <div class="container d-flex flex-row justify-content-around">
     <div>
-        {% if delivery_option == 'standard_delivery' %}
+        {% if delivery_option == 'Standard delivery' %}
             <h3>Shipping Address:</h3>
             <p>{{ shipping_address }}</p>
-        {% elif delivery_option == 'collect_on_store' %}
+        {% elif delivery_option == 'Express delivery' %}
             <h3>Pickup Store Location:</h3>
             <p>{{ pickup_location }}</p>
         {% endif %}

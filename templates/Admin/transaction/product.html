@@ -36,7 +36,7 @@
             {% for product in product_list %}
             <tr class="bgd-light">
                 <td>{{ product.product_id }}</td>
-                <td>{{ product.name }}</td>
+                <td><a href="/product/{{ product.product_id }}">{{ product.name }}</a></td>
                 <td>{{ product.color_options|join_and }}</td>
                 <td>{{ product.size_options|join_and }}</td>
                 <td>{{ product.cost_price }}</td>
