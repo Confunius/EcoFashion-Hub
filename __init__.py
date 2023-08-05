@@ -580,7 +580,7 @@ def CustomerService():
 @app.route('/ServiceRecord')
 def ServiceRecord():
     with shelve.open("service_records.db", writeback=True) as service_records_db:
-        return render_template('/Customer/custservice/ServiceRecord.html')
+        return render_template('/Customer/custservice/ServiceRecord.html', service_records=service_records_db)
     
 @app.route('/record_detail/<record_id>')
 def record_detail(record_id):
@@ -609,7 +609,7 @@ def record_detail(record_id):
             senders.append(sender)
             contents.append(content)
 
-        return render_template('record_detail.html', record=record, senders=senders, contents=contents,
+        return render_template('Customer/custservice/record_detail.html', record=record, senders=senders, contents=contents,
                                subject=subject, date=date, status=status, auto=auto)
     # Loop through the list of dictionaries to retrieve the sender and content
     for entry in chat_list:
