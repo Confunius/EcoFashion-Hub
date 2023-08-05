@@ -605,6 +605,25 @@ def cancel_and_refund(order_id):
     return render_template('transaction/CancelAndRefund.html')
 
 # Customer Service
+with shelve.open("deleted_records.db") as deleted_records_db:
+    deleted_record_ids = deleted_records_db.get('deleted_record_ids', set())
+
+with shelve.open("deleted_records_admin.db") as deleted_records_admin_db:
+    deleted_record_admin_ids = deleted_records_admin_db.get('deleted_record_ids', set())
+
+def get_total_record_count():
+    with shelve.open("service_records.db") as service_records_db:
+        # Get the count of current records
+        current_count = len(service_records_db)
+
+    with shelve.open("deleted_records.db") as deleted_records_db:
+        # Get the count of deleted records
+        deleted_count = len(deleted_records_db.get('deleted_record_ids', set()))
+
+    # Calculate the total count by adding current and deleted records
+    total_count = current_count + deleted_count
+    return total_count
+    
 @app.route('/FAQ')
 def FAQ():
     with shelve.open("faqs.db") as db:
@@ -664,40 +683,87 @@ def record_detail(record_id):
 @app.route('/save_service_record', methods=['POST'])
 def save_service_record():
     # Get the data from the request
-    with shelve.open("service_records.db", writeback=True) as service_records_db:
-        data = request.get_json()
+    data = request.get_json()
+    global deleted
+    record_id = data.get('record_id')
 
-        # Check if the record_id already exists in the service_records dictionary
-        record_id = data.get('record_id')
-        if record_id and record_id in service_records_db:
-            # Update the existing record
-            record = service_records_db[record_id]
-            record.date = data['dateInitiated']
-            record.chat = data['chatHistory']
-            record.subject = data['subject']
-            record.status = data['status']
-            record.auto = data['auto']
-        else:
-            # Create a new Record object and add it to the service_records dictionary
+    if not record_id and record_id not in deleted_record_ids:
+        # If record_id is not provided, it means we are creating a new record
+        total_records = get_total_record_count()
+        record_id = f"record_{total_records + 1}"
+        with shelve.open("service_records.db", writeback=True) as service_records_db:
+            # Create a new Record object and add it to the service_records_db dictionary
             record = Record(
-                record_id=f"record_{len(service_records_db) + 1}",
+                record_id=record_id,
                 date=data['dateInitiated'],
                 chat=data['chatHistory'],
                 subject=data['subject'],
                 status=data['status'],
                 auto=data['auto']
             )
-            service_records_db[record.record_id] = record
+            service_records_db[record_id] = record
+    else:
+        # If record_id is provided, it means we are updating an existing record
+        with shelve.open("service_records.db", writeback=True) as service_records_db:
+            # Check if the record_id exists in the service_records_db dictionary
+            if record_id in service_records_db:
+                # Update the existing record
+                record = service_records_db[record_id]
+                record.date = data['dateInitiated']
+                record.chat = data['chatHistory']
+                record.subject = data['subject']
+                record.status = data['status']
+                record.auto = data['auto']
+            elif record_id not in service_records_db:
+                return jsonify({'error': 'Record not found'}), 404
 
-        # Return a success response
-        return jsonify({'message': 'Record saved successfully'})
+    # Print the updated chat information for regular service_records_db
+    with shelve.open("service_records.db", writeback=True) as service_records_db:
+        record = service_records_db.get(record_id)
 
+    # If this is an admin record, save it to the admin database as well
+    if record_id:
+        with shelve.open("service_records_admin.db", writeback=True) as service_records_admin_db:
+            # Check if the record_id already exists in the service_records_admin_db dictionary
+            if record_id in service_records_admin_db:
+                # Update the existing admin record
+                record_admin = service_records_admin_db[record_id]
+                record_admin.date = data['dateInitiated']
+                record_admin.chat = data['chatHistory']
+                record_admin.subject = data['subject']
+                record_admin.status = data['status']
+                record_admin.auto = data['auto']
+            elif record_id not in service_records_admin_db and record_id not in deleted_record_admin_ids:
+                # Create a new admin Record object and add it to the service_records_admin_db dictionary
+                total_records = get_total_record_count()
+                record_id = f"record_{total_records}"
+                record_admin = Record(
+                    record_id=record_id,
+                    date=data['dateInitiated'],
+                    chat=data['chatHistory'],
+                    subject=data['subject'],
+                    status=data['status'],
+                    auto=data['auto']
+                )
+                service_records_admin_db[record_id] = record_admin
+
+        # Print the updated chat information for admin service_records_admin_db
+        with shelve.open("service_records_admin.db", writeback=True) as service_records_admin_db:
+            record_admin = service_records_admin_db.get(record_id)
+            print("Updated Chat for service_records_admin_db:", record_admin.chat)
+
+    # Return a success response
+    return jsonify({'message': 'Record saved successfully'})
+    
 @app.route('/delete_record/<record_id>', methods=['DELETE'])
 def delete_record(record_id):
     # Check if the record_id exists in the service_records dictionary
     with shelve.open("service_records.db", writeback=True) as service_records_db:
         if record_id in service_records_db:
             # If the record exists, delete it from the dictionary
+            deleted_record_ids.add(record_id)
+            with shelve.open("deleted_records.db") as deleted_records_db:
+                deleted_records_db['deleted_record_ids'] = deleted_record_ids
             del service_records_db[record_id]
             return jsonify({'message': 'Record deleted successfully'})
         else:
@@ -1132,6 +1198,60 @@ def delete_code(code):
         del db[code]
     db.close()
     return redirect(url_for('promocode'))
+
+#Customer Service
+@app.route('/RecordDetailAdmin/<record_id>')
+def RecordDetailAdmin(record_id):
+    # Find the record with the given record_id
+    with shelve.open("service_records_admin.db", writeback=True) as service_records_admin_db:
+        record = service_records_admin_db.get(record_id)
+        if record is None:
+            return jsonify({'error': 'Record not found'}), 404
+
+        subject = record.subject
+        chat = record.chat
+        date = record.date
+        status = record.status
+        auto = record.auto
+
+        # Parse the string as a list of dictionaries
+        chat_list = json.loads(chat)
+        # Initialize lists to store senders and contents
+        senders = []
+        contents = []
+
+        # Loop through the list of dictionaries to retrieve the sender and content
+        for entry in chat_list:
+            sender = entry['sender']
+            content = entry['content']
+            senders.append(sender)
+            contents.append(content)
+
+        return render_template('/Admin/custservice/RecordDetailAdmin.html', record=record, senders=senders, contents=contents,
+                               subject=subject, date=date, status=status, auto=auto)
+
+@app.route('/ServiceRecordAdmin')
+def ServiceRecordAdmin():
+    with shelve.open("service_records_admin.db", writeback=True) as service_records_admin_db:
+        return render_template('/Admin/custservice/ServiceRecordAdmin.html', service_records=service_records_admin_db)
+
+@app.route('/delete_record_admin/<record_id>', methods=['DELETE'])
+def delete_record_admin(record_id):
+    # Check if the record_id exists in the service_records dictionary
+    with shelve.open("service_records_admin.db", writeback=True) as service_records_admin_db:
+        if record_id in service_records_admin_db:
+            # If the record exists, delete it from the dictionary
+            deleted_record_admin_ids.add(record_id)
+            with shelve.open("deleted_records_admin.db") as deleted_records_admin_db:
+                deleted_records_admin_db['deleted_record_admin_ids'] = deleted_record_admin_ids
+            del service_records_admin_db[record_id]
+            return jsonify({'message': 'Record deleted successfully'})
+        else:
+            # If the record_id does not exist, return an error message
+            return jsonify({'error': 'Record not found'}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
 if __name__ == '__main__':
