@@ -109,13 +109,8 @@
 </div>
 <div class="container d-flex flex-row justify-content-around">
     <div>
-        {% if delivery_option == 'Standard delivery' %}
-            <h3>Shipping Address:</h3>
-            <p>{{ shipping_address }}</p>
-        {% elif delivery_option == 'Express delivery' %}
-            <h3>Pickup Store Location:</h3>
-            <p>{{ pickup_location }}</p>
-        {% endif %}
+        <h3>{{ delivery_option }}</h3>
+        <p>Delivery Address: {{ shipping_address }}</p>
         <div style="margin-top: 20px;">
             <a class="btn btn-block bgd-light mb-3" href="{{ url_for('products') }}">Continue Shopping</a>
             <a class="btn btn-block bgd-dark" href="{{ url_for('cancel_and_refund', order_id=order_id) }}">Cancel & Refund</a>
