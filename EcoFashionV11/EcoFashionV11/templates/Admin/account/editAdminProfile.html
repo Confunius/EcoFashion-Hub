@@ -1,0 +1,43 @@
+{% extends "Admin/adminbase.html" %}
+{% block title %}Ecofashion Hub - Edit Admin Profile{% endblock %}
+
+{% block content %}
+{% from "_formHelper.html" import render_field %}
+<!-- Your main content here -->
+<div class="col-md-8">
+  <br>
+  <!-- Add your main content here -->
+  <div class="container">
+      <h2 style="font-family: 'Montserrat', sans-serif; font-weight: bold; font-size: 28px;">EDIT ACCOUNT INFORMATION</h2>
+    <div class="line-container">
+      <hr class="half-screen-line">
+    </div>
+    <br>
+    <form method="POST">
+      {{ form.csrf_token }}
+      <div class="form-group">
+        {{ render_field(form.adminFirstName, class="form-control", style="width: 300px; height:40px;")}}
+      </div>
+      <div class="form-group">
+        {{ render_field(form.adminLastName, class="form-control", style="width: 300px; height:40px;")}}
+      </div>
+      <div class="form-group">
+        {{ render_field(form.adminEmail, class="form-control", style="width: 300px; height:40px;")}}
+      </div>
+      <div class="form-group">
+        {{ render_field(form.adminPhoneNumber, class="form-control", style="width: 300px; height:40px;")}}
+      </div>
+      <br>
+      <div class="button-container">
+        <button type="submit" class="btn btn-primary settings-btn" style="color: #4b6043">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+{% endblock %}

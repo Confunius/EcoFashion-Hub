@@ -1,0 +1,156 @@
+<html>
+
+<head>
+  <title>Add Payment Methods</title>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light  bg-custom">
+        <a class="navbar-brand col-md-4 brand" style="color: #f2ecd8; font-weight:bold; text-align: center;" href="#">
+            <div class="row">
+              <div class="col-md-2">
+                <img src="Images\brand-logo.png" width="65" height="65" alt="Image">
+              </div>
+              <div class="col-md-2">
+                <p style="margin-top: 20px;">EcoFashion Hub</p>
+              </div>
+            </div>
+          </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria- expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse col-lg-8" id="navbarNav">
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Our Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Products</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Sustainability</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Need Help?</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#"><i class="fa-solid fa-cart-shopping fa-lg"></i>
+                <span class="badge">0</span>
+              </a>
+            </li>
+    
+            <li class="nav-item">
+              <a class="nav-link" href="#"><i class="fa-regular fa-circle-user fa-lg normal-icon"></i></a>
+            </li>
+    
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <i class="fa-solid fa-heart fa-lg"></i>
+                <span class="badge">0</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">
+                <i class="fa-solid fa-magnifying-glass fa-lg normal-icon"></i></a>
+            </li>
+    
+          </ul>
+        </div>
+      </nav>
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Vertical Navbar -->
+      <nav class="navbar col-md-2 vertical-nav navbar col-md-3 vertical-nav">
+        <ul class="navbar-nav">
+          <li></li>
+          <li class="nav-item">
+            <a class="nav-link" href="usersettings.html">My Account </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">My Wishlist</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="orderstatus.html">Order Status</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="orderhistory.html">Order History</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="accountdelete.html">Account Deletion</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Payment Methods</a>
+          </li>
+          <!-- Add more history items as needed -->
+        </ul>
+      </nav>
+      <!-- Vertical white line -->
+      <div class="vertical-line col-md-13"></div>
+      <!-- Your main content here -->
+      <div class="col-md-8">
+        <br><br>
+        <!-- Add your main content here -->
+        <div class="container" style="max-width: 100%;">
+            <h2 style="font-family: 'Montserrat', sans-serif; font-weight: bold; font-size: 24px;">ADD PAYMENT METHODS</h2>
+          <div class="line-container">
+            <hr class="half-screen-line" style="margin-bottom: 5px;">
+          </div>
+        <br>
+
+          <table class="payment-container" style="width:100%">
+            <tr>
+                <td>CREDIT CARD DETAILS</td>
+            </tr>
+           <div class="options">
+      <button onclick="showCreditCardForm()">Visa/Mastercard</button>
+      <button onclick="showBankAccountsForm()">Link Bank Accounts</button>
+      <button onclick="showPaylahForm()">Paylah</button>
+    </div>
+    <br>
+    <div class="form-container" id="creditCardForm">
+      <h2>Enter Credit Card Details</h2>
+      <br>
+        <form>
+          <div class="form-group">
+            <label for="cardHolderName">Card Holder Name:</label>
+            <input type="text" id="cardHolderName" required>
+          </div>
+          <div class="form-group">
+            <label for="cardNumber">Card Number:</label>
+            <input type="text" id="cardNumber" required>
+          </div>
+          <div class="form-group">
+            <label for="expiryDate">Expiry Date:</label>
+            <input type="text" id="expiryDate" placeholder="MM/YY" required>
+          </div>
+          <div class="form-group">
+            <label for="securityCode">Security Code:</label>
+            <input type="text" id="securityCode" required>
+          </div>
+          <div class="form-group">
+            <label for="billingAddress">Billing Address:</label>
+            <input type="text" id="billingAddress" required>
+          </div>
+          <div class="form-group">
+            <label for="postalCode">Postal Code:</label>
+            <input type="text" id="postalCode" required>
+          </div>
+          <button type="submit" class="btn btn-primary settings-btn" style="color: #4b6043;">Save</button>
+        </form>
+    </div>
+    
+
+  </div>
+  <script src="scripts.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,76 @@
+{% extends "Customer/base.html" %}
+{% block title %}Ecofashion Hub - Cart{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="text-center">Your Cart</h1>
+  <div class="mb-3">
+    <a href="/product" class="btn bgd-light">Back to Products</a>
+  </div>
+  {% if cart_items %}
+  <table class="table table-striped mt-4">
+    <thead class="bgd-dark">
+      <tr>
+        <th>Product Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th>Size</th>
+        <th>Color</th>
+        <th>Total</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody class="bgd-light">
+      {% for item in cart_items %}
+      <tr>
+        <td>{{ item.name }}</td>
+        <td>${{ "%0.2f"|format(item.price) }}</td>
+        <td>
+<!-- Update Form -->
+<form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
+  <input type="hidden" name="action" value="increment">
+  <button type="submit" class="btn btn-sm bgd-dark">+</button>
+</form>
+{{ item.quantity }}
+<form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
+  <input type="hidden" name="action" value="decrement">
+  <button type="submit" class="btn btn-sm bgd-dark">-</button>
+</form>
+        </td>
+        <td>
+          <form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
+          <select name="size" onchange="this.form.submit()">
+            {% for size_option in size_options %}
+              <option value="{{ size_option }}" {% if item.size == size_option %}selected{% endif %}>{{ size_option }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td>
+          <select name="color" onchange="this.form.submit()">
+          {% for color_option in color_options %}
+            <option value="{{ color_option }}" {% if item.color == color_option %}selected{% endif %}>{{ color_option }}</option>
+          {% endfor %}
+          </select>
+          </form>
+        </td>
+        <td>${{ "%0.2f"|format(item.price * item.quantity) }}</td>
+        <td>
+          <form action="{{ url_for('delete_cart_item', cart_item_id=item.product_id) }}" method="POST">
+            <button type="submit" class="btn bgd-dark">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="text-center">
+    <h3>Total: ${{ "%0.2f"|format(cart_total) }}</h3>
+    <a href="/payment" class="btn bgd-light">Checkout</a>
+  </div>
+  {% else %}
+  <div class="text-center mt-4">
+    <h3>Your cart is empty</h3>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

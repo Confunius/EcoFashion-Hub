@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Customer Update{% endblock %}
+
+{% block content %}
+<div class="w-140 h-96 mt-28 ml-24 bg-sidebar border border-gray-600 z-10 absolute">
+  <div class="flex items-center ml-5 mt-3 mr-3">
+    <i class="bx bxs-user-circle text-4xl mt-3 ml-3"></i>
+    <p class="text-lg font-bold mt-2 ml-2 text-background">EDIT ACCOUNT</p>
+    <i
+      onclick="sendDataToParent()"
+      class="bx bx-x text-5xl font-light ml-auto text-red-500 cursor-pointer"
+    ></i>
+  </div>
+
+  <div class="flex mt-4">
+    <div class="ml-10">
+      <div class="mb-2">
+        <p class="text-background font-semibold mb-1 text-md">First Name: </p>
+        <input
+          class="border border-black p-1 w-8/12 bg-transparent"
+          type="text"
+          name=""
+          id=""
+          placeholder="First Name"
+        />
+      </div>
+      <div class="mb-2">
+        <p class="text-background font-semibold mb-1 text-md">Email: </p>
+        <input
+          class="border border-black p-1 w-8/12 bg-transparent"
+          type="text"
+          name=""
+          id=""
+          placeholder="Email"
+        />
+      </div>
+      <div class="mb-2">
+        <p class="text-background font-semibold mb-1 text-md">Address: </p>
+        <input
+          class="border border-black p-1 w-80 bg-transparent"
+          type="text"
+          name=""
+          id=""
+          placeholder="Address"
+        />
+      </div>
+    </div>
+
+    <div class="ml-10">
+      <div>
+        <p class="text-background font-semibold mb-1 text-md">Gender: </p>
+        <div class="mt-3 flex justify-center mb-2">
+          <input
+            type="radio"
+            name="gender"
+            class="h-5 w-5 cursor-pointer"
+          />{" "}
+          <span class="text-background font-semibold ml-2  text-md"> Male</span>
+          <input
+            type="radio"
+            name="gender"
+            class="h-5 w-5 cursor-pointer ml-10"
+          />
+          <span class="text-background font-semibold ml-2 text-md">
+            Female
+          </span>
+        </div>
+      </div>
+
+      <div class="mb-2">
+        <p class="text-background font-semibold mb-1 text-md">Postal Code: </p>
+        <input
+          class="border border-black p-1 w-full bg-transparent"
+          type="text"
+          name=""
+          id=""
+          placeholder="Postal Code"
+        />
+      </div>
+
+      <div class="mb-2">
+        <p class="text-background font-semibold mb-1 text-md">Birthday: </p>
+        <input
+          class="border border-black p-1 w-full bg-transparent"
+          type="text"
+          name=""
+          id=""
+          placeholder="Birth Date"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="flex ml-12 m-2">
+    <div>
+      <p class="text-background font-medium">Account Updated By: </p>
+      <p class="text-lg font-semibold">ChrisW</p>
+      <p class="text-background font-medium">Last Updated 03/05/2020</p>
+    </div>
+
+    <div class="ml-auto mt-7 mr-7">
+      <button class="bg-transparent font-semibold text-background border border-background px-8 py-2">
+        DONE
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function sendDataToParent() {
+    onDataFromChild(false);
+  }
+</script>
+{% endblock %}

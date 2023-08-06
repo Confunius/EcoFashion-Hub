@@ -1,0 +1,67 @@
+{% extends "Admin/adminbase.html" %}
+{% block title %}Ecofashion Hub - Admin Profile{% endblock %}
+{% block content %}
+{% from "_formHelper.html" import render_field %}
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- Vertical white line -->
+      <div class="vertical-line col-md-13"></div>
+      <!-- Your main content here -->
+      <div class="col-md-8">
+        <br><br>
+        <!-- Add your main content here -->
+        <div class="container">
+          <h2 style="font-family: 'Montserrat', sans-serif; font-weight: bold; font-size: 28px;">{{ session['adminusername'] }}'s INFORMATION</h2>
+          <div class="line-container">
+            <hr class="half-screen-line">
+          </div>
+          <br>
+          <form>
+              <div class="form-inline">
+                <div class="form-group col-md-6">
+                  <p>First Name:</p>
+                  <p>{{ session['adminfname'] }}</p>
+                </div>
+                <div class="form-group col-md-6">
+                  <p>Last Name:</p>
+                  <p>{{ session['adminlname'] }}</p>
+                </div>
+              </div>
+            <div class="form-inline">
+                <div class="form-group col-md-6">
+                    <p>Email Address: </p>
+                    <p>{{ session['adminemail']}}</p>
+                </div>
+                <div class="form-group col-md-6">
+                    <p>Phone Number:</p>
+                    <p>{{ session['phonenumber']}}</p>
+                </div>
+            </div>
+<!--            <div class="form-group">-->
+<!--              <label for="dob">Date of Birth:</label>-->
+<!--              <input type="date" class="form-control" id="dob" value="Date of Birth">-->
+<!--            </div>-->
+            <div class="link-container">
+              <a href="/EditAdminAccount/{{ session['id']}}">Edit</a>
+              <a href="/CustomerChangePassword/{{ session['id']}}">Change Password</a>
+            </div>
+            <br>
+                <div class="button-container">
+                  <button type="submit" class="btn btn-primary settings-btn" style="color: #4b6043;">Save</button>
+                </div>
+                </form>
+                <form action="/UserDeactivation/{{ session['id']}}" method="POST">
+                  <button type="submit" class="btn btn-primary settings-btn" style="color: #82000a;">Deactivate Account</button>
+                </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+{% endblock %}

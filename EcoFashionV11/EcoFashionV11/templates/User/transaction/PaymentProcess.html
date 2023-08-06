@@ -1,0 +1,206 @@
+{% extends "Customer/base.html" %}
+{% block title %}Ecofashion Hub - Payment Processing{% endblock %}
+
+{% block content %}
+<style>
+  .hide-promo-code {
+  display: none!important;
+}
+</style>
+<div class="container mt-4">
+  <div class="d-flex">
+    <!-- Left side - Payment details form -->
+    <div class="flex-grow-1 mr-4">
+      <h2 class="mb-4">Payment Details</h2>
+      <form action="{{ url_for('process_payment')}}" method="post">
+        <!-- <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" class="form-control" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone (with country code):</label>
+          <input type="tel" class="form-control" id="phone" name="phone" required>
+        </div> -->
+
+        <!-- Delivery option, Address, and Postal code / ZIP -->
+        <div class="form-group">
+          <label for="delivery_option">Delivery Option:</label>
+          <select name="delivery_option" id="delivery_option">
+              <option value="standard_delivery">Standard Delivery</option>
+              <option value="collect_on_store">Collect on Store</option>
+          </select>
+          <!-- Hidden field to update the shipping costs -->
+          <input type="hidden" name="shipping_costs" value="{{ shipping_costs }}">
+        </div>
+        <div class="form-group" id="address-form-group">
+          <label for="address">Delivery Address:</label>
+          <textarea class="form-control" id="address" name="address" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="postal_code">Postal Code / ZIP:</label>
+          <input type="text" class="form-control" id="postal_code" name="postal_code" required>
+        </div>
+
+        <div class="form-group">
+          <label for="card_number">Card Number:</label>
+          <input type="text" class="form-control" id="card_number" name="card_number" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="expiry_date">Expiry Date:</label>
+            <input type="text" class="form-control" id="expiry_date" name="expiry_date" required>
+          </div>
+          <div class="form-group col-md-6">
+            <label for="cvc">CVC:</label>
+            <input type="text" class="form-control" id="cvc" name="cvc" required>
+          </div>
+        </div>
+
+        <div class="form-check mb-3">
+          <input type="checkbox" class="form-check-input" id="save_payment" name="save_payment">
+          <label class="form-check-label" for="save_payment">Save payment details for future use</label>
+        </div>
+
+        <!-- Promo code -->
+        <div class="form-group">
+          <label for="promo_code">Promo Code:</label>
+          <div class="d-flex">
+            <input type="text" class="form-control mb-3 mr-2" id="promo_code" name="promo_code">
+            <button type="button" class="btn btn-sm bgd-dark flex-fill" id="check_promo_code">Check Promo</button>
+          </div>
+          <span id="promo_code_status"></span>
+        </div>
+
+        <!-- Place Order button -->
+        <button type="submit" class="btn btn-success btn-lg btn-block" >Place Order</button>
+      </form>
+    </div>
+
+<!-- Right side - Order summary -->
+<div class="flex-grow-1">
+  <h2 class="mb-4">Order Summary</h2>
+  <!-- Order summary details for each item -->
+  {% for item in cart_items %}
+    <div class="order-item mb-3">
+      <div class="d-flex align-items-center mb-2">
+        <img src="{{ item.image_url }}" alt="Item Image" class="order-item-image">
+        <div class="flex-grow-1 ml-3">
+          <h6 class="mb-0 text-truncate">{{ item.name }}</h6>
+          <p class="mb-0">Price: ${{"%0.2f"|format(item.price)}} | Color: {{ item.color }} | Size: {{ item.size}} | Quantity: {{ item.quantity }}</p>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  <!-- End of Order summary details for each item -->
+
+  <!-- Subtotal, Promo code discount, Shipping costs, and Total cost -->
+  <hr class="bgd-light">
+  <div class="d-flex justify-content-between">
+    <div>Subtotal:</div>
+    <div id="subtotal">${{ subtotal }}</div>
+  </div>
+  <div class="d-flex justify-content-between" id="promo_code_display">
+    <div>Promo Code Discount:</div>
+    <div id="promo_code_discount">{{ promo_code_discount }}</div>
+  </div>
+  <div class="d-flex justify-content-between">
+    <div>Shipping Costs:</div>
+    <div id="shipping_costs">5</div>
+  </div>
+  <hr class="bgd-light">
+  <div class="d-flex justify-content-between font-weight-bold">
+    <div>Total:</div>
+    <div id="total_cost">${{ total_cost }}</div>
+  </div>
+  <!-- End of Subtotal, Promo code discount, Shipping costs, and Total cost -->
+
+  <!-- Go back option -->
+  <a href="/cart" class="btn btn-lg btn-block bgd-dark mt-3">Go Back</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const checkPromoCodeButton = document.getElementById('check_promo_code');
+    const promoCodeInput = document.getElementById('promo_code');
+    const promoCodeStatus = document.getElementById('promo_code_status');
+    const promoCodeDiscountElement = document.getElementById('promo_code_discount');
+    const promoCodeDisplayElement = document.getElementById('promo_code_display');
+    const subtotal = parseFloat(document.getElementById('subtotal').innerText.replace('$', ''));
+
+    checkPromoCodeButton.addEventListener('click', () => {
+      const promoCode = promoCodeInput.value;
+      fetch('/validate_promo_code', {
+        method: 'POST',
+        body: new URLSearchParams({ promo_code: promoCode }),
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.valid) {
+          promoCodeStatus.innerText = `Promo code applied! Discount: ${data.discount}%`;
+          // Update the promo code discount in the order summary
+          const promoCodeDiscountElement = document.getElementById('promo_code_discount');
+          promoCodeDiscount = parseFloat((subtotal * (data.discount / 100)).toFixed(2));
+          promoCodeDiscountElement.innerText = `$${promoCodeDiscount}`;
+          // Recalculate the total cost
+          updateTotalCost();
+          updatePromoCodeDisplay()
+        } else {
+          promoCodeStatus.innerText = 'Invalid promo code. Please try again.';
+        }
+      })
+      .catch(error => {
+        promoCodeStatus.innerText = 'An error occurred while validating the promo code.';
+        console.error('Error:', error);
+      });
+    });
+    
+    let promoCodeDiscount = parseFloat(document.getElementById('promo_code_discount').innerText);
+
+    // JavaScript code to handle updates
+    const deliveryOption = document.getElementById('delivery_option');
+    const shippingCosts = document.getElementById('shipping_costs');
+    const shippingCostValue = 5; // Default shipping cost for standard delivery
+    const totalCost = document.getElementById('total_cost');
+    const deliveryAddressField = document.getElementById('address-form-group');
+
+    function updateTotalCost() {
+      const shippingCost = deliveryOption.value === 'collect_on_store' ? 0 : shippingCostValue;
+      const total = (subtotal - promoCodeDiscount + shippingCost).toFixed(2);
+
+      console.log('total: ', total)
+
+      shippingCosts.innerText = '$' + shippingCost.toFixed(2);
+      totalCost.innerText = '$' + total;
+
+      // Show/hide delivery address field based on the selected delivery option
+      if (deliveryOption.value === 'collect_on_store') {
+        deliveryAddressField.style.display = 'none';
+      } else {
+        deliveryAddressField.style.display = 'block';
+      }
+    }
+
+    function updatePromoCodeDisplay() {
+    const promoCodeDiscount = parseFloat(promoCodeDiscountElement.innerText);
+    if (promoCodeDiscount == '0') {
+      console.log('im going to hide it!')
+      promoCodeDisplayElement.classList.add('hide-promo-code');
+    } else {
+      promoCodeDisplayElement.classList.remove('hide-promo-code');
+    }
+  }
+    // Update the total cost and handle delivery option change when the page loads
+    updateTotalCost();
+    updatePromoCodeDisplay();
+    console.log('shippingCosts: ', shippingCostValue);
+    console.log('subtotal: ', subtotal);
+    console.log('promoCodeDiscount: ', promoCodeDiscount);
+    deliveryOption.addEventListener('change', updateTotalCost);
+  });
+</script>
+{% endblock %}

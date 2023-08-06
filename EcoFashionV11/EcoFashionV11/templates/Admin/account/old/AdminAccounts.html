@@ -1,0 +1,124 @@
+import React, { useState } from "react";
+import AdminInfo from "../components/AdminInfo";
+import AdminUpdate from "../components/AdminUpdate";
+import AdminDelete from "../components/AdminDelete";
+
+export default function CutomerAccounts() {
+  const [isAdminInfo, setISAdminInfo] = useState(false)
+  const [isAdminUpdate, setIsAdminUpdate] = useState(false)
+  const [isAdminDelete, setIsAdminDelete] = useState(false)
+
+  // Function to receive data from child component
+  const handleDataFromChild = (data) => {
+    setISAdminInfo(data)
+    
+    // Perform actions with the received data
+  };
+  const handleUpdateDataFromChild = (data) => {
+    setIsAdminUpdate(data)
+    
+    // Perform actions with the received data
+  };
+  const handleDeleteDataFromChild = (data) => {
+    setIsAdminDelete(data)
+    
+    // Perform actions with the received data
+  };
+
+  return (
+    <>
+      {isAdminInfo && <AdminInfo onDataFromChild={handleDataFromChild}/>}
+      {isAdminUpdate && <AdminUpdate onDataFromChild={handleUpdateDataFromChild}/>}
+      {isAdminDelete && <AdminDelete onDataFromChild={handleDeleteDataFromChild}/>}
+
+      <div>
+        <p className="text-xl mb-3 text-white font-bold ">
+          ADMINISTRATOR'S ACCOUNTS
+        </p>
+        <hr className="w-120" />
+      </div>
+      <div className="w-170 h-100 bg-sidebar mt-10 ">
+        <table className="w-full">
+          <thead className="h-16 mb-4 font-semibold bg-slate-300">
+            <th>Admin ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Gender</th>
+            <th></th>
+            <th></th>
+          </thead>
+          <tbody className="ml-2">
+          <tr
+              onClick={()=> setISAdminInfo(true)}
+              className="border-b border-b-black hover:bg-gray-100 cursor-pointer "
+            >
+              <td className="text-center py-4 font-bold">A1</td>
+              <td className="text-center py-4 font-bold">ChrisW</td>
+              <td className="text-center py-4 font-bold">
+                ChrisW1234@gmail.com
+              </td>
+              <td className="text-center py-4 font-bold">M</td>
+
+              <td className="text-center py-4 ">
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setIsAdminUpdate(true)
+                  }}
+                  className="border border-black w-20 h-11 font-bold text-green-700 hover:bg-green-200"
+                >
+                  UPDATE
+                </button>
+              </td>
+              <td className="text-center py-4">
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setIsAdminDelete(true)
+                  }}
+                  className="border border-black w-20 h-11 font-bold text-red-700 hover:bg-red-200"
+                >
+                  DELETE
+                </button>
+              </td>
+            </tr>
+            <tr
+              onClick={()=> setISAdminInfo(true)}
+              className="border-b border-b-black hover:bg-gray-100 cursor-pointer "
+            >
+              <td className="text-center py-4 font-bold">A2</td>
+              <td className="text-center py-4 font-bold">Nasir javed</td>
+              <td className="text-center py-4 font-bold">
+                nasir1234@gmail.com
+              </td>
+              <td className="text-center py-4 font-bold">M</td>
+
+              <td className="text-center py-4 ">
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setIsAdminUpdate(true)
+                  }}
+                  className="border border-black w-20 h-11 font-bold text-green-700 hover:bg-green-200"
+                >
+                  UPDATE
+                </button>
+              </td>
+              <td className="text-center py-4">
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setIsAdminDelete(true)
+                  }}
+                  className="border border-black w-20 h-11 font-bold text-red-700 hover:bg-red-200"
+                >
+                  DELETE
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </>
+  );
+}

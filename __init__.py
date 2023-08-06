@@ -356,6 +356,7 @@ def display_payment():
         line_item = {
             'price': find_product(item.name, item.color, item.size)["default_price"],
             'quantity': item.quantity,
+            'adjustable_quantity': {"enabled": True, "minimum": 1, "maximum": 99},
             }
         
         line_items.append(line_item)

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Admin Profile{% endblock %}
+
+{% block content %}
+<div class="text-white text-lg">
+  <div class="flex items-center mb-6">
+    <div class="font-bold text-2xl">Edit Admin Profile </div>
+    <i class="bx bx-chevron-down text-4xl mt-1 text-white"></i>
+  </div>
+  <div class="flex items-center">
+    <i class="bx bx-user-circle mr-4 text-4xl text-white"></i>
+    <div>
+      <div class="">ECOFASHION HUB ADMIN</div>
+      <div>staff_ID ChrisW</div>
+    </div>
+  </div>
+  <div class="font-semibold text-lg flex mt-5 ">
+    <div onclick="setAdminForm(true)" class="flex items-center cursor-pointer {% if adminForm %}text-white{% else %}text-gray-400{% endif %}">
+      <p class="">DETAILS</p><i class="bx bx-chevron-down mr-8 text-4xl "></i>
+    </div>
+    <div onclick="setAdminForm(false)" class="flex items-center cursor-pointer {% if not adminForm %}text-white{% else %}text-gray-400{% endif %}">
+      <p class="">PASSWORD</p><i class="bx bx-chevron-down text-4xl "></i>
+    </div>
+  </div>
+  <div id="form-content">
+    <!-- The content of AdminFrom and AdminPasswordForm will be inserted here -->
+  </div>
+</div>
+
+<script>
+  let adminForm = {{ adminForm|tojson }};
+
+  function setAdminForm(value) {
+    adminForm = value;
+    updateForm();
+  }
+
+  function updateForm() {
+    const formContent = document.getElementById("form-content");
+    if (adminForm) {
+      formContent.innerHTML = `{% include 'admin_form.html' %}`;
+    } else {
+      formContent.innerHTML = `{% include 'admin_password_form.html' %}`;
+    }
+  }
+</script>
+{% endblock %}

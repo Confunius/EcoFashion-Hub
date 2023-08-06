@@ -1,0 +1,140 @@
+{% extends "Customer/base.html" %}
+{% block title %}Ecofashion Hub - Product Info{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <img src="{{ productobj.image }}" class="img-fluid" alt="{{ productobj.name }}">
+        </div>
+        <div class="col-md-8">
+            <h2 class="mb-3">{{ productobj.name }}</h2>
+            <div class="d-flex align-items-center mb-3">
+                <span class="mr-2">Rating:</span>
+                <div class="d-flex align-items-center">
+                    {% if rounded_rating %}
+                        {% for _ in range(rounded_rating|int) %}
+                            <p class="text-warning mr-1 mb-0">&#9733;</p>
+                        {% endfor %}
+                    {% else %}
+                        <span class="mr-2">Not rated yet</span>
+                    {% endif %}
+                </div>
+            </div>
+            <p class="mb-3">Price: ${{ "%0.2f"|format(productobj.list_price) }}</p>
+            <div class="form-group">
+                <label for="size">Size:</label>
+                <select class="form-control" id="size" name="size" required> {# this is the drop down box for size#}
+                    {% for size_option in size_options%}
+                        <option value="{{ size_option }}" {% if productobj.size == size_option %}selected{% endif %}>{{ size_option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="color">Color:</label>
+                <select class="form-control" id="color" name="color" required> {# this is the drop down box for color #}
+                    {% for color_option in color_options%}
+                        <option value="{{ color_option }}" {% if productobj.color == color_option %}selected{% endif %}>{{ color_option }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>  {# this is the input for quantity #}
+                <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" required>
+            </div>
+            <p class="mb-3">Stock Left: {{ productobj.stock }}</p>
+            <p class="mb-3">Product Details: {{ productobj.description }}</p>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Sidebar for Buttons -->
+<div class="position-fixed m-4" style="right:0;">
+    <div class="d-flex flex-column">
+        <form action="{{ url_for('add_to_cart') }}" method="post" id="add-to-cart-form" onsubmit="return addtocart()">  {# this is the add to cart button #}
+            <input type="hidden" name="product_id" value="{{ productobj.product_id }}">
+            <input type="hidden" name="size" id="size_input">
+            <input type="hidden" name="quantity" id="quantity_input">
+            <input type="hidden" name="color" id="color_input">        
+            <button type="submit" class="btn bgd-light mb-2" style="width:100%">Add to Cart</button>
+        </form>
+        <button class="btn bgd-light mb-2">Add to Wishlist</button>
+        <button class="btn btn-secondary" href="/product">Continue Shopping</button>
+    </div>
+</div>
+
+
+
+<!-- User Review Form -->
+<div class="container mt-5">
+    <h3 class="text-center">Customer Reviews</h3>
+    <form action="{{ url_for('add_review', product_id=productobj.product_id) }}" method="POST">
+        <!-- Add CSRF token to the form -->
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="form-group">
+            <label for="customer_name">Your Name:</label>
+            <input type="text" class="form-control" id="customer_name" name="customer_name" required>
+        </div>
+        <div class="form-group">
+            <label for="rating">Rating:</label>
+            <select class="form-control" id="rating" name="rating" required>
+                <option value="5">5 stars</option>
+                <option value="4">4 stars</option>
+                <option value="3">3 stars</option>
+                <option value="2">2 stars</option>
+                <option value="1">1 star</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="review_comment">Review Comment:</label>
+            <textarea class="form-control" id="review_comment" name="review_comment" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn bgd-light">Submit Review</button>
+    </form>
+</div>
+
+<!-- Display Existing Reviews -->
+<div class="container mt-5">
+    {% if review_list %}
+    <h4 class="text-center">Existing Reviews</h4>
+    <ul>
+        {% for review in review_list %}
+        <li>
+            <p class="mb-0"><strong>{{ review.author }}</strong>
+                 - Rating: <div class="d-flex flex-row">
+                {% for _ in range(review.rating) %}
+                    <p class="text-warning mr-1 mb-0">&#9733;</p>
+                {% endfor %}
+                </div>
+            <p>{{ review.description }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p class="text-center">No reviews yet. Be the first one to review this product!</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function addtocart() {
+        var size = document.getElementById("size").value;
+        var quantity = document.getElementById("quantity").value;
+        var color = document.getElementById("color").value;
+    
+        if (size === "" || quantity === "") {
+            alert("Please select a valid Size and Quantity.");
+            return false;
+        }
+
+        // Set the selected Size and Quantity values to hidden input fields
+        document.getElementById("size_input").value = size;
+        document.getElementById("quantity_input").value = quantity;
+        document.getElementById("color_input").value = color;
+
+        // Submit the form
+        return true;
+    }
+    </script>
+{% endblock %}

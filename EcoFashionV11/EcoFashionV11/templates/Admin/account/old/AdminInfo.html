@@ -1,0 +1,101 @@
+{% extends "Admin/base.html" %}
+{% block title %}Admin Delete{% endblock %}
+
+{% block content %}
+<div>
+  <div class='w-140 h-80 mt-36 ml-24 bg-sidebar border border-gray-600 z-10 absolute'>
+    <div class='flex'>
+      <p class='text-lg font-bold p-2 text-background'>MORE DETAILS</p>
+      <i onclick="sendDataToParent()" class='bx bx-x text-5xl font-light ml-auto text-red-500 cursor-pointer'></i>
+    </div>
+    <div class='flex px-3'>
+      <div class='flex flex-col items-center'>
+        <img src='../assets/men.jpg' alt='pic' class='h-48 w-48' />
+        <p class='mt-1 font-semibold'>Krystal Tan</p>
+      </div>
+
+      <div class='ml-10 font-medium'>
+        <p class='mb-3'>Email:</p>
+        <p class='mb-3'>Gender:</p>
+        <p class='mb-3'>Staff ID:</p>
+        <p class='mb-3'>Phone No. :</p>
+
+        <p id='status'></p>
+      </div>
+
+      <div class='ml-10 font-semibold'>
+        <p class='mb-3'>Admin0344@gmail.com</p>
+        <p class='mb-3'>Male</p>
+        <p class='mb-3'>ChrisW</p>
+        <p class='mb-3'>03045653782</p>
+
+        <p id='statusText'></p>
+      </div>
+    </div>
+    <div id='buttonsContainer' class='flex justify-end mr-4 mb-6'>
+      <button onclick="setIsBan(true)" class='border border-black mr-4 w-28 h-10 font-semibold text-red-700 hover:bg-red-200'>
+        BAN
+      </button>
+
+      <button onclick="toggleSuspend()" class='border border-black w-28 h-10 font-semibold text-black hover:bg-gray-200'>
+        SUSPEND
+      </button>
+    </div>
+    <p id='bannedMessage' class='text-red-500 font-semibold text-lg ml-16 mt-4' style='display:none'>
+      Admin has been banned. (Failure to comply our guidelines)
+    </p>
+  </div>
+    </div>
+  <!-- Include any necessary JavaScript here -->
+  <script>
+    // Plain JavaScript implementation
+    let isBan = false;
+    let isSuspend = false;
+
+    function sendDataToParent() {
+      // Implement the functionality to send data to the parent here.
+      // Replace this with your desired action or remove if not needed.
+    }
+
+    function setIsBan(value) {
+      isBan = value;
+      const statusElement = document.getElementById('status');
+      const statusTextElement = document.getElementById('statusText');
+      const buttonsContainer = document.getElementById('buttonsContainer');
+      const bannedMessage = document.getElementById('bannedMessage');
+
+      if (isBan) {
+        statusElement.innerText = 'Status:';
+        statusTextElement.innerHTML = '<p class="text-red-500 font-bold">BANNED</p>';
+        buttonsContainer.style.display = 'none';
+        bannedMessage.style.display = 'block';
+      } else {
+        statusElement.innerText = '';
+        statusTextElement.innerText = '';
+        buttonsContainer.style.display = 'flex';
+        bannedMessage.style.display = 'none';
+      }
+    }
+
+    function toggleSuspend() {
+      isSuspend = !isSuspend;
+      const statusElement = document.getElementById('status');
+      const statusTextElement = document.getElementById('statusText');
+
+      if (isSuspend) {
+        statusElement.innerText = 'Status:';
+        statusTextElement.innerText = 'Suspend for 150 days';
+      } else {
+        statusElement.innerText = '';
+        statusTextElement.innerText = '';
+      }
+    }
+
+  </script>
+
+     {% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+{% endblock %}

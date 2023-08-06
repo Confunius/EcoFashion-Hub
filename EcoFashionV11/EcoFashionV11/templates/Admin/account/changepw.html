@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account</title>
+
+    <!-- Bootstrap 4.5.2 CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+      /* background colour: 4b6043 */
+      /* dark colour: ab916c*/
+      /* light colour: f2ecd8 */
+      .nav-item{
+        background-color: #ab916c;
+        color: white;
+      }
+      /* apply it on .nav-item 's link child' */
+
+      .nav-item a:hover {
+        color: black;
+      }
+      .list-group-item.active{
+        background-color: #ab916c;
+        border-color: #ab916c;
+        color: black;
+      }
+      
+      .bgd-light {
+        background-color: #f2ecd8!important;
+      }
+      .bgd-dark {
+        background-color: #ab916c!important;
+      }
+      .txt-light {
+        color: white!important;
+      }
+      .txt-dark {
+        color: black!important;
+      }
+    </style>
+    <link rel="stylesheet" href="adminstyle.css">
+
+  </head>
+
+<body style="background:#4b6043" class="text-light container-fluid p-0">
+    <nav class="navbar navbar-expand-sm bgd-dark">
+  <!-- Brand -->
+  <div class="container-fluid d-flex flex-row justify-content-start">
+    <div class="p-2">
+      <img title="logo" src="Img\brand-logo.png"
+    width="80" height="80" style="border-radius:50%">
+    </div>
+    <div class="p-2">
+      <a class="navbar-brand text-light" href="/">EcoFashion Hub Admin</a>
+    </div>
+    
+<!--Search Bar-->
+    <div class="topnav">
+      <input type="text" placeholder="Customer Records..">
+      <a href="#"><i class="fa fa-fw fa-search"></i> </a>
+    </div>
+
+
+    <div class="d-flex flex-column flex-fill p-2 drowdown">
+    <a class="nav-link align-self-end" href="#" id="navbardrop" data-toggle="dropdown"><i class="fa fa-fw fa-user"></i> Admin</a>
+    <div class="dropdown-menu" style="left: revert;right: 0;">
+        <a class="dropdown-item" href="/">Create Account</a>
+        <a class="dropdown-item" href="/">Logout</a>
+    </div>
+    </div>
+</div>
+  </nav>
+
+   <!-- Side Navigation Bar -->
+  <div class="sidenav">
+    <div class="nav-item">
+      <i class="bx bx-home"></i>
+      <a class="active" href="#"><i class="fa fa-fw fa-home"></i> Home</a>
+    </div>
+    <div class="nav-item dropdown">
+      <i class="bx bx-user"></i>
+      <a href="#"><i class="fa fa-fw fa-user"></i> Account Management</a>
+      <div class="dropdown-content">
+        <a href="editadmin.html">Edit Admin Profile</a>
+        <a href="#">Customer Accounts</a>
+        <a href="#">Admin Accounts</a>
+      </div>
+    </div>
+    <div class="nav-item">
+      <i class="bx bx-credit-card"></i>
+      <a href="#">Transaction Management</a>
+    </div>
+    <div class="nav-item">
+      <i class="bx bx-user-plus"></i>
+      <a href="#">Customer Management</a>
+    </div>
+  </div>
+
+  <!-- Add your main content here -->
+  <div class="col-md-8">
+    <br><br>
+    <!-- Add your main content here -->
+    <div class="container">
+        <h2 style="font-family: 'Montserrat', sans-serif; font-weight: bold; font-size: 28px;">ADMIN  CHANGE PASSWORD</h2>
+      <div class="line-container">
+        <hr class="half-screen-line" style="margin-bottom: 5px;">
+      </div>
+      <p style="font-size: 15px; margin-top: 10px;">To change password, please enter your new password below</p>
+      <form>
+        <div class="form-group">
+          <label for="Newpassword">New Password:</label>
+          <input type="text" class="form-control" id="new" value="New Password"  >
+        </div>
+        <div class="form-group">
+          <label for="COnfirmpassword">Confirm Password:</label>
+          <input type="email" class="form-control" id="confirm" value="Confirm Password" >
+        </div>
+        <br>
+        <div class="button-container">
+            <button type="submit" class="btn btn-primary settings-btn" style="color: #4b6043;">UPDATE</button>
+        </div>
+        </form>
