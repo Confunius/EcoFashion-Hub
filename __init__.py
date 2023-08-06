@@ -246,15 +246,20 @@ def cart_items_processor():
 @app.route('/product', methods=['POST'])
 def add_to_cart():
     product_id = request.form['product_id']
-    quantity = int(request.form['quantity'])
-    size = request.form['size']
-    color = request.form['color']
+
 
     # Fetch the product details from the database
     db_path = 'Objects/transaction/product.db'
     db = shelve.open(db_path, 'r')
     product = db.get(product_id)
+    default_quantity = 1
+    default_color = product.color_options[0]
+    default_size = product.size_options[0]
     db.close()
+
+    quantity = int(request.form.get('quantity', default_quantity))
+    size = request.form.get('size', default_size)
+    color = request.form.get('color', default_color)
 
     if product is None:
         return redirect(url_for('products'))
@@ -346,17 +351,15 @@ def display_payment():
     cart_items = cartobj.get_cart_items()
     line_items = []
     db_file = 'Objects/transaction/promo.db'
-
+    print("cart_items[0].name", cart_items[0].name)
+    print("cart_items[0].size", cart_items[0].size)
+    print("cart_items[0].color", cart_items[0].color)
+    print("find_product()", find_product(cart_items[0].name, cart_items[0].color, cart_items[0].size))
+    print("find_product()['default_price']", find_product(cart_items[0].name, cart_items[0].color, cart_items[0].size)["default_price"])
     auto_promo = os.path.isfile(db_file)
     for item in cart_items:
         line_item = {
-            'price_data': {
-                'currency': 'sgd',
-                'product_data': {
-                    'name': item.name,
-                },
-                'unit_amount': int(item.price * 100),  # Stripe expects prices in cents
-            },
+            'price': find_product(item.name, item.color, item.size)["default_price"],
             'quantity': item.quantity,
             }
         
@@ -1027,13 +1030,8 @@ def update_product(product_id):
         productobj.category = category
         db[product_id] = productobj
 
-    stripe_product = find_product(name)
-
     # Find the base product
     base_product = find_product(name)
-    if base_product is None:
-        # If the base product doesn't exist, create it
-        base_product = stripe.Product.create(name=name)
 
     base_product = base_product[0]  # Assuming find_product returns a list
 
@@ -1047,7 +1045,7 @@ def update_product(product_id):
         currency="sgd",
     )
 
-    stripe.Product.modify(base_product['id'], default_price = default_price)
+    stripe.Product.modify(base_product['id'], default_price = default_price['id'])
     # Now you should be able to archive the old default price
     stripe.Price.modify(old_default_price_id, active=False)
 
@@ -1074,6 +1072,8 @@ def update_product(product_id):
 
             # Save the old default price ID for the variant
             old_default_price_id = variant_product['default_price']
+
+            stripe.Product.modify(variant_product['id'], default_price = variant_price['id'])
 
             # Now you should be able to archive the old default price for the variant
             stripe.Price.modify(old_default_price_id, active=False)
@@ -1126,7 +1126,7 @@ def product_admin():
                 "product_id": "P1",
                 "name": "Men 100% Cotton Linen Long Sleeve Shirt",
                 "color_options": ["White", "Green"],
-                "size_options": ["M"],
+                "size_options": ["M", "L"],
                 "cost_price": 8,
                 "list_price": 16,
                 "stock": 3,
@@ -1216,7 +1216,7 @@ def find_product(name, color=None, size=None):
         if color and size:
             # if color and size are specified, check for exact match
             if product_name == f"{name} | {color} | {size}":
-                return [product]
+                return product
         else:
             # if color and size are not specified, check if the product name matches
             if name in product_name:

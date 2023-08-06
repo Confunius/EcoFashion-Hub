@@ -58,10 +58,7 @@
                     <h4 class="price">${{ "%0.2f"|format(product.list_price) }}</h4>
                     <form action="{{ url_for('add_to_cart') }}" method="post">
                         <input type="hidden" name="product_id" value="{{ product.product_id }}">
-                        <input type="hidden" name="size" value="Small">
-                        <input type="hidden" name="quantity" value="1">
-                        <input type="hidden" name="color" value="White">
-                        <button type="submit" class="align-self-end add-to-cart p-3">Add to Cart</button>
+                        <button type="submit" class="align-self-end add-to-cart p-3" >Add to Cart</button>
                     </form>
                 </div>
             </div>
@@ -92,6 +89,6 @@
       // Add event listener to the search input
       searchInput.addEventListener('input', handleSearch);
     });
-    </script>
+</script>
 {% endblock %}
 
