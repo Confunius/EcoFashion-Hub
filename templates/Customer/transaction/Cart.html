@@ -90,7 +90,7 @@
   </div>
   <div class="d-flex justify-content-around mt-4">
     <div class="d-flex flex-column">
-      <span id="please_wait" style="display: none;">Please wait for 4 seconds for Express Checkout to appear below</span>
+      <span id="please_wait" style="display: none;">Please wait for 3 seconds for Express Checkout to appear below</span>
       <div id="express-checkout-element" class="mr-2"></div>
     </div>
     <a href="/payment" class="btn bgd-light text-center">Checkout with card & redeem promocodes</a>
@@ -141,10 +141,10 @@ window.onload = function() {
     var pleaseWaitElement = document.getElementById('please_wait');
     pleaseWaitElement.style.display = 'block';
 
-    // Step 3: Hide the element after 4 seconds
+    // Step 3: Hide the element after 3 seconds
     setTimeout(function() {
         pleaseWaitElement.style.display = 'none';
-    }, 4000); // 5000 milliseconds = 4 seconds
+    }, 3000); // 3000 milliseconds = 3 seconds
 };
 </script>
 {% endblock %}

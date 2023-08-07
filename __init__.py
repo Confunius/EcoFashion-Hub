@@ -482,7 +482,7 @@ def thankyou():
     product_db_path = 'Objects/transaction/product.db'
     order_db_path = 'Objects/transaction/order.db'
     checkout_info = stripe.checkout.Session.retrieve(session['checkout_session_id'])
-    checkout_line_items = stripe.checkout.Session.list_line_items(checkout_info['id'])
+    # checkout_line_items = stripe.checkout.Session.list_line_items(checkout_info['id'])
     subtotal = float(checkout_info['amount_subtotal']/100)
     total_cost = float(checkout_info['amount_total']/100)
     order_id = checkout_info['payment_intent']
@@ -552,7 +552,8 @@ def thankyou():
     # Create new order object
     user_id = 0
     order_date = datetime.now().date()
-    order = Order(order_id, user_id, product_id_list, size, color, quantity, order_date, delivery_option, promo_code)
+    order_status = "processing"
+    order = Order(order_id, user_id, product_id_list, size, color, quantity, order_date, delivery_option, promo_code, order_status)
     with shelve.open(order_db_path) as db:
         db[order_id] = order
 
@@ -572,14 +573,22 @@ def cancel_and_refund(order_id):
     if order_id:
         # Open the shelve database
         db = shelve.open(db_path, 'w')
-
         # Delete the order from the database
-        del db[order_id]
+        orderobj = db[order_id]
+        orderobj.order_status = "cancelled"
+        try:
+            stripe.Refund.create(
+                payment_intent=order_id,
+            )
+            orderobj.order_status = "refunded"
+        except:
+            print("Refund failed")
 
+        db[order_id] = orderobj
         # Close the shelve database
         db.close()
 
-    return render_template('transaction/CancelAndRefund.html')
+    return render_template('Customer/transaction/CancelRefund.html')
 
 # Customer Service
 with shelve.open("deleted_records.db") as deleted_records_db:

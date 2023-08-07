@@ -26,6 +26,7 @@
                 <th>Order_Date</th>
                 <th>Delivery</th>
                 <th>Promo code</th>
+                <th>Order Status</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -41,6 +42,7 @@
                 <td>{{ order.order_date }}</td>
                 <td>{{ order.delivery }}</td>
                 <td>{{ order.promo_code }}</td>
+                <td>{{ order.order_status }}</td>
                 <td>
                     <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#viewModal{{ order.order_id }}">View</button>
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal{{ order.order_id }}">Delete</button>
