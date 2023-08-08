@@ -85,7 +85,7 @@
     }
 
     </style>
-    {% extends "base.html" %} {% block title %}Ecofashion Hub - Customer Service Admin{% endblock %} {% block content %}
+    {% extends "base.html" %} {% block title %}Ecofashion Hub - Record Detail Admin{% endblock %} {% block content %}
 
 
 </head>
@@ -189,24 +189,31 @@
         xhr.send(data);
     }
 
+    function censorMessage(message, profanityWords) {
+            for (const word of profanityWords) {
+                const regex = new RegExp('\\b' + word + '\\b', 'gi');
+                message = message.replace(regex, '*'.repeat(word.length));
+            }
+            return message;
+         }
+
     // Function to send a new message
     function sendMessage() {
         const messageInput = document.getElementById("messageInput");
-        const message = messageInput.value.trim();
-        addMessageToChatHistory("Admin", message);
-        messageInput.value = "";
-        if (message !== "") {
-            if (automatedResponseSent === "False"){
-                // Send the automated response only for the first message
-                addMessageToChatHistory("bot", "Thank you for your message! Our customer support team will get back to you shortly.");
-                automatedResponseSent = "True";
-
-            }
-
-            // In this example, we assume the customer's name is "Customer"
-            // You can replace "Customer" with the actual customer's name
-
+        let message = messageInput.value.trim();
+        if (message === "") {
+            return;
         }
+        // Fetch the CSV data from the server
+        fetch('/get_csv')
+        .then(response => response.text())
+        .then(csvText => {
+            const csvLines = csvText.split('\n');
+            const profanityWords = csvLines.slice(1).map(line => line.split(',')[0].trim());
+            message = censorMessage(message, profanityWords); // Censor the user's message
+            addMessageToChatHistory("Admin", message);
+            messageInput.value = "";
+        });
     }
 
     function deleteRecord() {
