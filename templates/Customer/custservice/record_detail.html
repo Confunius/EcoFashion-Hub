@@ -23,6 +23,7 @@
     }
 
     .resolve-button {
+    display: block;
     padding: 5px 10px;
     background-color: #ab916c;
     color: #943b46;
@@ -33,7 +34,20 @@
     font-family: Arial, sans-serif;
     font-weight: bold;
     position: relative;
-    right: 60px;
+    }
+
+    .delete-button {
+        padding: 5px 10px;
+        background-color: #ab916c;
+        color: #943b46;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-family: Arial, sans-serif;
+        font-weight: bold;
+        position: relative;
+        */
     }
 
     .chat-history {
@@ -85,21 +99,23 @@
     }
 
     </style>
-    {% extends "Customer/base.html" %} {% block title %}Ecofashion Hub - Record Details{% endblock %} {% block content %}
+    {% extends "base.html" %} {% block title %}Ecofashion Hub - Record Detail{% endblock %} {% block content %}
 
 
 </head>
 <body>
     <div class="chatbox">
+        <!-- Add the delete button inside the chat-header div -->
         <div class="chat-header">
-            <div class = "resolve-button">
-                <button onclick="resolveChat()">RESOLVE</button>
-            </div>
             <div class="delete-button">
                 <button onclick="deleteRecord()">DELETE</button>
             </div>
             <h2>Customer Support</h2>
+            <div class="resolve-button" id="ResolveButton">
+                <button onclick="resolveChat()">RESOLVE</button>
+            </div>
         </div>
+
 
        <div class="chat-history" id="chatHistory">
             {% for i in range(senders|length) %}
@@ -132,11 +148,12 @@
         });
     {% endfor %}
 
+
     if (status === "Resolved") {
         const messageInput = document.getElementById("messageInput");
         messageInput.disabled = true;
+        ResolveButton.style.display = "none";
     };
-
 
     window.addEventListener('beforeunload', function(event) {
         if (save === "True") {
@@ -169,7 +186,8 @@
             const messageInput = document.getElementById("messageInput");
             messageInput.disabled = true;
             alert("Chat resolved successfully!");
-            status = "Resolved"
+            status = "Resolved";
+            ResolveButton.style.display = "none";
         } else {
             // If the user cancels, do nothing
         }
@@ -207,21 +225,38 @@
         xhr.send(data);
     }
 
+    function censorMessage(message, profanityWords) {
+            for (const word of profanityWords) {
+                const regex = new RegExp('\\b' + word + '\\b', 'gi');
+                message = message.replace(regex, '*'.repeat(word.length));
+            }
+            return message;
+         }
+
     // Function to send a new message
     function sendMessage() {
         const messageInput = document.getElementById("messageInput");
-        const message = messageInput.value.trim();
-        addMessageToChatHistory("Customer", message);
-        messageInput.value = "";
-        if (message !== "") {
-            if (automatedResponseSent === "False"){
-                // Send the automated response only for the first message
-                addMessageToChatHistory("bot", "Thank you for your message! Our customer support team will get back to you shortly.");
-                automatedResponseSent = "True";
-
-            }
-
+        let message = messageInput.value.trim();
+        if (message === "") {
+            return;
         }
+        // Fetch the CSV data from the server
+        fetch('/get_csv')
+        .then(response => response.text())
+        .then(csvText => {
+            const csvLines = csvText.split('\n');
+            const profanityWords = csvLines.slice(1).map(line => line.split(',')[0].trim());
+            message = censorMessage(message, profanityWords); // Censor the user's message
+            addMessageToChatHistory("Customer", message);
+            messageInput.value = "";
+            if (message !== "") {
+                if (automatedResponseSent === "False") {
+                    // Send the automated response only for the first message
+                    addMessageToChatHistory("bot", "Thank you for your message! Our customer support team will get back to you shortly.");
+                    automatedResponseSent = "True";
+                }
+            }
+        });
     }
 
     function deleteRecord() {
