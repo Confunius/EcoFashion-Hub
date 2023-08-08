@@ -1,5 +1,5 @@
 import json
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g, send_file
 import shelve
 import sys
 import os
@@ -591,20 +591,21 @@ def cancel_and_refund(order_id):
     return render_template('Customer/transaction/CancelRefund.html')
 
 # Customer Service
-with shelve.open("deleted_records.db") as deleted_records_db:
-    deleted_record_ids = deleted_records_db.get('deleted_record_ids', set())
+with shelve.open("custservice_deleted_records.db") as custservice_deleted_records_db:
+    deleted_record_ids = custservice_deleted_records_db.get('deleted_record_ids', set())
 
-with shelve.open("deleted_records_admin.db") as deleted_records_admin_db:
-    deleted_record_admin_ids = deleted_records_admin_db.get('deleted_record_ids', set())
+with shelve.open("custservice_deleted_records_admin.db") as custservice_deleted_records_admin_db:
+    deleted_record_admin_ids = custservice_deleted_records_admin_db.get('deleted_record_ids', set())
 
+# Add any other methods or attributes required for your Record class
 def get_total_record_count():
     with shelve.open("service_records.db") as service_records_db:
         # Get the count of current records
         current_count = len(service_records_db)
 
-    with shelve.open("deleted_records.db") as deleted_records_db:
+    with shelve.open("custservice_deleted_records.db") as custservice_deleted_records_db:
         # Get the count of deleted records
-        deleted_count = len(deleted_records_db.get('deleted_record_ids', set()))
+        deleted_count = len(custservice_deleted_records_db.get('deleted_record_ids', set()))
 
     # Calculate the total count by adding current and deleted records
     total_count = current_count + deleted_count
@@ -616,11 +617,14 @@ def FAQ():
         faqs = db.get("faqs", [])
     return render_template('/Customer/custservice/FAQ.html', faqs=faqs)
 
-
+@app.route('/get_csv')
+def get_csv():
+    csv_file_path = r'C:\Users\ethan\Downloads\profanity_en.csv'
+    return send_file(csv_file_path, as_attachment=True)
+    
 @app.route('/CustomerService')
 def CustomerService():
     return render_template('/Customer/custservice/CustomerService.html')
-
 
 @app.route('/ServiceRecord')
 def ServiceRecord():
@@ -640,6 +644,7 @@ def record_detail(record_id):
         date = record.date
         status = record.status
         auto = record.auto
+        user = record.user_id
 
         # Parse the string as a list of dictionaries
         chat_list = json.loads(chat)
@@ -655,16 +660,8 @@ def record_detail(record_id):
             contents.append(content)
 
         return render_template('Customer/custservice/record_detail.html', record=record, senders=senders, contents=contents,
-                               subject=subject, date=date, status=status, auto=auto)
-    # Loop through the list of dictionaries to retrieve the sender and content
-    for entry in chat_list:
-        sender = entry['sender']
-        content = entry['content']
-        senders.append(sender)
-        contents.append(content)
-
-    return render_template('/Customer/custservice/record_detail.html', record=record, senders=senders, contents=contents,
-                           subject=subject, date=date, status=status, auto=auto)
+                               subject=subject, date=date, status=status, auto=auto, user_id=user)
+   
 
 @app.route('/save_service_record', methods=['POST'])
 def save_service_record():
@@ -685,7 +682,8 @@ def save_service_record():
                 chat=data['chatHistory'],
                 subject=data['subject'],
                 status=data['status'],
-                auto=data['auto']
+                auto=data['auto'],
+                user_id="Real"
             )
             service_records_db[record_id] = record
     else:
@@ -729,7 +727,8 @@ def save_service_record():
                     chat=data['chatHistory'],
                     subject=data['subject'],
                     status=data['status'],
-                    auto=data['auto']
+                    auto=data['auto'],
+                    user_id=["Real"]
                 )
                 service_records_admin_db[record_id] = record_admin
 
@@ -748,14 +747,13 @@ def delete_record(record_id):
         if record_id in service_records_db:
             # If the record exists, delete it from the dictionary
             deleted_record_ids.add(record_id)
-            with shelve.open("deleted_records.db") as deleted_records_db:
-                deleted_records_db['deleted_record_ids'] = deleted_record_ids
+            with shelve.open("custservicedeleted_records.db") as custservice_deleted_records_db:
+                custservice_deleted_records_db['deleted_record_ids'] = deleted_record_ids
             del service_records_db[record_id]
             return jsonify({'message': 'Record deleted successfully'})
         else:
             # If the record_id does not exist, return an error message
             return jsonify({'error': 'Record not found'}), 404
-
 # Admin side
 
 @app.route('/admin')
@@ -1301,6 +1299,7 @@ def RecordDetailAdmin(record_id):
         date = record.date
         status = record.status
         auto = record.auto
+        user = record.user_id
 
         # Parse the string as a list of dictionaries
         chat_list = json.loads(chat)
@@ -1316,7 +1315,7 @@ def RecordDetailAdmin(record_id):
             contents.append(content)
 
         return render_template('/Admin/custservice/RecordDetailAdmin.html', record=record, senders=senders, contents=contents,
-                               subject=subject, date=date, status=status, auto=auto)
+                               subject=subject, date=date, status=status, auto=auto, user=user)
 
 @app.route('/ServiceRecordAdmin')
 def ServiceRecordAdmin():
@@ -1330,13 +1329,81 @@ def delete_record_admin(record_id):
         if record_id in service_records_admin_db:
             # If the record exists, delete it from the dictionary
             deleted_record_admin_ids.add(record_id)
-            with shelve.open("deleted_records_admin.db") as deleted_records_admin_db:
-                deleted_records_admin_db['deleted_record_admin_ids'] = deleted_record_admin_ids
+            with shelve.open("custservice_deleted_records_admin.db") as custservice_deleted_records_admin_db:
+                custservice_deleted_records_admin_db['deleted_record_admin_ids'] = deleted_record_admin_ids
             del service_records_admin_db[record_id]
             return jsonify({'message': 'Record deleted successfully'})
         else:
             # If the record_id does not exist, return an error message
             return jsonify({'error': 'Record not found'}), 404
+def get_faqs_from_shelve():
+    with shelve.open("faqs.db") as db:
+        return db.get("faqs", [])
+
+def save_faqs_to_shelve(faqs):
+    with shelve.open("faqs.db") as db:
+        db["faqs"] = faqs
+
+@app.route('/FAQAdmin', methods=['GET', 'POST'])
+def FAQAdmin():
+    if request.method == 'POST':
+        # Get the new section, question, and answer from the form submitted
+        new_section = request.form['new_section']
+        new_question = request.form['new_question']
+        new_answer = request.form['new_answer']
+
+        # Retrieve the FAQs from the shelve database
+        faqs = get_faqs_from_shelve()
+
+        # Find the section in the existing FAQs or add a new one
+        for section_data in faqs:
+            if section_data['section'] == new_section:
+                section_data['questions'].append(new_question)
+                section_data['answers'].append(new_answer)
+                break
+
+        # Save the updated FAQs back into the shelve database
+        save_faqs_to_shelve(faqs)
+
+    # Retrieve the FAQs from the shelve database
+    faqs = get_faqs_from_shelve()
+
+    return render_template('FAQAdmin.html', faqs=faqs)
+
+@app.route('/update_faq', methods=['POST'])
+def update_faq():
+    # Handle form submission for updating question and answer
+    section_to_update = request.form['update_section']
+    index = int(request.form['update_index'])
+    updated_question = request.form['update_question']
+    updated_answer = request.form['update_answer']
+    faqs = get_faqs_from_shelve()
+    # Update the question and answer in the list under the specified section
+    for section in faqs:
+        if section['section'] == section_to_update:
+            section['questions'][index] = updated_question
+            section['answers'][index] = updated_answer
+    save_faqs_to_shelve(faqs)
+
+    # Redirect back to the FAQAdmin page after updating the question and answer
+    return redirect('/FAQAdmin')
+
+@app.route('/delete_faq', methods=['POST'])
+def delete_faq():
+    section = request.form['section']
+    index = int(request.form['index'])
+    # Retrieve the FAQs from the shelve database
+    faqs = get_faqs_from_shelve()
+
+    # Delete the question and answer from the FAQs list using the section and index
+    for section_data in faqs:
+        if section_data['section'] == section:
+            del section_data['questions'][index]
+            del section_data['answers'][index]
+            break
+    save_faqs_to_shelve(faqs)
+
+    return redirect('/FAQAdmin')
 
 if __name__ == '__main__':
     app.run(debug=True)
