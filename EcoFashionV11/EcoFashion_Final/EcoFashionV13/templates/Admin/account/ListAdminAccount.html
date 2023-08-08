@@ -1,0 +1,80 @@
+{% extends "Admin/adminbase.html" %}
+{% block title %}Ecofashion Hub - Admin Accounts{% endblock %}
+{% block content %}
+<h1 class="display-4">Retrieve Admin Accounts</h1>
+<div>
+  <table class="table table-striped" style="width:86.8%">
+   <thead>
+    <tr>
+     <th></th>
+     <th style="color: white;">Admin ID</th>
+     <th style="color: white;">First Name</th>
+     <th style="color: white;">Last Name</th>
+     <th style="color: white;">Username</th>
+     <th style="color: white;">Email</th>
+     <th style="color: white;">Phone Number</th>
+     <th></th>
+    </tr>
+   </thead>
+   <tbody>
+   {% for admin in adminsList %}
+    <tr>
+        <td></td>
+        <td style="color: #F2ECD8;">{{ admin.get_admin_id() }}</td>
+        <td style="color: #F2ECD8;">{{ admin.get_adminFirstName() }}</td>
+        <td style="color: #F2ECD8;">{{ admin.get_adminLastName() }}</td>
+        <td style="color: #F2ECD8;">{{ admin.get_adminUserName() }}</td>
+        <td style="color: #F2ECD8;">{{ admin.get_adminEmail() }}</td>
+        <td style="color: #F2ECD8;">{{ admin.get_adminPhoneNumber() }}</td>
+        <td>
+            <!-- Add a button to open the admin details modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#adminModal{{ admin.get_admin_id() }}" style="background-color: #F2ECD8; border-color: #AB916C; color: #AB916C;">
+                View Details
+            </button>
+
+            <!-- Admin details modal -->
+            <div class="modal fade" id="adminModal{{ admin.get_admin_id() }}" tabindex="-1" role="dialog" aria-labelledby="adminModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="adminModalLabel">Admin Details</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>Admin ID:</strong> {{ admin.get_admin_id() }}</p>
+                            <p><strong>First Name:</strong> {{ admin.get_adminFirstName() }}</p>
+                            <p><strong>Last Name:</strong> {{ admin.get_adminLastName() }}</p>
+                            <p><strong>Username:</strong> {{ admin.get_adminUserName() }}</p>
+                            <p><strong>Email:</strong> {{ admin.get_adminEmail() }}</p>
+                            <p><strong>Phone Number:</strong> {{ admin.get_adminPhoneNumber() }}</p>
+                            {% if admin.get_adminVerified() == "deactivated" %}
+                            <p style="color: red;">Account is deactivated/suspended</p>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <!-- Deactivate Account Button -->
+                            <form action="/AdminDeactivation/{{ admin.get_admin_id() }}" method="post">
+                                <button type="submit" class="btn btn-warning">Deactivate Account</button>
+                            </form>
+
+                            <!-- Delete Account Button -->
+                            <form action="/AdminDeletion/{{ admin.get_admin_id() }}" method="post">
+                                <button type="submit" class="btn btn-danger">Delete Account</button>
+                            </form>
+
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+
+   </tbody>
+  </table>
+</div>
+{% endblock %}
+

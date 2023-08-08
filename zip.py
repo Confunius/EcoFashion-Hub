@@ -3,7 +3,7 @@ import os, sys
 
 #unzip EcoFashionV11.zip
 
-zip_filepath = os.path.join(os.path.dirname(__file__), 'EcoFashionV11.zip')
+zip_filepath = os.path.join(os.path.dirname(__file__), 'EcoFashion_Final (2).zip')
 
 print(zip_filepath)
 dest_dir = os.path.join(os.path.dirname(__file__), 'EcoFashionV11')

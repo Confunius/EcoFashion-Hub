@@ -1,0 +1,78 @@
+{% extends "Admin/adminbase.html" %}
+{% block title %}Ecofashion Hub - Customer Home{% endblock %}
+{% block content %}
+<h1 class="display-4">Retrieve Users</h1>
+<div>
+  <table class="table table-striped" style="width:86%; margin-left:50px;">
+   <thead>
+    <tr>
+     <th></th>
+     <th style="color: white;">User ID</th>
+     <th style="color: white;">Username</th>
+     <th style="color: white;">Email</th>
+     <th></th>
+     <th></th>
+     <th></th>
+     <th></th>
+    </tr>
+   </thead>
+   <tbody>
+   {% for user in usersList %}
+    <tr>
+        <td></td>
+        <td style="color: #F2ECD8;">{{ user.get_user_id() }}</td>
+        <td style="color: #F2ECD8;">{{ user.get_userName() }}</td>
+        <td style="color: #F2ECD8;">{{ user.get_userEmail() }}</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>
+            <!-- Add a button to open the user details modal -->
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#userModal{{ user.get_user_id() }}" style="background-color: #F2ECD8; border-color: #AB916C; color: #AB916C;">
+                View Details
+            </button>
+
+            <!-- User details modal -->
+            <div class="modal fade" id="userModal{{ user.get_user_id() }}" tabindex="-1" role="dialog" aria-labelledby="userModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="userModalLabel">User Details</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>User ID:</strong> {{ user.get_user_id() }}</p>
+                            <p><strong>Username:</strong> {{ user.get_userName() }}</p>
+                            <p><strong>Email:</strong> {{ user.get_userEmail() }}</p>
+                            <p><strong>Address:</strong> {{ user.get_userAddress() }}</p>
+                            <p><strong>Postal Code:</strong> {{ user.get_userPostalCode() }}</p>
+                            {% if user.get_userVerified() == "deactivated" %}
+                            <p style="color: red;">Account is deactivated/suspended</p>
+                            {% endif %}
+                        </div>
+                        <div class="modal-footer">
+                            <!-- Deactivate Account Button -->
+                            <form action="/UserDeactivation/{{ user.get_user_id() }}" method="post">
+                                <button type="submit" class="btn btn-warning">Deactivate Account</button>
+                            </form>
+
+                            <!-- Delete Account Button -->
+                            <form action="/UserDeletion/{{ user.get_user_id() }}" method="post">
+                                <button type="submit" class="btn btn-danger">Delete Account</button>
+                            </form>
+
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+
+   </tbody>
+  </table>
+</div>
+{% endblock %}
