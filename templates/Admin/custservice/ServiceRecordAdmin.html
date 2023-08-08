@@ -50,6 +50,7 @@
             <tr>
                 <th>Customer Service Subject</th>
                 <th>Date Initiated</th>
+                <th>Status</th>
             </tr>
         </thead>
         <tbody id="serviceRecordBody">
@@ -57,6 +58,7 @@
             <tr onclick="redirectToRecordDetail('{{ record_id }}')">
                 <td>{{ record.subject }}</td>
                 <td>{{ record.date }}</td>
+                <td>{{ record.status }}</td>
             </tr>
             {% endfor %}
         </tbody>
