@@ -33,16 +33,16 @@
         <td>{{ item.name }}</td>
         <td>${{ "%0.2f"|format(item.price) }}</td>
         <td>
-<!-- Update Form -->
-<form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
-  <input type="hidden" name="action" value="increment">
-  <button type="submit" class="btn btn-sm bgd-dark">+</button>
-</form>
-{{ item.quantity }}
-<form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
-  <input type="hidden" name="action" value="decrement">
-  <button type="submit" class="btn btn-sm bgd-dark">-</button>
-</form>
+          <!-- Update Form -->
+          <form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
+            <input type="hidden" name="action" value="increment">
+            <button type="submit" class="btn btn-sm bgd-dark">+</button>
+          </form>
+          <text id="quantity" data-stock="{{ item.stock }}">{{ item.quantity }}</text>
+          <form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
+            <input type="hidden" name="action" value="decrement">
+            <button type="submit" class="btn btn-sm bgd-dark">-</button>
+          </form>
         </td>
         <td>
           <form action="{{ url_for('update_cart_item', cart_item_id=item.product_id) }}" method="POST" class="d-inline">
@@ -208,5 +208,22 @@ window.onload = function() {
         shipping_costs_input.style.display = 'block';
     }, 3000); // 3000 milliseconds = 3 seconds
 };
+document.addEventListener('DOMContentLoaded', function() {
+        // Get all "+" buttons
+        let incrementButtons = document.querySelectorAll('form [name="action"][value="increment"] + button');
+
+        incrementButtons.forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                let quantitySpan = document.getElementById('quantity')
+                let currentQuantity = parseInt(quantitySpan.textContent.trim(), 10);
+                let stock = parseInt(quantitySpan.getAttribute('data-stock'), 10);
+
+                if (currentQuantity + 1 > stock) {
+                    event.preventDefault();  // Prevent the form from submitting
+                    alert('You cannot add more of this product than what is in stock.');
+                }
+            });
+        });
+    });
 </script>
 {% endblock %}

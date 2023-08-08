@@ -41,6 +41,7 @@
         {% else %}
         <div class="d-flex flex-wrap flex-fill">
             {% for product in product_list %}
+            {% if product.stock != 0 %}
             <div class="product text-center mb-3 mr-3">
                 <div class="product-image">
                     <img src="{{ product.image }}" width="300px" height="500px">
@@ -62,6 +63,7 @@
                     </form>
                 </div>
             </div>
+            {% endif %}
             {% endfor %}
         </div>
         {% endif %}

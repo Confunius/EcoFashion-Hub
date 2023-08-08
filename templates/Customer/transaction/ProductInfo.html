@@ -2,6 +2,11 @@
 {% block title %}Ecofashion Hub - Product Info{% endblock %}
 
 {% block content %}
+{% if error_message %}
+<div class="alert alert-danger">
+    {{ error_message }}
+</div>
+{% endif %}
 <div class="container mt-5">
     <div class="row">
         <div class="col-md-4">
@@ -42,7 +47,7 @@
                 <label for="quantity">Quantity:</label>
                 <input type="number" class="form-control" id="quantity" name="quantity" value="1" min="1" required>
             </div>
-            <p class="mb-3">Stock Left: {{ productobj.stock }}</p>
+            <p class="mb-3" data-stock="{{productobj.stock}}" id="stock">Stock Left: {{ productobj.stock }}</p>
             <p class="mb-3">Product Details: {{ productobj.description }}</p>
         </div>
     </div>
@@ -55,7 +60,7 @@
             <input type="hidden" name="product_id" value="{{ productobj.product_id }}">
             <input type="hidden" name="size" id="size_input">
             <input type="hidden" name="quantity" id="quantity_input">
-            <input type="hidden" name="color" id="color_input">        
+            <input type="hidden" name="color" id="color_input">
             <button type="submit" class="btn bgd-light mb-2" style="width:100%">Add to Cart</button>
         </form>
         <button class="btn bgd-light mb-2">Add to Wishlist</button>
@@ -133,5 +138,20 @@ function addtocart() {
     // Submit the form
     return true;
 }
+document.addEventListener('DOMContentLoaded', function() {
+    let quantityInput = document.getElementById('quantity');
+    let stockElement = document.getElementById('stock');
+    let stock = parseInt(stockElement.getAttribute('data-stock'), 10);
+
+    quantityInput.addEventListener('input', function(event) {
+        let inputValue = parseInt(event.target.value, 10);
+
+        // Check if the input value exceeds the stock
+        if (inputValue > stock) {
+            alert('You cannot add more of this product than what is in stock.');
+            event.target.value = stock; // Set the input value to the maximum stock available
+        }
+    });
+});
 </script>
 {% endblock %}

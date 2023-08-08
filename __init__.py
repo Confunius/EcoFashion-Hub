@@ -22,7 +22,42 @@ from Objects.CustomerService.Record import Record
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Replace with your own secret key
 
-stripe.api_key = 'sk_test_51NbJAUL0EO5j7e8js0jOonkCjFkHksaoITSyuD8YR34JLHMBkX3Uy4SwejTVr6XAvL8amqm4kMjmXtedg2I1oNTI00wnaqFYJJ'  # Replace with your own secret key
+# Replace with your own secret key
+stripe.api_key = 'sk_test_51NbJAUL0EO5j7e8js0jOonkCjFkHksaoITSyuD8YR34JLHMBkX3Uy4SwejTVr6XAvL8amqm4kMjmXtedg2I1oNTI00wnaqFYJJ'
+
+
+# FAQ data
+faqs = [
+    {
+        "section": "Order Issues",
+        "questions": ["How to check my order status?", "Why didn't I get an email about my order being shipped?",
+                      "How long will shipping take for my order?"],
+        "answers": ["You will receive the shipping inform email within 1 business day after the order is shipped",
+                    "Answer 2", "Answer 3"]
+    },
+    {
+        "section": "Promotions",
+        "questions": ["Question 4", "Question 5"],
+        "answers": ["Answer 4", "Answer 5"]
+    },
+    {
+        "section": "Account",
+        "questions": ["Question 6", "Question 7"],
+        "answers": ["Answer 6", "Answer 7"]
+    },
+    {
+        "section": "Delivery",
+        "questions": ["Question 8", "Question 9"],
+        "answers": ["Answer 8", "Answer 9"]
+    },
+    {
+        "section": "Refund",
+        "questions": ["Question 10", "Question 11"],
+        "answers": ["Answer 10", "Answer 11"]
+    },
+
+]
+
 
 # Home
 @app.route('/')
@@ -127,6 +162,11 @@ app.jinja_env.globals['csrf_token'] = generate_csrf
 
 @app.route('/product/<product_id>')
 def product_info(product_id):
+    error = request.args.get('error')
+    error_message=None
+    if error == "stock_limit_exceeded":
+        error_message = "You've exceeded the available stock for this product."
+
     review_list = []
     pdb_path = 'Objects/transaction/product.db'
     db_path = 'Objects/transaction/review.db'
@@ -145,7 +185,7 @@ def product_info(product_id):
             review = db[key]
             if review.product_id == product_id:
                 review_list.append(review)
-        
+
         db.close()
     except:
         review_list = []
@@ -164,7 +204,9 @@ def product_info(product_id):
     # Create a list of unique sizes from the productobj object.
     size_options = ', '.join(productobj.size_options)
 
-    return render_template('/Customer/transaction/ProductInfo.html', productobj=productobj, review_list=review_list, count=len(review_list), rounded_rating=rounded_rating, size_options=size_options, color_options=color_options)
+    return render_template('/Customer/transaction/ProductInfo.html', productobj=productobj,
+                            review_list=review_list, count=len(review_list), rounded_rating=rounded_rating,
+                              size_options=size_options, color_options=color_options, error_message=error_message)
 
 
 @app.route('/review/<product_id>', methods=['POST'])
@@ -213,7 +255,6 @@ def cart_items_processor():
 def add_to_cart():
     product_id = request.form['product_id']
 
-
     # Fetch the product details from the database
     db_path = 'Objects/transaction/product.db'
     db = shelve.open(db_path, 'r')
@@ -227,12 +268,22 @@ def add_to_cart():
     size = request.form.get('size', default_size)
     color = request.form.get('color', default_color)
 
-    if product is None:
-        return redirect(url_for('products'))
+    # Fetch the current quantity of the product in the cart
+    current_quantity_in_cart = 0
+    for item in cartobj.get_cart_items():
+        if item.product_id == product_id:
+            current_quantity_in_cart = item.quantity
+            break
+
+    # Check the total desired quantity against the stock
+    if current_quantity_in_cart + quantity > product.stock:
+        # Handle the scenario where desired quantity exceeds available stock
+        quantity = product.stock - current_quantity_in_cart
+        return redirect(url_for('product_info', product_id=product.product_id, error="stock_limit_exceeded"))
 
     # Create an item object with the product details and the selected quantity
     item = CartItem(product_id=product.product_id, name=product.name,
-                    price=product.list_price, quantity=quantity, size=size, color=color)
+                    price=product.list_price, quantity=quantity, size=size, color=color, stock=product.stock)
 
     # Add the item to the cart
     cartobj.add_to_cart(item)
@@ -272,6 +323,7 @@ def delete_cart_item(cart_item_id):
 
     return redirect(url_for('cart'))
 
+
 @app.route('/updateshippingforexpcheckout', methods=['POST'])
 def updateshippingforexpcheckout():
     if not request.is_json:
@@ -287,7 +339,8 @@ def updateshippingforexpcheckout():
             return "Bad Request", 400
         session["shipping"] = shipping
         payment_intent_id = session["payment_intent_id"]
-        new_total_cost = int(float(calculate_total_cost(cartobj.cart_items, shipping)) * 100)
+        new_total_cost = int(
+            float(calculate_total_cost(cartobj.cart_items, shipping)) * 100)
         shipping_cost = 5 if shipping == "Standard Delivery" else 10
         print(shipping_cost)
         intent = stripe.PaymentIntent.modify(
@@ -296,11 +349,12 @@ def updateshippingforexpcheckout():
         )
         return jsonify({
             'clientSecret': intent['client_secret'],
-            'amount' : new_total_cost,
-            'shipping_cost' : shipping_cost
+            'amount': new_total_cost,
+            'shipping_cost': shipping_cost
         })
     except Exception as e:
         return jsonify({"message": f"An error occurred: {str(e)}"}), 400
+
 
 @app.route('/cart')
 def cart():
@@ -315,7 +369,8 @@ def cart():
         product = db.get(item.product_id)
         size_options = product.size_options
         color_options = product.color_options
-        key = (item.name, item.price, item.size, item.color, tuple(size_options), tuple(color_options))
+        key = (item.name, item.price, item.size, item.color,
+               tuple(size_options), tuple(color_options))
         existing_item = combined_items.get(key)
         if existing_item:
             existing_item.quantity += item.quantity
@@ -342,6 +397,7 @@ def cart():
 
     return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart)
 
+
 @app.route('/payment', methods=['GET'])
 def display_payment():
     cart_items = cartobj.get_cart_items()
@@ -350,11 +406,11 @@ def display_payment():
     allow_promo = os.path.isfile(db_file)
     for item in cart_items:
         line_item = {
-            'price': find_product(item.name, item.color, item.size)["default_price"],
+            'price': find_product(item.name, item.color, item.size)[0]["default_price"],
             'quantity': item.quantity,
             'adjustable_quantity': {"enabled": True, "minimum": 1, "maximum": 99},
-            }
-        
+        }
+
         line_items.append(line_item)
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -387,7 +443,7 @@ def display_payment():
                     },
                 },
             },
-            {
+                {
                 'shipping_rate_data': {
                     'display_name': 'Express Delivery',
                     'type': 'fixed_amount',
@@ -411,20 +467,23 @@ def display_payment():
         session['checkout_session_id'] = checkout_session.id
         code_dict = {}
         for code in stripe.PromotionCode.list()["data"]:
-            code_data={}
+            code_data = {}
             code_data["code_id"] = code["id"]
             code_data["times_redeemed"] = code["times_redeemed"]
             code_dict[code["id"]] = code_data
         session["code_dict"] = code_dict
         if code_data["times_redeemed"] < 2:
-            print(f"promo code 20OFF has {code_data['times_redeemed']} times redeemed")
+            print(
+                f"promo code 20OFF has {code_data['times_redeemed']} times redeemed")
 
     except Exception as e:
         return str(e)
 
     return redirect(checkout_session.url, code=303)
 
+
 Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/"
+
 
 @app.route('/totalcostcalculator')
 def calculate_total_cost(cart_items, delivery_option):
@@ -436,15 +495,17 @@ def calculate_total_cost(cart_items, delivery_option):
     total_cost = subtotal + shipping_costs
     return total_cost
 
+
 @app.route('/create_intent', methods=['POST'])
 def create_intent():
     cart = session['intent_metadata']
     cart_json = json.dumps(cart)
 
     session.pop('intent_metadata', None)
-    amount = int(float(calculate_total_cost(cartobj.cart_items, 'Standard Delivery')) * 100)
+    amount = int(float(calculate_total_cost(
+        cartobj.cart_items, 'Standard Delivery')) * 100)
     intent = stripe.PaymentIntent.create(
-        amount = amount,  # Stripe expects the amount in cents
+        amount=amount,  # Stripe expects the amount in cents
         currency='sgd',
         automatic_payment_methods={
             'enabled': True,
@@ -457,8 +518,9 @@ def create_intent():
     session['payment_intent_id'] = intent['id']
     return jsonify({
         'clientSecret': intent['client_secret'],
-        'amount' : amount
+        'amount': amount
     })
+
 
 @app.route('/thankyou')
 def thankyou():
@@ -466,7 +528,8 @@ def thankyou():
     # Retrieve cart items and promo code discount (if applicable) from the cart object
     product_db_path = 'Objects/transaction/product.db'
     order_db_path = 'Objects/transaction/order.db'
-    checkout_info = stripe.checkout.Session.retrieve(session['checkout_session_id'])
+    checkout_info = stripe.checkout.Session.retrieve(
+        session['checkout_session_id'])
     print(checkout_info)
     # checkout_line_items = stripe.checkout.Session.list_line_items(checkout_info['id'])
     subtotal = float(checkout_info['amount_subtotal']/100)
@@ -475,14 +538,15 @@ def thankyou():
     # payment_intent = stripe.PaymentIntent.retrieve(order_id)
     shipping_costs = float(checkout_info['shipping_cost']['amount_total']/100)
     shipping_rate_id = checkout_info['shipping_cost']['shipping_rate']
-    delivery_option = stripe.ShippingRate.retrieve(shipping_rate_id)['display_name']
+    delivery_option = stripe.ShippingRate.retrieve(shipping_rate_id)[
+        'display_name']
     shipping_details_dict = checkout_info['shipping_details']
     shipping_address = f"{shipping_details_dict['address']['line1']}, {shipping_details_dict['address']['line2']}, {shipping_details_dict['address']['country']}"
-    
+
     # Create new code_dict after purchase
     code_dict = {}
     for code in stripe.PromotionCode.list()["data"]:
-        code_data={}
+        code_data = {}
         code_data["code_id"] = code["id"]
         code_data["code"] = code["code"]
         code_data["times_redeemed"] = code["times_redeemed"]
@@ -493,7 +557,7 @@ def thankyou():
     old_code_dict = session["code_dict"]
     promo_code_discount_pct = 0
     promo_code = ""
-    
+
     for old_code_id, old_code_data in old_code_dict.items():
         old_times_redeemed = old_code_data["times_redeemed"]
         # check times_redeemed after purchase to see if there are any increases
@@ -503,10 +567,12 @@ def thankyou():
                 if new_times_redeemed > old_times_redeemed:
                     promo_code_discount_pct = code_data["percent_off"]/100
                     promo_code = code_data["code"]
-                    print(f"promo_code chosen: {code_data['code']}'s new_times_redeemed {new_times_redeemed} > old_times_redeemed {old_times_redeemed} ")
+                    print(
+                        f"promo_code chosen: {code_data['code']}'s new_times_redeemed {new_times_redeemed} > old_times_redeemed {old_times_redeemed} ")
                 else:
                     promo_code_discount_pct = 0
-    print(f"code_discount: {promo_code_discount_pct}, promo_code: {promo_code}")
+    print(
+        f"code_discount: {promo_code_discount_pct}, promo_code: {promo_code}")
     if promo_code_discount_pct == 0:
         promo_code_discount = 0
         promo_code = 'N/A'
@@ -526,6 +592,11 @@ def thankyou():
         for key in product_db:
             product = product_db[key]
             product_dict[key] = product
+            # decrement stock from product_db
+            for item in cart_items:
+                if item.product_id == product.product_id:
+                    product.stock -= item.quantity
+                    product_db[product.product_id] = product
     product_id_list = []
     size = []
     color = []
@@ -539,16 +610,16 @@ def thankyou():
     user_id = 0
     order_date = datetime.now().date()
     order_status = "processing"
-    order = Order(order_id, user_id, product_id_list, size, color, quantity, order_date, delivery_option, promo_code, order_status)
+    order = Order(order_id, user_id, product_id_list, size, color,
+                  quantity, order_date, delivery_option, promo_code, order_status)
     with shelve.open(order_db_path) as db:
         db[order_id] = order
-
 
     return render_template('Customer/transaction/Thankyou.html', cart_items=cart_items, subtotal=subtotal,
                            promo_code_discount=promo_code_discount, shipping_costs=shipping_costs,
                            total_cost=total_cost, delivery_option=delivery_option,
                            shipping_address=shipping_address, product_dict=product_dict,
-                             order_id=order_id)
+                           order_id=order_id)
 
 
 @app.route('/cancel_and_refund/<order_id>', methods=['GET'])
@@ -576,14 +647,17 @@ def cancel_and_refund(order_id):
 
     return render_template('Customer/transaction/CancelRefund.html')
 
+
 # Customer Service
-with shelve.open("Objects/CustomerService/custservice_deleted_records.db") as custservice_deleted_records_db:
+with shelve.open("custservice_deleted_records.db") as custservice_deleted_records_db:
     deleted_record_ids = custservice_deleted_records_db.get('deleted_record_ids', set())
 
-with shelve.open("Objects/CustomerService/custservice_deleted_records_admin.db") as custservice_deleted_records_admin_db:
+with shelve.open("custservice_deleted_records_admin.db") as custservice_deleted_records_admin_db:
     deleted_record_admin_ids = custservice_deleted_records_admin_db.get('deleted_record_ids', set())
 
 # Add any other methods or attributes required for your Record class
+
+
 def get_total_record_count():
     with shelve.open("Objects/CustomerService/service_records.db") as service_records_db:
         # Get the count of current records
@@ -591,32 +665,38 @@ def get_total_record_count():
 
     with shelve.open("Objects/CustomerService/custservice_deleted_records.db") as custservice_deleted_records_db:
         # Get the count of deleted records
-        deleted_count = len(custservice_deleted_records_db.get('deleted_record_ids', set()))
+        deleted_count = len(custservice_deleted_records_db.get(
+            'deleted_record_ids', set()))
 
     # Calculate the total count by adding current and deleted records
     total_count = current_count + deleted_count
     return total_count
-    
+
+
 @app.route('/FAQ')
 def FAQ():
     with shelve.open("Objects/CustomerService/faqs.db") as db:
         faqs = db.get("faqs", [])
     return render_template('/Customer/custservice/FAQ.html', faqs=faqs)
 
+
 @app.route('/get_csv')
 def get_csv():
     csv_file_path = 'Objects/CustomerService/profanity_en.csv'
     return send_file(csv_file_path, as_attachment=True)
-    
+
+
 @app.route('/CustomerService')
 def CustomerService():
     return render_template('/Customer/custservice/CustomerService.html')
+
 
 @app.route('/ServiceRecord')
 def ServiceRecord():
     with shelve.open("Objects/CustomerService/service_records.db", writeback=True) as service_records_db:
         return render_template('/Customer/custservice/ServiceRecord.html', service_records=service_records_db)
-    
+
+
 @app.route('/record_detail/<record_id>')
 def record_detail(record_id):
     # Find the record with the given record_id
@@ -646,7 +726,7 @@ def record_detail(record_id):
             contents.append(content)
 
         return render_template('Customer/custservice/record_detail.html', record=record, senders=senders, contents=contents,
-                               subject=subject, date=date, status=status, auto=auto, user=user)
+                               subject=subject, date=date, status=status, auto=auto, user_id=user)
    
 
 @app.route('/save_service_record', methods=['POST'])
@@ -725,7 +805,8 @@ def save_service_record():
 
     # Return a success response
     return jsonify({'message': 'Record saved successfully'})
-    
+
+
 @app.route('/delete_record/<record_id>', methods=['DELETE'])
 def delete_record(record_id):
     # Check if the record_id exists in the service_records dictionary
@@ -741,6 +822,7 @@ def delete_record(record_id):
             # If the record_id does not exist, return an error message
             return jsonify({'error': 'Record not found'}), 404
 # Admin side
+
 
 @app.route('/admin')
 def ahome():
@@ -840,7 +922,8 @@ def order():
 def add_product():
     name = request.form['name'].strip().title()
     color_options = request.form.get('color_options').split(',')
-    color_options = [option.strip() for option in color_options]  # Remove leading/trailing spaces
+    # Remove leading/trailing spaces
+    color_options = [option.strip() for option in color_options]
     size_options = request.form.get('size_options').split(',')
     size_options = [option.strip() for option in size_options]
     cost_price = float(request.form['cost_price'])
@@ -860,8 +943,8 @@ def add_product():
     product_id = "P" + str(max_id + 1)
 
     product = Product(product_id, name, color_options, size_options, cost_price,
-                          list_price, stock, description, image, category)
-        # stripe payment
+                      list_price, stock, description, image, category)
+    # stripe payment
     for color in product.color_options:
         for size in product.size_options:
             try:
@@ -878,12 +961,11 @@ def add_product():
                     url=Domain+"/product/"+product.productid,
                 )
             except Exception as e:
-                print(f"Failed to create product {product.product_id}: {str(e)}")
+                print(
+                    f"Failed to create product {product.product_id}: {str(e)}")
     product_id = product.product_id
     db[product_id] = product
     db.close()
-
-
 
     # Redirect back to the product page
     return redirect(url_for('product_admin'))
@@ -927,46 +1009,42 @@ def update_product(product_id):
 
     # Save the old default price ID
     old_default_price_id = base_product['default_price']
-
     # Create a new price for the base product
     default_price = stripe.Price.create(
         product=base_product['id'],
         unit_amount=int(float(list_price) * 100),
         currency="sgd",
     )
+    print("new_default_price",default_price['id'])
 
-    stripe.Product.modify(base_product['id'], default_price = default_price['id'])
+    stripe.Product.modify(base_product['id'], default_price=default_price['id'])
+    
     # Now you should be able to archive the old default price
     stripe.Price.modify(old_default_price_id, active=False)
 
     # Now handle the product variants
     for color in color_options:
         for size in size_options:
-            variant_name = f"{name} | {color} | {size}"
-
             # Check if the variant already exists
-            variant_product = find_product(variant_name)
+            variant_product = find_product(name, color, size)
+            print("variant_product",variant_product)
 
-            if variant_product is None:
-                # If the variant doesn't exist, create it
-                variant_product = stripe.Product.create(name=variant_name)
+            if len(variant_product) == 0:
+                # Create a new price for the variant
+                variant_price = stripe.Price.create(
+                    product=variant_product['id'],
+                    unit_amount=int(float(list_price) * 100),
+                    currency="sgd",
+                )
 
-            variant_product = variant_product[0]  # Assuming find_product returns a list
+                # Save the old default price ID for the variant
+                old_default_price_id = variant_product['default_price']
 
-            # Create a new price for the variant
-            variant_price = stripe.Price.create(
-                product=variant_product['id'],
-                unit_amount=int(float(list_price) * 100),
-                currency="sgd",
-            )
+                stripe.Product.modify(
+                    variant_product['id'], default_price=variant_price['id'])
 
-            # Save the old default price ID for the variant
-            old_default_price_id = variant_product['default_price']
-
-            stripe.Product.modify(variant_product['id'], default_price = variant_price['id'])
-
-            # Now you should be able to archive the old default price for the variant
-            stripe.Price.modify(old_default_price_id, active=False)
+                # Now you should be able to archive the old default price for the variant
+                stripe.Price.modify(old_default_price_id, active=False)
 
     db.close()
 
@@ -989,9 +1067,10 @@ def delete_product(product_id):
         #     stripe.Product.delete(item["id"])
         del db[product_id]
         db.close()
-    
+
     # Redirect back to the product page
     return redirect(url_for('product_admin'))
+
 
 def join_and_filter(list_):
     """This function joins a list of strings with commas and spaces, but with 'and' before the last item. This would be used
@@ -1002,7 +1081,10 @@ def join_and_filter(list_):
         return list_[0]
     else:
         return ''
+
+
 app.jinja_env.filters['join_and'] = join_and_filter
+
 
 @app.route('/admin/product')
 def product_admin():
@@ -1023,31 +1105,31 @@ def product_admin():
                 "description": "Introducing the \"Men 100% Cotton Linen Long Sleeve Shirt\"! Crafted with the finest blend of cotton and linen, this classic white shirt boasts both style and comfort. Perfect for casual outings or semi-formal occasions, its long sleeves add an air of sophistication to any ensemble. The breathable fabric ensures you stay cool and relaxed all day long. Embrace a timeless, versatile look with this essential wardrobe piece that pairs effortlessly with jeans, chinos, or tailored trousers. Designed to exude elegance and confidence, this shirt is a must-have for every fashion-forward gentleman. Get ready to make a lasting impression.",
                 "image": "https://m.media-amazon.com/images/I/615Cby-DciL._AC_SX679_.jpg",
                 "category": "Men's Casual"
-            }
-            # {
-            #     "product_id": "P2",
-            #     "name": "Women Organic Dye Casual Jacket",
-            #     "color_options": ["White", "Blue"],
-            #     "size_options": ["S", "L"],
-            #     "cost_price": 14,
-            #     "list_price": 18,
-            #     "stock": 5,
-            #     "description": "Women Organic Dye Casual Jacket! Elevate your style with this eco-friendly \"Women Organic Dye Casual Jacket.\" Crafted with organic dyes and sustainably sourced materials, this jacket embodies a perfect blend of fashion and environmental consciousness. The soft and breathable fabric ensures comfort without compromising on style. Its pristine white color complements any outfit, making it a versatile addition to your wardrobe. Embrace the essence of modern femininity as you step out in this chic jacket, designed to make a statement at casual gatherings or outings with friends. Embrace sustainability with flair and inspire others to do the same.",
-            #     "image": "https://m.media-amazon.com/images/I/81mrNU4gF3L._AC_SX569_.jpg",
-            #     "category": "Women's Casual"
-            # },
-            # {
-            #     "product_id": "P3",
-            #     "name": "Women Tank Top 100% Recycled Fibers",
-            #     "color_options": ["White", "Red"],
-            #     "size_options": ["S", "M"],
-            #     "cost_price": 6,
-            #     "list_price": 12,
-            #     "stock": 2,
-            #     "description": "Women Tank Top 100% Recycled Fibers! Embrace a greener lifestyle with our \"Women Tank Top 100% Recycled Fibers.\" Made from environmentally friendly materials, this white tank top not only enhances your workout performance but also reduces your carbon footprint. The soft and stretchable fabric provides a comfortable and supportive fit, making it ideal for any active lifestyle. Whether you're hitting the gym, going for a run, or practicing yoga, this tank top ensures you stay cool and dry throughout your workout. Embrace sustainability without compromising on style, and let this tank top be a reflection of your commitment to a healthier planet.",
-            #     "image": "https://m.media-amazon.com/images/I/61a9kY47XPL._AC_SX679_.jpg",
-            #     "category": "Women's Sportswear"
-            # },
+            },
+            {
+                "product_id": "P2",
+                "name": "Women Organic Dye Casual Jacket",
+                "color_options": ["White", "Blue"],
+                "size_options": ["S", "L"],
+                "cost_price": 14,
+                "list_price": 18,
+                "stock": 5,
+                "description": "Women Organic Dye Casual Jacket! Elevate your style with this eco-friendly \"Women Organic Dye Casual Jacket.\" Crafted with organic dyes and sustainably sourced materials, this jacket embodies a perfect blend of fashion and environmental consciousness. The soft and breathable fabric ensures comfort without compromising on style. Its pristine white color complements any outfit, making it a versatile addition to your wardrobe. Embrace the essence of modern femininity as you step out in this chic jacket, designed to make a statement at casual gatherings or outings with friends. Embrace sustainability with flair and inspire others to do the same.",
+                "image": "https://m.media-amazon.com/images/I/81mrNU4gF3L._AC_SX569_.jpg",
+                "category": "Women's Casual"
+            },
+            {
+                "product_id": "P3",
+                "name": "Women Tank Top 100% Recycled Fibers",
+                "color_options": ["White", "Red"],
+                "size_options": ["S", "M"],
+                "cost_price": 6,
+                "list_price": 12,
+                "stock": 2,
+                "description": "Women Tank Top 100% Recycled Fibers! Embrace a greener lifestyle with our \"Women Tank Top 100% Recycled Fibers.\" Made from environmentally friendly materials, this white tank top not only enhances your workout performance but also reduces your carbon footprint. The soft and stretchable fabric provides a comfortable and supportive fit, making it ideal for any active lifestyle. Whether you're hitting the gym, going for a run, or practicing yoga, this tank top ensures you stay cool and dry throughout your workout. Embrace sustainability without compromising on style, and let this tank top be a reflection of your commitment to a healthier planet.",
+                "image": "https://m.media-amazon.com/images/I/61a9kY47XPL._AC_SX679_.jpg",
+                "category": "Women's Sportswear"
+            },
         ]
         # stripe payment
         for product in placeholder_data:
@@ -1067,7 +1149,8 @@ def product_admin():
                         #     url=Domain+"/product/"+product["id"],
                         # )
                     except Exception as e:
-                        print(f"Failed to create product {product['product_id']}: {str(e)}")
+                        print(
+                            f"Failed to create product {product['product_id']}: {str(e)}")
 
         db = shelve.open(db_path, 'c')
         for data in placeholder_data:
@@ -1098,20 +1181,23 @@ def product_admin():
         product_list.append(product)
     return render_template('/Admin/transaction/product.html', product_list=product_list, count=len(product_list))
 
+
 def find_product(name, color=None, size=None):
     matching_products = []
-    stripe_product_dict = stripe.Product.list()["data"]
+    stripe_product_dict = stripe.Product.list(limit=100)["data"]
     for product in stripe_product_dict:
         product_name = product["name"]
         if color and size:
             # if color and size are specified, check for exact match
+            print(f"Checking if {name} | {color} | {size} is {product_name}")
             if product_name == f"{name} | {color} | {size}":
                 return product
         else:
             # if color and size are not specified, check if the product name matches
             if name in product_name:
                 matching_products.append(product)
-    return matching_products if matching_products else None
+    return matching_products
+
 
 @app.route('/admin/delete_review/<review_id>', methods=['POST'])
 def delete_review(review_id):
@@ -1224,15 +1310,16 @@ def add_promo():
         unix_timestamp = int(time.mktime(date.timetuple()))
         if code not in db:
             coupon = stripe.Coupon.create(
-                percent_off = discount,
-                duration = 'once',
-                redeem_by = unix_timestamp,
+                percent_off=discount,
+                duration='once',
+                redeem_by=unix_timestamp,
             )
             promocode = stripe.PromotionCode.create(
-                coupon = coupon['id'],
-                code = code, 
+                coupon=coupon['id'],
+                code=code,
             )
-            promo = Code(code, discount, end_date, coupon['id'], promocode['id'])
+            promo = Code(code, discount, end_date,
+                         coupon['id'], promocode['id'])
             db[promo.code] = promo
         db.close()
     return redirect(url_for('promocode'))
@@ -1248,13 +1335,13 @@ def update_code(code):
         db = shelve.open('Objects/transaction/promo.db', 'w')
         stripe.Coupon.delete(db[code].coupon_id)
         coupon = stripe.Coupon.create(
-            percent_off = discount,
-            duration = 'once',
-            redeem_by = unix_timestamp,
+            percent_off=discount,
+            duration='once',
+            redeem_by=unix_timestamp,
         )
         promocode = stripe.PromotionCode.create(
-            coupon = coupon['id'],
-            code = code,
+            coupon=coupon['id'],
+            code=code,
         )
         promo = Code(code, discount, end_date, coupon['id'], promocode['id'])
         db[promo.code] = promo
@@ -1271,7 +1358,9 @@ def delete_code(code):
     db.close()
     return redirect(url_for('promocode'))
 
-#Customer Service
+# Customer Service
+
+
 @app.route('/RecordDetailAdmin/<record_id>')
 def RecordDetailAdmin(record_id):
     # Find the record with the given record_id
@@ -1303,10 +1392,12 @@ def RecordDetailAdmin(record_id):
         return render_template('/Admin/custservice/RecordDetailAdmin.html', record=record, senders=senders, contents=contents,
                                subject=subject, date=date, status=status, auto=auto, user=user)
 
+
 @app.route('/ServiceRecordAdmin')
 def ServiceRecordAdmin():
     with shelve.open("Objects/CustomerService/service_records_admin.db", writeback=True) as service_records_admin_db:
         return render_template('/Admin/custservice/ServiceRecordAdmin.html', service_records=service_records_admin_db)
+
 
 @app.route('/delete_record_admin/<record_id>', methods=['DELETE'])
 def delete_record_admin(record_id):
@@ -1322,13 +1413,17 @@ def delete_record_admin(record_id):
         else:
             # If the record_id does not exist, return an error message
             return jsonify({'error': 'Record not found'}), 404
+
+
 def get_faqs_from_shelve():
     with shelve.open("Objects/CustomerService/faqs.db") as db:
         return db.get("faqs", [])
 
+
 def save_faqs_to_shelve(faqs):
     with shelve.open("Objects/CustomerService/faqs.db") as db:
         db["faqs"] = faqs
+
 
 @app.route('/FAQAdmin', methods=['GET', 'POST'])
 def FAQAdmin():
@@ -1356,6 +1451,7 @@ def FAQAdmin():
 
     return render_template('/Admin/custservice/FAQAdmin.html', faqs=faqs)
 
+
 @app.route('/update_faq', methods=['POST'])
 def update_faq():
     # Handle form submission for updating question and answer
@@ -1373,6 +1469,7 @@ def update_faq():
 
     # Redirect back to the FAQAdmin page after updating the question and answer
     return redirect('/Admin/custservice/FAQAdmin')
+
 
 @app.route('/delete_faq', methods=['POST'])
 def delete_faq():
@@ -1424,6 +1521,7 @@ faqs = [
 ]
 if get_faqs_from_shelve() == '':
     save_faqs_to_shelve(faqs)
+
 
 if __name__ == '__main__':
     app.run(debug=True)
