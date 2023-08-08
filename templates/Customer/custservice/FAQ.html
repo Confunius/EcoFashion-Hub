@@ -10,6 +10,11 @@
             align-items: center;
             border: 1px solid #ccc;
             padding: 10px;
+            height: 125px;
+            background-image: url("https://th.bing.com/th/id/OIP.E0lQA7o4rKIlEKAC05P7DQHaEK?w=295&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7");
+            background-size: cover; /* This will make the image cover the entire container */
+            background-repeat: no-repeat; /* Prevent the image from repeating */
+            background-position: center;
         }
 
         /* Add styles for the "We're Here to Help!" text */
@@ -101,16 +106,17 @@
         }
 
     </style>
-    {% extends "Customer/base.html" %} {% block title %}Ecofashion Hub - FAQ{% endblock %} {% block content %}
+    {% extends "base.html" %} {% block title %}Ecofashion Hub - FAQ{% endblock %} {% block content %}
 
 </head>
 <body>
     <div class="search_box">
+
       <div class="bg_text" tabindex="0">
             We're Here to Help!
         </div>
         <div class="bg_search">
-            <input type="text" class="searchInputBox" maxlength="150" placeholder="Popular Searches: Refund, Shipping, Account">
+            <input type="text" class="searchInputBox" maxlength="100" placeholder="Popular Searches: Refund, Shipping, Account">
             <i class="fas fa-search search_icon"></i> <!-- Use "fas" for Font Awesome 6 Solid icons -->
         </div>
     </div>
