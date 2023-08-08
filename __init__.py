@@ -306,6 +306,35 @@ def delete_cart_item(cart_item_id):
 
     return redirect(url_for('cart'))
 
+@app.route('/updateshippingforexpcheckout', methods=['POST'])
+def updateshippingforexpcheckout():
+    if not request.is_json:
+        return jsonify({"message": "Missing JSON in request"}), 400
+    try:
+        data = request.get_json()
+        if data is None:
+            # Handle error here, e.g. return a response with a 400 status code
+            return "Bad Request", 400
+        shipping = data.get('shipping')
+        if shipping is None:
+            # Handle error here, e.g. return a response with a 400 status code
+            return "Bad Request", 400
+        session["shipping"] = shipping
+        payment_intent_id = session["payment_intent_id"]
+        new_total_cost = int(float(calculate_total_cost(cartobj.cart_items, shipping)) * 100)
+        shipping_cost = 5 if shipping == "Standard Delivery" else 10
+        print(shipping_cost)
+        intent = stripe.PaymentIntent.modify(
+            payment_intent_id,
+            amount=new_total_cost
+        )
+        return jsonify({
+            'clientSecret': intent['client_secret'],
+            'amount' : new_total_cost,
+            'shipping_cost' : shipping_cost
+        })
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 400
 
 @app.route('/cart')
 def cart():
@@ -343,6 +372,7 @@ def cart():
 
     session['intent_metadata'] = session_cart_items
     session['code_dict'] = {}
+    session['shipping'] = 5
 
     return render_template('Customer/transaction/Cart.html', cart_items=combined_cart_items, cart_total=cart_total, num_items_in_cart=num_items_in_cart)
 
@@ -431,26 +461,13 @@ def display_payment():
 Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/"
 
 @app.route('/totalcostcalculator')
-def calculate_total_cost(cart_items, delivery_option, promo_code):
+def calculate_total_cost(cart_items, delivery_option):
     subtotal = 0
     for item in cart_items:
         subtotal += item.price * item.quantity
-    shipping_costs = 0 if delivery_option == 'collect_on_store' else 5
-    code_db_path = 'Objects/transaction/promo.db'
+    shipping_costs = 5 if delivery_option == 'Standard Delivery' else 10
 
-    with shelve.open(code_db_path) as code_db:
-        if promo_code in code_db:
-            promo = code_db[promo_code]
-            end_date_str = promo.end_date
-            # Convert to datetime.date
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
-            today = datetime.now().date()
-
-            if end_date >= today:
-                promo_discount = promo.discount
-        else:
-            promo_discount = 0
-    total_cost = subtotal - promo_discount + shipping_costs
+    total_cost = subtotal + shipping_costs
     return total_cost
 
 @app.route('/create_intent', methods=['POST'])
@@ -459,7 +476,7 @@ def create_intent():
     cart_json = json.dumps(cart)
 
     session.pop('intent_metadata', None)
-    amount = int(float(calculate_total_cost(cartobj.cart_items, 'standard_delivery', '')) * 100)
+    amount = int(float(calculate_total_cost(cartobj.cart_items, 'Standard Delivery')) * 100)
     intent = stripe.PaymentIntent.create(
         amount = amount,  # Stripe expects the amount in cents
         currency='sgd',
@@ -470,6 +487,8 @@ def create_intent():
             'cart': cart_json,
         }
     )
+
+    session['payment_intent_id'] = intent['id']
     return jsonify({
         'clientSecret': intent['client_secret'],
         'amount' : amount
@@ -482,6 +501,7 @@ def thankyou():
     product_db_path = 'Objects/transaction/product.db'
     order_db_path = 'Objects/transaction/order.db'
     checkout_info = stripe.checkout.Session.retrieve(session['checkout_session_id'])
+    print(checkout_info)
     # checkout_line_items = stripe.checkout.Session.list_line_items(checkout_info['id'])
     subtotal = float(checkout_info['amount_subtotal']/100)
     total_cost = float(checkout_info['amount_total']/100)

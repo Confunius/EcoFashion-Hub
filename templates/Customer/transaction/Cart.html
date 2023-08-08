@@ -88,12 +88,18 @@
     <div>Total:</div>
     <div id="total_cost">${{ "%0.2f"|format(cart_total + 5) }}</div>
   </div>
-  <div class="d-flex justify-content-around mt-4">
-    <div class="d-flex flex-column">
+  <div class="d-flex justify-content-around align-items-end mt-4">
+    <div class="d-flex flex-column ">
+      <form action="{{ url_for('updateshippingforexpcheckout')}}" method="POST" class="d-flex justify-content-around">
+        <select name="Shipping" id="shipping_costs_input" style="display: none;" class="m-3 text-center">
+          <option value="Standard Delivery">Standard Delivery +($5)</option>
+          <option value="Express Delivery">Express Delivery +($10)</option>
+        </select>
+      </form>
       <span id="please_wait" style="display: none;">Please wait for 3 seconds for Express Checkout to appear below</span>
       <div id="express-checkout-element" class="mr-2"></div>
     </div>
-    <a href="/payment" class="btn bgd-light text-center">Checkout with card & redeem promocodes</a>
+    <a href="/payment" class="btn bgd-light text-center" style="max-height: 44px;">Checkout with card & redeem promocodes</a>
   </div>
   {% else %}
   <div class="text-center mt-4">
@@ -107,6 +113,7 @@ const stripe = Stripe("pk_test_51NbJAUL0EO5j7e8jnG1wekAMtbCRj97AnTHjfWjiqYWtVAEF
 
 // The items the customer wants to buy
 const items = [{ id: document.getElementById('product_id') }];
+let expressCheckoutElement = null;
 
 initialize()
 async function initialize() {
@@ -122,20 +129,74 @@ async function initialize() {
     amount: amount,
     currency: 'sgd',
   })
-  const expressCheckoutElement = elements.create('expressCheckout');
+  expressCheckoutElement = elements.create('expressCheckout');
   expressCheckoutElement.mount('#express-checkout-element');
 
-expressCheckoutElement.on('confirm', function(event) {
-  // call Stripe function to initiate payment confirmation
-  stripe.confirmPayment({
-    elements,
-    clientSecret,
-    confirmParams: {
-      return_url: 'https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/thankyou',
-    },
-  })
-});
+  expressCheckoutElement.on('confirm', function(event) {
+    // call Stripe function to initiate payment confirmation
+    stripe.confirmPayment({
+      elements,
+      clientSecret,
+      confirmParams: {
+        return_url: 'https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/thankyou',
+      },
+    })
+  });
+  var shipping_costs_input = document.getElementById('shipping_costs_input');
+
+  shipping_costs_input.addEventListener('change', async function(e) {
+
+    const shipping = e.target.value;  // Get the new shipping method
+      const response = await fetch('/updateshippingforexpcheckout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ shipping }),  // Send the new shipping method
+      });
+      // console.log("Response status:", response.status);  // Debug: log the response status
+      // console.log("Response body:", await response.text());
+      const { clientSecret, amount, shipping_cost } = await response.json();
+      // Convert the amounts from cents to dollars
+      const totalAmountDollars = amount / 100;
+      const shippingAmountDollars = shipping_cost;
+      console.log("shipping_cost", shipping_cost)
+
+      // Calculate the new subtotal as the total amount minus the shipping amount
+      const newSubtotal = totalAmountDollars - shippingAmountDollars;
+
+      // Update the fields on the webpage
+      document.getElementById('subtotal').innerHTML = "$" + newSubtotal.toFixed(2);
+      document.getElementById('shipping_costs').innerHTML = "$" + shippingAmountDollars;
+      document.getElementById('total_cost').innerHTML = "$" + totalAmountDollars.toFixed(2);
+
+
+      const elements = stripe.elements({
+        mode: 'payment',
+        amount: amount,
+        currency: 'sgd',
+      })
+
+      if (expressCheckoutElement) {
+      expressCheckoutElement.unmount();
+      }
+      expressCheckoutElement = elements.create('expressCheckout');
+      expressCheckoutElement.mount('#express-checkout-element');
+
+      expressCheckoutElement.on('confirm', function(event) {
+        // call Stripe function to initiate payment confirmation
+        stripe.confirmPayment({
+          elements,
+          clientSecret,
+          confirmParams: {
+            return_url: 'https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/thankyou',
+          },
+        })
+      });
+    }
+  );
 };
+
 window.onload = function() {
     // Step 2: Display the element when the webpage loads
     var pleaseWaitElement = document.getElementById('please_wait');
@@ -144,6 +205,7 @@ window.onload = function() {
     // Step 3: Hide the element after 3 seconds
     setTimeout(function() {
         pleaseWaitElement.style.display = 'none';
+        shipping_costs_input.style.display = 'block';
     }, 3000); // 3000 milliseconds = 3 seconds
 };
 </script>
