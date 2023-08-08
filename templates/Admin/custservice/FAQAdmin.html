@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Add the styles for the popup form */
+        .popup {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #f2ecd8;
+            padding: 20px;
+            border: 1px solid #ccc;
+            color: #1a2138;
+            z-index: 999;
+        }
+
+        .popup.active {
+            display: block;
+        }
+
+        .close-popup-btn {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 24px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        /* Styles for the popup overlay */
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+        }
+
+        .popup-overlay.active {
+            display: block;
+        }
+
+
+        /* Additional styles for the "Add Question" button */
+        .add-question-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+      /* Add some basic styles for the search input container */
+        .search_box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        /* Add styles for the "We're Here to Help!" text */
+        .bg_text {
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        /* Add styles for the search icon */
+        .search_icon {
+            cursor: pointer;
+        }
+
+        /* Add some padding to the right of the input so the text doesn't overlap with the icon */
+        .searchInputBox {
+            width: 450px;
+            padding-right: 30px;
+        }
+
+        /* Additional styles for the FAQ box (you may have this in your CSS already) */
+        .faq-box {
+            margin-top: 20px;
+        }
+
+        /* Flexbox container for sections */
+        .section-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        /* Styles for the section boxes */
+        .section-box {
+            display: flex;
+            flex-direction: column; /* Set the direction to vertical */
+            align-items: center;
+            width: 120px;
+            height: 120px;
+            background-color: #ab916c;
+            margin: 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+        }
+
+        .section-box:hover {
+            background-color: #e0e0e0;
+        }
+
+        .section-box i {
+            font-size: 24px;
+            margin-right: 5px;
+            margin-top: 35px;
+        }
+
+        /* Additional styles for FAQ questions and answers */
+        .faq-question {
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f2ecd8;
+            margin-bottom: 5px;
+        }
+
+        .faq-answer {
+            display: none;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background-color: #f0f0f0;
+        }
+
+        .faq-question.active + .faq-answer {
+            display: block;
+        }
+
+        /* Additional styles for FAQ sections */
+        .faq-section {
+            display: none;
+        }
+
+        .faq-section.active {
+            display: block;
+        }
+        .faq-question.hidden{
+            display: none;
+        }
+
+        .faq-question{
+            display: block;
+        }
+
+    </style>
+    {% extends "base.html" %} {% block title %}Ecofashion Hub - FAQ Admin{% endblock %} {% block content %}
+
+</head>
+<body>
+ <!-- Add Question Button -->
+    <button type="button" id="addQuestionBtn" class="add-question-btn">Add Question</button>
+
+    <!-- Add Question Popup -->
+    <div id="addQuestionPopup" class="popup">
+        <button type="button" id="closePopupBtn" class="close-popup-btn">&times;</button>
+        <h2>Add New FAQ Question</h2>
+        <form id="addQuestionForm" class="add-question-form" action="{{ url_for('FAQAdmin') }}" method="post">
+            <div>
+                <label for="new_section">Section:</label>
+                <select id="new_section" name="new_section">
+                    <option value="Order Issues">Order Issues</option>
+                    <option value="Promotions">Promotions</option>
+                    <option value="Account">Account</option>
+                    <option value="Delivery">Delivery</option>
+                    <option value="Refund">Refund</option>
+                </select>
+            </div>
+            <div>
+                <label for="new_question">New Question:</label>
+                <input type="text" id="new_question" name="new_question" maxlength="150" required>
+            </div>
+            <div>
+                <label for="new_answer">New Answer:</label>
+                <input type="text" id="new_answer" name="new_answer" maxlength="150" required>
+            </div>
+            <button type="submit">Add FAQ</button>
+        </form>
+    </div>
+
+    <div class="search_box">
+      <div class="bg_text" tabindex="0">
+            We're Here to Help!
+        </div>
+        <div class="bg_search">
+            <input type="text" class="searchInputBox" maxlength="100" placeholder="Popular Searches: Refund, Shipping, Account">
+            <i class="fas fa-search search_icon"></i> <!-- Use "fas" for Font Awesome 6 Solid icons -->
+        </div>
+    </div>
+
+    <div class="faq-box">
+        <h1>Frequently Asked Questions</h1>
+
+        <!-- Flexbox container for sections -->
+        <div class="section-container">
+            <div class="section-box" data-section="order issues">
+                <i class="fas fa-shopping-cart"></i>
+                Order Issues
+            </div>
+            <div class="section-box" data-section="refund">
+                <i class="fas fa-undo-alt"></i>
+                Refund
+            </div>
+            <div class="section-box" data-section="promotions">
+                <i class="fas fa-tags"></i>
+                Promotions
+            </div>
+            <div class="section-box" data-section="account">
+                <i class="fas fa-user"></i>
+                Account
+            </div>
+            <div class="section-box" data-section="delivery">
+                <i class="fas fa-truck"></i>
+                Delivery
+            </div>
+        </div>
+    </div>
+    <!-- End of Flexbox container for sections -->
+
+    <div class="faq-content txt-dark"> <!-- Add a wrapper div for the questions and answers -->
+        {% for section in faqs %}
+        <div class="faq-section" data-section="{{ section.section | lower }}">
+            {% for i in range(section.questions | length) %}
+            <div class="faq-question">
+                <h3>{{ section.questions[i] }}</h3>
+                 <div class="faq-actions">
+                    <button class="update-btn" data-section="{{ section.section }}" data-index="{{ i }}"
+                        data-question="{{ section.questions[i] }}" data-answers="{{ section.answers[i] }}">Update</button>
+                    <form class="faq-form" method="post" action="{{ url_for('delete_faq') }}">
+                        <input type="hidden" name="section" value="{{ section.section }}">
+                        <input type="hidden" name="index" value="{{ i }}">
+                        <button class="delete-btn" type="submit" value="delete">Delete</button>
+                    </form>
+                </div>
+            </div>
+            <div class="faq-answer">
+                <p>{{ section.answers[i] }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    <div id="updateQuestionPopup" class="popup">
+        <button type="button" id="closeUpdatePopupBtn" class="close-popup-btn">&times;</button>
+        <h2>Update FAQ Question</h2>
+        <form id="updateQuestionForm" class="update-question-form" action="{{ url_for('update_faq') }}" method="post">
+            <input type="hidden" id="updateSection" name="update_section">
+            <input type="hidden" id="updateIndex" name="update_index">
+            <div>
+                <label for="update_question">Update Question:</label>
+                <input type="text" id="update_question" name="update_question" maxlength="150" required>
+            </div>
+            <div>
+                <label for="update_answer">Update Answer:</label>
+                <input type="text" id="update_answer" name="update_answer" maxlength="150" required>
+            </div>
+            <div>
+                <label for="prev_question">Previous Question:</label>
+                <p id="prev_question"></p>
+                </div>
+                <div>
+                <label for="prev_answer">Previous Answer:</label>
+                <p id="prev_answer"></p>
+            </div>
+            <button type="submit">Update FAQ</button>
+        </form>
+    </div>
+    <div id="overlay" class="popup-overlay"></div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    // Add Question Button and Popup
+    const addQuestionBtn = document.getElementById('addQuestionBtn');
+    const addQuestionPopup = document.getElementById('addQuestionPopup');
+    const closePopupBtn = document.getElementById('closePopupBtn');
+    const overlay = document.getElementById('overlay');
+
+    var deleteButtons = document.querySelectorAll('.delete-btn');
+    deleteButtons.forEach(function (deleteButton) {
+        deleteButton.addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent the form from submitting immediately
+            var confirmation = confirm("Are you sure you want to delete this FAQ?");
+
+            if (confirmation) {
+                // If user confirms deletion, submit the form
+                var deleteForm = this.parentElement; // Get the parent form element
+                deleteForm.submit(); // Submit the form to perform the deletion
+            } else {
+                // If user cancels deletion, do nothing
+                return;
+            }
+        });
+    });
+
+
+    addQuestionBtn.addEventListener('click', function () {
+        addQuestionPopup.classList.toggle('active');
+        overlay.classList.add('active');
+    });
+
+    closePopupBtn.addEventListener('click', function () {
+        addQuestionPopup.classList.remove('active');
+        overlay.classList.remove('active');
+    });
+
+
+    // Click event handler for the update buttons
+        var updateButtons = document.querySelectorAll('.update-btn');
+        updateButtons.forEach(function (updateButton) {
+            updateButton.addEventListener('click', function () {
+                var section = this.getAttribute('data-section');
+                var index = this.getAttribute('data-index');
+                var question = this.getAttribute('data-question');
+                var answer = this.getAttribute('data-answers');
+
+                // Fill the update form with the existing data
+                var updateQuestionForm = document.getElementById('updateQuestionForm');
+                var updateSectionInput = document.getElementById('updateSection');
+                var updateIndexInput = document.getElementById('updateIndex');
+                var updateQuestionInput = document.getElementById('update_question');
+                var updateAnswerInput = document.getElementById('update_answer');
+                var prevQuestion = document.getElementById('prev_question');
+                var prevAnswer = document.getElementById('prev_answer');
+
+                updateSectionInput.value = section;
+                updateIndexInput.value = index;
+                updateQuestionInput.value = question;
+                updateAnswerInput.value = answer;
+                prevQuestion.textContent = question; // Show the previous question
+                prevAnswer.textContent = answer; // Show the previous answer
+
+                // Show the update popup
+                var updateQuestionPopup = document.getElementById('updateQuestionPopup');
+                updateQuestionPopup.classList.add('active');
+                overlay.classList.add('active'); // Show the overlay
+            });
+        });
+
+    // Close update popup button
+    var closeUpdatePopupBtn = document.getElementById('closeUpdatePopupBtn');
+    closeUpdatePopupBtn.addEventListener('click', function () {
+        var updateQuestionPopup = document.getElementById('updateQuestionPopup');
+        updateQuestionPopup.classList.remove('active');
+        overlay.classList.remove('active'); // Hide the overlay
+    });
+
+    var searchIcon = document.querySelector('.search_icon');
+    var searchInput = document.querySelector('.searchInputBox');
+
+    // Click event handler for the search icon
+    searchIcon.addEventListener('click', function() {
+        searchInput.focus();
+    });
+
+    // Click event handler for section boxes
+    var sectionBoxes = document.querySelectorAll('.section-box');
+    sectionBoxes.forEach(function (sectionBox) {
+        sectionBox.addEventListener('click', function () {
+            var dataSection = this.getAttribute('data-section');
+            var faqSections = document.querySelectorAll('.faq-section');
+
+            faqSections.forEach(function (faqSection) {
+                if (faqSection.getAttribute('data-section') === dataSection) {
+                    faqSection.classList.add('active');
+                } else {
+                    faqSection.classList.remove('active');
+                    var questions = faqSection.querySelectorAll('.faq-question');
+                    questions.forEach(function (question) {
+                        question.classList.remove('active');
+                    });
+                }
+            });
+        });
+    });
+
+    // Click event handler for FAQ questions to show/hide answers
+    var faqQuestions = document.querySelectorAll('.faq-question');
+    faqQuestions.forEach(function(faqQuestion) {
+        faqQuestion.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    });
+
+    // Search functionality
+    searchInput.addEventListener('input', function() {
+        var faqSections = document.querySelectorAll('.faq-section');
+        faqSections.forEach(function(section) {
+            if (!section.classList.contains('active')) {
+                section.classList.add('active');
+            }
+        });
+        var keyword = searchInput.value.toLowerCase();
+        var allQuestions = document.querySelectorAll('.faq-question');
+
+        allQuestions.forEach(function(question) {
+            var questionText = question.textContent.toLowerCase();
+            if (questionText.includes(keyword)) {
+                question.classList.remove('hidden');
+            } else {
+                question.classList.add('hidden');
+            }
+        });
+    });
+});
+    </script>
+</body>
+</html>
+{% endblock %}
