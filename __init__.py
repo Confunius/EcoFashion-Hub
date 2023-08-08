@@ -891,29 +891,29 @@ def add_product():
     for key in db:
         if int(key) > max_id:
             max_id = int(key)
-    product_id = "P" + int(max_id + 1)
+    product_id = "P" + str(max_id + 1)
 
     product = Product(product_id, name, color_options, size_options, cost_price,
                           list_price, stock, description, image, category)
         # stripe payment
-    for color in product["color_options"]:
-        for size in product["size_options"]:
+    for color in product.color_options:
+        for size in product.size_options:
             try:
                 stripe_details = stripe.Product.create(
-                    name=f"{product['name']} | {color} | {size}",
+                    name=f"{product.name} | {color} | {size}",
                     default_price_data={
                         "unit_amount": int(float(list_price) * 100),
                         "currency": "sgd",
                     },
-                    images=[product["image"]],
+                    images=product.image,
                 )
                 stripe.Product.modify(
                     stripe_details["id"],
-                    url=Domain+"/product/"+product["id"],
+                    url=Domain+"/product/"+product.productid,
                 )
             except Exception as e:
-                print(f"Failed to create product {product['product_id']}: {str(e)}")
-    product_id = product["id"]
+                print(f"Failed to create product {product.product_id}: {str(e)}")
+    product_id = product.product_id
     db[product_id] = product
     db.close()
 
@@ -1019,8 +1019,8 @@ def delete_product(product_id):
         product = db[product_id]
         product_name = product.name
         stripe_product_list = find_product(product_name)
-        for item in stripe_product_list:
-            stripe.Product.delete(item["id"])
+        # for item in stripe_product_list:
+        #     stripe.Product.delete(item["id"])
         del db[product_id]
         db.close()
     
