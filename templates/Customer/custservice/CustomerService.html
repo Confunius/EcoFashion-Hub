@@ -148,7 +148,7 @@
         }
 
     </style>
-    {% extends "Customer/base.html" %} {% block title %}Ecofashion Hub - Customer Service{% endblock %} {% block content %}
+    {% extends "base.html" %} {% block title %}Ecofashion Hub - Customer Service{% endblock %} {% block content %}
 
 
 </head>
@@ -175,7 +175,7 @@
                     Discount
                 </label>
                 <label class="popup-option-other">
-                    <input type="text" name="other" placeholder="Others">
+                    <input type="text" name="other" maxlength="50" placeholder="Others">
                 </label>
             </form>
         </div>
@@ -211,16 +211,16 @@
         let automatedResponseSent = "False";
 
 
-    // Show the popup when the page loads
-        document.addEventListener("DOMContentLoaded", function() {
-            var popupContainer = document.getElementById("popupContainer");
-            popupContainer.style.display = "block";
+        // Show the popup when the page loads
+            document.addEventListener("DOMContentLoaded", function() {
+                var popupContainer = document.getElementById("popupContainer");
+                popupContainer.style.display = "block";
 
+            });
+        window.addEventListener('beforeunload', function(event) {
+            const chatHistory = document.getElementById("chatHistory").innerHTML;
+            saveServiceRecord(finalSubject, dateInitiated, chatHistory, status, automatedResponseSent)
         });
-    window.addEventListener('beforeunload', function(event) {
-        const chatHistory = document.getElementById("chatHistory").innerHTML;
-        saveServiceRecord(finalSubject, dateInitiated, chatHistory, status, automatedResponseSent)
-    });
 
         // Function to handle the submit button click
         function submitSelection() {
@@ -263,86 +263,100 @@
             window.location.href = "http://127.0.0.1:5000/";
         }
 
-    // Function to add a new message to the chat history
-    function addMessageToChatHistory(sender, message) {
-        const chatHistory = document.getElementById("chatHistory");
-        const messageContainer = document.createElement("div");
-        messageContainer.classList.add("message", sender === "bot" ? "bot-message" : "user-message");
-        messageContainer.innerHTML = `<strong>${sender}:</strong> ${message}`;
-        chatHistory.appendChild(messageContainer);
+        // Function to add a new message to the chat history
+        function addMessageToChatHistory(sender, message) {
+            const chatHistory = document.getElementById("chatHistory");
+            const messageContainer = document.createElement("div");
+            messageContainer.classList.add("message", sender === "bot" ? "bot-message" : "user-message");
+            messageContainer.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            chatHistory.appendChild(messageContainer);
 
-        // Scroll to the bottom of the chat history to show the latest message
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-        record.chat.push({
-            sender: sender,
-            content: message
-        });
-    }
-
-    function resolveChat() {
-        // Show a confirmation popup
-        const isConfirmed = window.confirm("Are you sure you want to resolve the chat?");
-        if (isConfirmed){
-            const messageInput = document.getElementById("messageInput");
-            messageInput.disabled = true;
-            alert("Chat resolved successfully!");
-            status = "Resolved"
-        } else {
-            // If the user cancels, do nothing
+            // Scroll to the bottom of the chat history to show the latest message
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+            record.chat.push({
+                sender: sender,
+                content: message
+            });
         }
-    }
 
-    function saveServiceRecord(subject, dateInitiated, chatHistory, status, auto) {
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/save_service_record", true);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                // Record saved successfully
-                alert("Record saved!");
-            } else if (xhr.readyState === 4 && xhr.status !== 200) {
-                // Error saving record
-                alert("Did not save record.");
+        function resolveChat() {
+            // Show a confirmation popup
+            const isConfirmed = window.confirm("Are you sure you want to resolve the chat?");
+            if (isConfirmed){
+                const messageInput = document.getElementById("messageInput");
+                messageInput.disabled = true;
+                alert("Chat resolved successfully!");
+                status = "Resolved"
+            } else {
+                // If the user cancels, do nothing
             }
-        };
-        // Create a new array to store the chat history in the desired format
-        console.log("record.chat:", JSON.stringify(record.chat, null, 2));
-        const data = JSON.stringify({
-            subject: subject,
-            dateInitiated: dateInitiated,
-            chatHistory: JSON.stringify(record.chat, null, 2),
-            status: status,
-            auto: auto
-        });
-        xhr.send(data);
-    }
-
-    // Function to send a new message
-function sendMessage() {
-    const messageInput = document.getElementById("messageInput");
-    const message = messageInput.value.trim();
-    addMessageToChatHistory("Customer", message);
-    messageInput.value = "";
-    const dateInitiated = new Date().toLocaleDateString();
-    if (message !== "") {
-        if (automatedResponseSent === "False") {
-            // Send the automated response only for the first message
-            addMessageToChatHistory("bot", "Thank you for your message! Our customer support team will get back to you shortly.");
-            automatedResponseSent = "True";
         }
 
-        // In this example, we assume the customer's name is "Customer"
-        // You can replace "Customer" with the actual customer's name
+        function saveServiceRecord(subject, dateInitiated, chatHistory, status, auto) {
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/save_service_record", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    // Record saved successfully
+                    alert("Record saved!");
+                } else if (xhr.readyState === 4 && xhr.status !== 200) {
+                    // Error saving record
+                    alert("Did not save record.");
+                }
+            };
+            // Create a new array to store the chat history in the desired format
+            console.log("record.chat:", JSON.stringify(record.chat, null, 2));
+            const data = JSON.stringify({
+                subject: subject,
+                dateInitiated: dateInitiated,
+                chatHistory: JSON.stringify(record.chat, null, 2),
+                status: status,
+                auto: auto
+            });
+            xhr.send(data);
+        }
 
-    }
-}
+         function censorMessage(message, profanityWords) {
+            for (const word of profanityWords) {
+                const regex = new RegExp('\\b' + word + '\\b', 'gi');
+                message = message.replace(regex, '*'.repeat(word.length));
+            }
+            return message;
+         }
+
+        // Function to send a new message
+        function sendMessage() {
+            const messageInput = document.getElementById("messageInput");
+            let message = messageInput.value.trim();
+            if (message === "") {
+                return;
+            }
+            // Fetch the CSV data from the server
+            fetch('/get_csv')
+            .then(response => response.text())
+            .then(csvText => {
+                const csvLines = csvText.split('\n');
+                const profanityWords = csvLines.slice(1).map(line => line.split(',')[0].trim());
+                message = censorMessage(message, profanityWords); // Censor the user's message
+                addMessageToChatHistory("Customer", message);
+                messageInput.value = "";
+                if (message !== "") {
+                    if (automatedResponseSent === "False") {
+                        // Send the automated response only for the first message
+                        addMessageToChatHistory("bot", "Thank you for your message! Our customer support team will get back to you shortly.");
+                        automatedResponseSent = "True";
+                    }
+                }
+            });
+        }
 
         // Add event listener to send message when Enter key is pressed
         document.getElementById("messageInput").addEventListener("keydown", function (event) {
             if (event.key === "Enter") {
                 sendMessage();
             }
-    });
+        });
     </script>
 
 </body>
