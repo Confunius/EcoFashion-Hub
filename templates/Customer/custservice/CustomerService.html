@@ -202,6 +202,7 @@
     </div>
 
   <script>
+        let isClosePopupCalled = false;
         let finalSubject;
         let dateInitiated;
         let status;
@@ -218,8 +219,10 @@
 
             });
         window.addEventListener('beforeunload', function(event) {
+        if (!isClosePopupCalled) {
             const chatHistory = document.getElementById("chatHistory").innerHTML;
             saveServiceRecord(finalSubject, dateInitiated, chatHistory, status, automatedResponseSent)
+            }
         });
 
         // Function to handle the submit button click
@@ -257,6 +260,7 @@
 
         // Function to close the popup and redirect to another page
         function closePopup() {
+            isClosePopupCalled = true;
             var popupContainer = document.getElementById("popupContainer");
             popupContainer.style.display = "none";
             // Replace "homepage.html" with the desired URL
