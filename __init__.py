@@ -946,7 +946,8 @@ def get_csv():
 
 @app.route('/CustomerService')
 def CustomerService():
-    return render_template('/Customer/custservice/CustomerService.html')
+    user_id = session['id'] 
+    return render_template('/Customer/custservice/CustomerService.html', user_id= user_id)
 
 
 @app.route('/ServiceRecord')
@@ -970,6 +971,7 @@ def record_detail(record_id):
         auto = record.auto
         user = record.user_id
         last_save = record.last_save
+        user_id = record.user_id
 
         # Parse the string as a list of dictionaries
         chat_list = json.loads(chat)
@@ -985,7 +987,7 @@ def record_detail(record_id):
             contents.append(content)
 
         return render_template('Customer/custservice/record_detail.html', record=record, senders=senders, contents=contents,
-                               subject=subject, date=date, status=status, auto=auto, user_id=user, last_save = last_save)
+                               subject=subject, date=date, status=status, auto=auto, user_id=user_id, last_save = last_save)
    
 
 @app.route('/save_service_record', methods=['POST'])
@@ -1008,7 +1010,7 @@ def save_service_record():
                 subject=data['subject'],
                 status=data['status'],
                 auto=data['auto'],
-                user_id="Real",
+                user_id=data['user_id'],
                 last_save=data['last_save']
             )
             service_records_db[record_id] = record
@@ -1024,6 +1026,7 @@ def save_service_record():
                 record.subject = data['subject']
                 record.status = data['status']
                 record.auto = data['auto']
+                record.user_id = data['user_id']
                 record.last_save = data['last_save']
             elif record_id not in service_records_db:
                 return jsonify({'error': 'Record not found'}), 404
@@ -1044,6 +1047,7 @@ def save_service_record():
                 record_admin.subject = data['subject']
                 record_admin.status = data['status']
                 record_admin.auto = data['auto']
+                record_admin.user_id = data['user_id']
                 record_admin.last_save = data['last_save']
             elif record_id not in service_records_admin_db and record_id not in deleted_record_admin_ids:
                 # Create a new admin Record object and add it to the service_records_admin_db dictionary
