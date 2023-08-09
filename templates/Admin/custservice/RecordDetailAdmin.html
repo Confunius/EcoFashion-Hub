@@ -120,7 +120,8 @@
         chat: []
     };
     let automatedResponseSent = "{{ auto }}";
-    let save = "True"
+    let save = "True";
+    let last_save = "{{ last_save }}"
 
     {% for i in range(senders|length) %}
     record.chat.push({
@@ -131,8 +132,8 @@
 
     window.addEventListener('beforeunload', function(event) {
         if (save === "True") {
-            const chatHistory = document.getElementById("chatHistory").innerHTML;
-            saveServiceRecord(finalSubject, dateInitiated, chatHistory, status, automatedResponseSent)
+            last_save = new Date().toLocaleDateString();
+            saveServiceRecord(finalSubject, dateInitiated, chatHistory, status, automatedResponseSent, last_save)
         };
     });
 
@@ -157,12 +158,13 @@
         });
     }
 
-    function saveServiceRecord(subject, dateInitiated, chatHistory, status, auto) {
+     function saveServiceRecord(subject, dateInitiated, chatHistory, status, auto, last_save) {
         console.log("subject:", subject);
         console.log("dateInitiated:", dateInitiated);
         console.log("chatHistory:", chatHistory);
         console.log("status:", status);
-        console.log("auto:", auto)
+        console.log("auto:", auto);
+        console.log("last save:", last_save)
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "/save_service_record", true);
         xhr.setRequestHeader("Content-Type", "application/json");
@@ -184,7 +186,8 @@
             dateInitiated: dateInitiated,
             chatHistory: JSON.stringify(record.chat, null, 2),
             status: status,
-            auto: automatedResponseSent
+            auto: automatedResponseSent,
+            last_save: last_save
         });
         xhr.send(data);
     }
