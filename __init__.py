@@ -468,9 +468,11 @@ def add_review(product_id):
         ) if review_id.startswith('R')), default=0)
 
     new_review_id = "R" + str(max_review_id + 1)
+    # user_id = session['id']
+    user_id = 0
 
     # Create a new Review object
-    review = Review(new_review_id, product_id, "I need a User ID Ching Yi ",
+    review = Review(new_review_id, product_id, user_id,
                     customer_name, rating, review_comment)
 
     # Save the review to the review_db
@@ -845,7 +847,8 @@ def thankyou():
         color.append(item.color)
         quantity.append(item.quantity)
     # Create new order object
-    user_id = 0
+    # user_id = session['id']
+    user_id = 1
     order_date = datetime.now().date()
     order_status = "processing"
     order = Order(order_id, user_id, product_id_list, size, color,
