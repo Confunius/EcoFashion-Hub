@@ -1478,34 +1478,50 @@ def delete_faq():
     return redirect('/Admin/custservice/FAQAdmin')
 
     # FAQ data
+# FAQ data
 faqs = [
     {
         "section": "Order Issues",
         "questions": ["How to check my order status?", "Why didn't I get an email about my order being shipped?",
-                      "How long will shipping take for my order?"],
+                      "How long will shipping take for my order?", "I'm having technical difficulties on the Transaction Processing Page. What should I do?", "Can I modify my order after the transaction is completed?"],
+
         "answers": ["You will receive the shipping inform email within 1 business day after the order is shipped",
-                    "Answer 2", "Answer 3"]
+                    "There may be delays with the shipping", "Shipping usually takes about 1-3 days", "Please ensure your browser is updated, clear your cookies and cache, and try again. If the problem persists, contact our customer support for assistance.",
+                    "If you need to make changes to your order after completing the transaction, please contact our customer service through our customer service page immediately. We'll do our best to accommodate your request, but changes cannot be guaranteed once the order enters the fulfillment process."]
     },
     {
         "section": "Promotions",
-        "questions": ["Question 4", "Question 5"],
-        "answers": ["Answer 4", "Answer 5"]
+        "questions": ["I have a promo code. Where can I enter it?"],
+        "answers": ["On our checkout page, below the order summary, you can enter your promo code there. Click apply to see your updated total. Note that the discount applies to the subtotal, not the delivery."]
     },
     {
         "section": "Account",
-        "questions": ["Question 6", "Question 7"],
-        "answers": ["Answer 6", "Answer 7"]
+        "questions": ["Do you store my payment details for future transactions?"],
+        "answers": ["No, we prioritize your security. We do not store any sensitive payment details on our servers. Some customers may opt for tokenized storage through our payment gateways for easier checkouts in the future via link authentication, but this is entirely voluntary."]
     },
     {
         "section": "Delivery",
-        "questions": ["Question 8", "Question 9"],
-        "answers": ["Answer 8", "Answer 9"]
+        "questions": ["What are the available locations for shipping?", "How do you deliver your products?"],
+        "answers": ["We only ship to Singapore for now, but we are planning on expanding our services to other countries soon!", "As a sustainability brand, we only deliver our products using carbon neutral methods like electric vehicles."]
     },
     {
         "section": "Refund",
-        "questions": ["Question 10", "Question 11"],
-        "answers": ["Answer 10", "Answer 11"]
+        "questions": ["Do you offer refunds?", "What are the conditions for a refund to occur"],
+        "answers": ["Yes, we do offer refunds. Once you complete an order, you can press on the 'Cancel & Refund' button, and the money will be sent back to you by Stripe. However, we do not accept refunds after the order is shipped.", "The conditions are that the order has not been shipped or if we have made a mistake."]
     },
+    {
+        "section": "General",
+        "questions": ["Is it safe to enter my credit card details?", "Do you store my payment details for future transactions?", "Why can't I change the country in the checkout page?"],
+        "answers": ["Absolutely. Our e-commerce website utilizes the Stripe API for payment processing. Stripe is a globally recognized payment solution that prioritizes security:"
+                    "End-to-End Encryption: Stripe ensures that your card details are encrypted from the moment you enter them. This information is sent directly to Stripe and never touches our servers."
+                    "PCI DSS Compliance: Stripe is certified as a PCI Level 1 Service Provider, the most stringent level of certification available. This ensures that they maintain and adhere to the highest security standards in the payment industry."
+                    "Advanced Fraud Detection: Stripe employs advanced machine learning algorithms to detect and prevent fraudulent transactions, providing an extra layer of protection for your payments."
+                    "Tokenization: When you enter your card details, Stripe replaces sensitive information with tokens. This means that even if someone were to intercept this data, they wouldn't be able to decipher your actual card details."
+                    "For more details on Stripe's security measures, you can visit their security page.",
+                    "No, we prioritize your security. We do not store any sensitive payment details on our servers. Some customers may opt for tokenized storage through our payment gateways for easier checkouts in the future via link authentication, but this is entirely voluntary.",
+                    "We're sorry, but we only ship to Singapore for the time being. We may expand to international borders in the future, thank you for your support!"]
+
+    }
 
 ]
 if not get_faqs_from_shelve() == '':
