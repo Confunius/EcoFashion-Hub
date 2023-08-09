@@ -1,0 +1,83 @@
+{% extends "User/CustomerLoggedInBase.html" %}
+{% block title %}Ecofashion Hub - Customer Order History{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Vertical Navbar -->
+            <nav class="navbar col-md-2 vertical-nav navbar col-md-3 vertical-nav">
+                <ul class="navbar-nav">
+                    <li></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/UserProfile">My Account </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Wishlist">My Wishlist</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/OrderStatus">Order Status</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link" href="/OrderHistory">Order History</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Payment/{{ session['id']}}">Payment Methods</a>
+                    </li>
+                    <!-- Add more history items as needed -->
+                </ul>
+            </nav>
+            <!-- Vertical white line -->
+            <div class="vertical-line col-md-13"></div>
+            <!-- Your main content here -->
+            <div class="container">
+                <br><br>
+                <h2 style="font-family: 'Montserrat', sans-serif; font-weight: bold; font-size: 28px;">ORDER HISTORY</h2>
+                <div class="table-responsive order-table">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product Name:</th>
+                                <br>
+                                
+                                <th>Product:</th>
+                                <th>Order Date:</th>
+                                <th>Order ID:</th>
+                                <th>Quantity:</th>
+                                <th>Price:</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Jessie Ruched Wrap Slit Dress</td>
+                                <td><img class="product-image" src="static\img\Lovet.png" alt="Product A" width="80" height="90"></img></td>
+                                <td>2023-11-26</td>
+                                <td>T1234</td>
+                                <td style="text-align: center;">1</td>
+                                <td>$38.80</td>
+                            </tr>
+                            <tr>
+                                <td>Molly Smocked Ruffle Midi Dress From Able</td>
+                                <td><img class="product-image" src="static\img\Molly.png" alt="Product B" width="80" height="90"></img></td>
+                                <td>2023-12-26</td>
+                                <td>T5678</td>
+                                <td style="text-align: center;">1</td>
+                                <td>$89.80</td>
+                            </tr>
+                
+                            <!-- Add more rows for other orders -->
+                        </tbody>
+                        
+                    </table>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+{% endblock %}

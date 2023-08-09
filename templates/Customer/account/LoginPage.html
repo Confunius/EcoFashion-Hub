@@ -1,0 +1,75 @@
+{% extends "User/base.html" %}
+{% block title %}Ecofashion Hub - Login Page{% endblock %}
+
+{% block content %}
+{% from "_formHelper.html" import render_field %}
+
+<div class="container homepage-container">
+    <!-- Login Section -->
+    <div class="half" style="margin-right:20px;">
+      <h2 class="homepage-text">Login</h2>
+      <br>
+      <h6 class="homepage-text">Welcome Back to the family</h6>
+      <br>
+      <form action="/Login" method="POST">
+        <div class="form-group">
+          {{ render_field(form.userEmail, class='form-control') }}
+        </div>
+        <br>
+        <div class="form-group">
+          {{ render_field(form.userPassword, class='form-control', id='passwordInput') }}
+        </div>
+        <br>
+        <div class="container2">
+          <div class="input-group-append">
+            <div class="input-group-text" style="background-color: #505E45; color: #f2ecd8;">
+              <input type="checkbox" id="showPasswordCheckbox">
+              <label class="form-check-label" for="showPasswordCheckbox">Show Password</label>
+            </div>
+          </div>
+        </div>
+        <div class="login-btn-center">
+          <div class="login-links">
+            <a href="#"><u>Terms of Use</u></a>
+            <a href="#"><u>Privacy Policy</u></a>
+          </div>
+          <input type="submit" value="Login">
+        </div>
+      </div>
+      </form>
+
+
+    <!-- Vertical white line -->
+    <div class="vertical-line col-md-13"></div>
+
+    <!-- Signup Section -->
+    <div class="half text-center" style="padding-bottom: 40px; margin-bottom:80px; margin-left: 20px;">
+      <h2 class="homepage-text">Sign Up</h2>
+    <br>
+      <h6 class="homepage-text">If you create an account, it takes less time to go <br> through checkout and complete your orders <br>Register today for free! <br>  </h6>
+      <div class="form-group">
+        <br><br>
+        <a href="/adminCreation"><button type="submit" class="btn btn-primary settings-btn" style="color: #4b6043;">Register Now</button></a>
+        <br><br><br>
+        <h6 class="homepage-text">20% off discount code for first time registration <br>at your checkout</h6>
+      </div>
+    </div>
+</div>
+</div>
+
+<script>
+document.getElementById('showPasswordCheckbox').addEventListener('change', function () {
+  const passwordInput = document.getElementById('passwordInput');
+  if (this.checked) {
+    passwordInput.type = 'text';
+  } else {
+    passwordInput.type = 'password';
+  }
+});
+</script>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "User/base.html" %}
+{% block title %} Create Account {% endblock %}
+{% block content %}
+{% from "_formHelper.html" import render_field %}
+<script>
+   function onSubmit(token) {
+     document.getElementById("registrationForm").submit();
+   }
+ </script>
+  <div class="container">
+<br>
+    <h1 class="title" style="text-align: center;">CREATE AN ACCOUNT</h1>
+    <br>
+    <div class="form-container">
+      <p style="font-size:13px;">You will receive the confirmation mail to your email address associated with <br> account. Please make sure to check your incoming email with us.</p>
+    <form action="/UserRegistrationPage" method="POST" id="registrationForm">
+        <div class="form-inline" style="padding-left:60px; padding-right:60px;">
+            <div class="form-group2" style="width:100%">
+              {{ render_field(form.userFullName, class="form-control", style="width: 300px; height:40px;")}}
+            </div>
+        </div>
+      <div class="form-inline">
+        <div class="form-group2" style="padding-left:60px; padding-right:60px;">
+          {{ render_field(form.userName, class="form-control", style="width: 300px; height:40px;")}}
+        </div>
+        <div class="form-group2" style="padding-left:60px; padding-right:60px;">
+          {{ render_field(form.userEmail, class="form-control", style="width: 300px; height:40px;")}}
+        </div>
+      </div>
+      <div class="form-inline">
+        <div class="form-group2" style="padding-left:60px; padding-right:60px;">
+          {{ render_field(form.userPassword, class="form-control", style="width: 300px; height:40px;")}}
+        </div>
+        <div class="form-group2" style="padding-left:60px; padding-right:60px;">
+          {{ render_field(form.userCfmPassword, class="form-control", style="width: 300px; height:40px;")}}
+        </div>
+      </div>
+      <div class="form-inline">
+        <div class="form-group2" style="padding-left:60px; padding-right:60px;">
+          {{ render_field(form.userAddress, class="form-control", style="width: 300px; height:40px;")}}</div>
+        <div class="form-group2" style="padding-left:60px; padding-right:60px;">
+          {{ render_field(form.userPostalCode, class="form-control", style="width: 300px; height:40px;")}}</div>
+        <!--<label>Gender:</label>
+          <input type="radio" name="gender" value="male"> Male
+          <input type="radio" name="gender" value="female"> Female -->
+        </div>
+
+      <div class="line2"></div>
+      <div style="margin-left:50px;">
+        <div class="title" style="color:#4B6043;"><strong><u>MEMBERSHIP AGREEMENT*</u></strong></div>
+        <p style="font-size:13px;">By creating an account, you agree to Ecofashion Hub's Privacy Policy and terms of use.</p>
+      </div>
+        <div class="form-group2" style="padding-left:60px; padding-right:60px;">
+            {{render_field(form.recaptcha, class="form-control")}}
+        </div>
+        <div class="button-container">
+        <button type="submit" class="g-recaptcha btn btn-primary settings-btn" data-sitekey="{{ site_key }}" data-callback="onSubmit" data-action="submit" style="color: #4b6043;">Create</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+{% endblock %}

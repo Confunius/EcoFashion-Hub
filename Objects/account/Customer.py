@@ -1,15 +1,17 @@
 # User class:
 class User:
     count_id = 0
-    def __init__(self,userName,userPassword,userEmail, userCfmPassword, userAddress, userPostalCode): # initializer method    def __init__(self, userName, userPassword, userEmail, userCfmEmail):
+    def __init__(self,userFullName,userName,userPassword,userEmail, userCfmPassword, userAddress, userPostalCode, userVerified=0): # initializer method    def __init__(self, userName, userPassword, userEmail, userCfmEmail):
         User.count_id += 1
         self.__user_id = User.count_id
+        self.__userFullName = userFullName
         self.__userName = userName
         self.__userPassword = userPassword
         self.__userEmail = userEmail
         self.__userCfmPassword = userCfmPassword
         self.__userAddress = userAddress
         self.__userPostalCode = userPostalCode
+        self.__userVerified = userVerified
 
     def __repr__(self):
         return f'<User: {self.__userName}>'    # accessor methods
@@ -35,6 +37,12 @@ class User:
     def get_userPostalCode(self):
         return self.__userPostalCode
 
+    def get_userVerified(self):
+        return self.__userVerified
+
+    def get_userFullName(self):
+        return self.__userFullName
+
     def set_user_id(self, user_id):
         self.__user_id = user_id
 
@@ -55,6 +63,12 @@ class User:
 
     def set_userPostalCode(self, userPostalCode):
         self.__userPostalCode = userPostalCode
+
+    def set_userVerified(self, userVerified):
+        self.__userVerified = userVerified
+
+    def set_userFullName(self, userFullName):
+        self.__userFullName = userFullName
 
 class userPayment():
     def __init__(self, user_id,userFullName, userEmail, userCardName, userCardType, userCardNumber, userCardExp, userCardSec, userAddress, userPostalCode):  # initializer method    def __init__(self, userName, userPassword, userEmail, userCfmEmail):
