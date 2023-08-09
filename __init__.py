@@ -312,7 +312,7 @@ def user_deactivation(user_id):
         db['users'] = users_dict
         db.close()
         session.clear()
-        return render_template('/Customer/account/homepage.html')
+        return render_template('/Customer/homepage.html')
     else:
         db.close()
         return "User not found."
