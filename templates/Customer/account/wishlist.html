@@ -1,6 +1,596 @@
 {% extends "Customer/base.html" %}
 {% block title %}Ecofashion Hub - Customer Wishlist{% endblock %}
+<style>
+  /* Adjust the height to your preference */
+  body,
+  html {
+      height: 100%;
+      background-color: #505E45;
+      color: #f2ecd8;
+  }
 
+  /* Center the content vertically */
+  .homepage-container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+  }
+
+  /* Split the page in half */
+  .half {
+      width: 50%;
+      padding: 20px;
+  }
+
+  .login-btn-center {
+      display: flex;
+      justify-content: flex-end;
+  }
+
+  .left-links {
+      display: flex;
+      justify-content: flex-start;
+      margin-bottom: 10px;
+      color: #f2ecd8
+  }
+
+  /* Add some spacing between links */
+  .left-links a {
+      margin-right: 10px;
+      display: block;
+  }
+
+  .box {
+      display: inline;
+  }
+
+  .login-links a {
+      margin-right: 10px;
+      color:#f2ecd8; 
+      justify-content: flex-start;
+  }
+
+  .login-links {
+      margin-right: 90px;
+  }
+
+  .homepage-text {
+      text-align: center;
+  }
+
+  .section {
+      width: 50vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+  }
+
+  /* Background and styling for the first section (header) */
+  .section-1 {
+      background-color: #007bff;
+  }
+
+  /* Background and styling for the second section (image) */
+  .section-2 {
+      background-color: #f0f0f0;
+  }
+
+  /* Center the image horizontally and vertically */
+  .section-2 img {
+      max-width: 100%;
+      max-height: 100%;
+      display: block;
+      margin: auto;
+  }
+
+  /* Style the header text */
+  .header-text {
+      font-size: 32px;
+  }
+
+  .button-container button {
+    background-color: #F6F0DD; /* Set the background color of the button */
+    border: 1.5px solid black; /* Set the border color and increase thickness to 3px */ 
+    margin-right: 20px; /* Adjust the value to set the desired gap between the buttons */
+    padding: 8px 16px; /* Add some padding to the button for better visual appearance */
+    border-radius: 0; /* Set the border-radius to 0 to get sharp 90-degree corners */
+    font-weight: bold; /* Make the text bold */
+  }
+
+  .button-container button:hover {
+    background-color: #A79274; /* Change the background color when hovered */
+    color: white; /* Change the text color when hovered */
+  }
+
+  p {
+      font-size: 20px;
+  }
+
+  .form-group label {
+      font-weight: bold;
+  }
+
+  .form-control {
+      border: 1px solid #ccc;
+  }
+
+  .form-control:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+  }
+
+  .credit-card-input {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  }
+
+  .credit-card-input input {
+      flex: 1;
+      margin-right: 10px;
+  }
+
+  .credit-card-input img {
+      max-width: 70px;
+  }
+
+
+  .order {
+      margin-bottom: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+  }
+
+  .order-date {
+      font-weight: bold;
+  }
+
+  .order-status {
+      margin-top: 10px;
+      font-weight: bold;
+  }
+
+  .order-items {
+      margin-top: 20px;
+  }
+
+  .item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+  }
+
+  .item img {
+      max-width: 80px;
+      margin-right: 10px;
+  }
+
+  .payment-option {
+      display: inline-block;
+      align-items: center;
+      margin-bottom: 20px;
+  }
+
+  .payment-option label {
+      margin-left: 10px;
+  }
+
+  .btn-primary:hover {
+      background-color: #A79274;
+      border-color: #A79274;
+  }
+
+  .btn-primary.focus,
+  .btn-primary:focus {
+      box-shadow: 0 0 0 0.2rem rgba(167,146,116, 0.5);
+  }
+
+  .btn-primary.disabled,
+  .btn-primary:disabled {
+      background-color: #A79274;
+      border-color: #A79274;
+  }
+
+  .btn-primary:not(:disabled):not(.disabled).active,
+  .btn-primary:not(:disabled):not(.disabled):active,
+  .show>.btn-primary.dropdown-toggle {
+      background-color: #A79274;
+      border-color: #A79274;
+  }
+
+  .form-group label {
+      font-weight: bold;
+  }
+
+  .form-control {
+      border: 1px solid #ccc;
+  }
+
+  .form-control:focus {
+      border-color: #FFFFFF;
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
+  }
+
+  .credit-card-input {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+  }
+
+  .credit-card-input input {
+      flex: 1;
+      margin-right: 10px;
+  }
+
+  .credit-card-input img {
+      max-width: 70px;
+  }
+
+  .navbar {
+      height: 10%;
+      background-color: #A79274;
+      /* Change the background color as needed */
+  }
+
+  /* Vertical white line on the left */
+  .vertical-line {
+      border-right: 5px solid #f2ecd8;
+      /* White color for the vertical line */
+      max-height: fit-content; 
+      height: 80%;
+  }
+
+  /* Customize the navbar items and their appearance */
+  .nav-item {
+      padding: 10px 10px;
+      /* margin: 10; */
+  }
+
+  .nav-item a {
+      color: #000;
+      /* Change link color as needed */
+      text-decoration: none;
+  }
+
+  .nav-item a i {
+    margin-bottom: 10px;
+    /* Change link color as needed */
+    font-size: 30px;
+    position:relative; 
+}
+
+.nav-item.active a {
+    text-decoration: underline;
+  }
+
+.nav-item a:hover {
+      color: #AB916C;
+      /* Change link hover color as needed */
+  }
+
+  .add-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+  }
+
+  .add-icon {
+      margin-right: 5px;
+  }
+
+  .order-number {
+      font-weight: bold;
+  }
+
+  .order-status {
+      margin-top: 10px;
+      font-weight: bold;
+  }
+
+  .order-items {
+      margin-top: 20px;
+  }
+
+  .item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+  }
+
+  .item img {
+      max-width: 80px;
+      margin-right: 10px;
+  }
+
+  .tracking-info {
+      margin-top: 20px;
+      color: #000;
+      background-color: #f2ecd8;
+  }
+
+  
+  .order {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+ /* Timeline Styles */
+.container {
+    max-width: 60%;
+    margin: 2px auto;
+    padding: 2px;
+    background-color: #505E45;
+    border-radius: 5px;
+}
+
+.form-container {
+    max-width:100%;
+    background-color: #AB916C;
+    border-radius:0px;
+}
+
+
+
+.line-container {
+    width: 100%; /* Set the width of the line container to 50% of the screen */
+    margin: 0 auto; /* Center the line container horizontally */
+  }
+
+.half-screen-line {
+    height: 2px; /* Set the height of the line to 2px (you can adjust this as needed) */
+    background-color: white; /* Set the color of the line to white */
+    border: none; /* Remove any default border */
+  }
+
+.horizontal-line {
+      background-color: #ffffff; /* White background color */
+      height: 2px; /* Set the height of the line */
+      width: 100%; /* Set the width to fill the container */
+    }
+
+
+.badge {
+    top: 5px;
+    left: -10px;
+    position: relative;
+    font-size: 15px;
+}
+
+.timeline-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    overflow-x: auto; /* Enable horizontal scrolling if needed */
+    white-space: nowrap; /* Prevent wrapping of timeline items */
+}
+
+.timeline-item {
+    text-align: center;
+    width: 100px;
+    padding: 10px;
+}
+
+.timeline-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #f2ecd8;
+    border: 3px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.timeline-bar {
+    width: calc(100% - 100px); /* Total width minus circle widths */
+    height: 4px;
+    background-color: #f2ecd8;
+    position: relative;
+    top: -75px;
+    left: 50px; /* Offset for the first circle */
+}
+.timeline-description {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.brand { 
+    width: 50%; 
+    height: 10%; 
+    top: -40px; 
+    color: #f2ecd8; 
+}
+
+.brand a { 
+    color: #f2ecd8; 
+}
+
+.btn { 
+    background-color: #f2ecd8; 
+    color: #000000; 
+}
+
+#showPasswordCheckbox:checked { 
+    background-color: #A79274;
+}
+
+.landing-page { 
+    max-width: 52%; 
+    height: 100%; 
+    background-color: #505E45;
+}
+
+.vertical-nav ul li { 
+    padding: 25px; 
+    color: #f2ecd8; 
+}
+
+.vertical-nav { 
+    background-color: #505E45;
+    max-height: 100%; 
+}
+
+.vertical-nav ul li a {  
+    font-size: 20px; 
+    color: #f2ecd8; 
+}
+
+.vertical-line {
+    background-color: #505E45; /* Set the color of the vertical line */
+    width: 2px; /* Set the width of the vertical line */
+    height: 90vh; /* Set the height to 100% of the viewport height */
+  }
+
+.link-container a {
+    color: white; /* Set the text color to white */
+    margin-right: 20px; /* Adjust the value to set the desired gap between the links */
+    text-decoration: underline; /* Remove the default underline */
+}
+
+.link-container a:hover {
+color: #A79274; /* Set the text color to the specified color when hovered */
+}
+
+i { 
+    font-size: 30px; 
+}
+
+.normal-icon { 
+    top: 10px; 
+}
+
+
+
+.order-table {
+    max-width: 100%;
+    margin-top: 50px;
+    background-color: #505E45;
+    color:#f2ecd8;
+    border: none; 
+}
+
+.table { 
+    color:#f2ecd8;
+}
+
+
+
+
+.container2 {
+  width: 80%;
+  max-width: 500px;
+  margin: 50px auto;
+  background-color: #AB916C;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}
+
+.title2 {
+  color: #fff;
+  background-color: #4b6043;
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.form-group2 {
+  margin-bottom: 25px;
+}
+
+.form-group2 label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="date"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+}
+
+.form-group2 input[type="radio"] {
+  margin-right: 5px;
+}
+
+.btn2 {
+  background-color: #4b6043;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.line2 {
+  border-bottom: 2px solid #fff;
+  margin-top: 20px;
+  margin-bottom: 5px;
+  margin-right: 50px;
+  margin-left: 50px;
+  width: 88%;
+}
+
+.row {
+  display: -ms-flexbox; /* IE10 */
+  display: flex;
+  -ms-flex-wrap: wrap; /* IE10 */
+  flex-wrap: wrap;
+  margin: 0 -16px;
+}
+
+input[type=text] {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+label {
+  margin-bottom: 10px;
+  display: block;
+}
+
+.login-signup-container {
+  display: flex;
+}
+
+.login-half, .signup-half {
+  flex: 1;
+  padding: 20px;
+}
+
+.login-half {
+  margin-right: 20px;
+}
+
+.signup-half {
+  margin-left: 20px;
+}
+
+</style>
 {% block content %}
   <div class="container-fluid">
     <div class="row">
@@ -33,11 +623,27 @@
         <br><br>
         <!-- Add your main content here -->
         <div class="container">
-            <h2 style="font-family: 'Montserrat', sans-serif; font-weight: bold; font-size: 28px;">MY WISHLIST</h2>
+          <h2 style="font-family: 'Montserrat', sans-serif; font-weight: bold; font-size: 28px;">MY WISHLIST</h2>
           <div class="line-container">
-            <hr class="half-screen-line" style="margin-bottom: 5px;">
+              <hr class="half-screen-line" style="margin-bottom: 5px;">
           </div>
-        </div>
+          
+          <!-- Iterating over the wishlist items -->
+          {% for item in wishlist %}
+              <div class="wishlist-item">
+                  <!-- Display item image -->
+                  <img src="{{ item.image }}" alt="{{ item.name }}" style="width: 180px; height: 300px;">
+      
+                  <!-- Display item name -->
+                  <h3>{{ item.name }}</h3>
+      
+                  <!-- Display item price -->
+                  <p>Price: ${{ item.price }}</p>
+      
+              </div>
+              <hr> <!-- Separator line between items -->
+          {% endfor %}
+      </div>
       </div>
     </div>
   </div>

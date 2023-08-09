@@ -63,7 +63,7 @@
             <input type="hidden" name="color" id="color_input">
             <button type="submit" class="btn bgd-light mb-2" style="width:100%">Add to Cart</button>
         </form>
-        <button class="btn bgd-light mb-2">Add to Wishlist</button>
+        <a href="{{ url_for('AddToWishList', product_id=productobj.product_id) }}" class="btn bgd-light mb-2">Add to Wishlist</a>
         <button class="btn btn-secondary" href="/product">Continue Shopping</button>
     </div>
 </div>
@@ -74,8 +74,6 @@
 <div class="container mt-5">
     <h3 class="text-center">Customer Reviews</h3>
     <form action="{{ url_for('add_review', product_id=productobj.product_id) }}" method="POST">
-        <!-- Add CSRF token to the form -->
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-group">
             <label for="customer_name">Your Name:</label>
             <input type="text" class="form-control" id="customer_name" name="customer_name" required>

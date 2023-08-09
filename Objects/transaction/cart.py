@@ -39,3 +39,4 @@ class CartItem:
             'color': self.color,
             'stock': self.stock
         }
+

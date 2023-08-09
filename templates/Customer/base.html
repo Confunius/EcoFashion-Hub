@@ -40,6 +40,7 @@
       }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{{url_for('static', filename='/css/style.css')}}">
 
   </head>
 
@@ -101,7 +102,7 @@
         </li>
         <li class="nav-item list-group-item d-flex flex-row">
           <a class="nav-link" href="/"><i class="fa-solid fa-lg fa-heart" style="color:black"></i></a>
-          <text>0</text>
+          <text>{{ num_items_in_wishlist }}</text>
         </li>
         <li class="nav-item list-group-item">
           <a class="nav-link" href="/"><i class="fa-solid fa-lg fa-magnifying-glass" style="color:black"></i></a>

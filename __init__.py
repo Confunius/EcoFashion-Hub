@@ -25,6 +25,7 @@ from Objects.transaction.Order import Order
 from Objects.transaction.Review import Review
 from Objects.transaction.code import Code
 from Objects.transaction.cart import Cart, CartItem
+from Objects.transaction.wishlist import Wishlist, WishlistItem
 from Objects.CustomerService.Record import Record
 from Objects.account.Admin import Admin
 from Objects.account.Customer import User
@@ -35,9 +36,12 @@ from Objects.account.Forms import DelimitedNumberInput, createUser, userLogin, u
 
 Chingyi_Domain = "https://ubiquitous-enigma-r4g7v9wr9vg4c5jp9-5000.app.github.dev/"
 WeiHeng_Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/"
-Presentation = False
+Presentation = True
 Public_key = ""
 Private_key = ""
+
+cartobj = Cart()
+wishlistobj = Wishlist()
 
 if Presentation == True:
     Domain = WeiHeng_Domain
@@ -64,7 +68,6 @@ app.config['RECAPTCHA_VERIFY_URL'] = 'https://www.google.com/recaptcha/api/sitev
 stripe.api_key = 'sk_test_51NbJAUL0EO5j7e8js0jOonkCjFkHksaoITSyuD8YR34JLHMBkX3Uy4SwejTVr6XAvL8amqm4kMjmXtedg2I1oNTI00wnaqFYJJ'
 
 # Account
-
 
 def generate_time_for_timeseries():
     return str(datetime.now().replace(minute=0, second= 0, microsecond=0))
@@ -191,7 +194,7 @@ def UserRegistrationPage():
         userPassword = create_user_form.userPassword.data
         userCfmPassword = create_user_form.userCfmPassword.data
         if not userPassword == userCfmPassword:
-            flash("Password and Confirm Password does not match.", category="danger")
+            # flash("Password and Confirm Password does not match.", category="danger")
             return redirect("/CustomerRegistration")
 
         user = User(create_user_form.userFullName.data, create_user_form.userName.data, create_user_form.userPassword.data,
@@ -211,7 +214,7 @@ def UserRegistrationPage():
 def EditCustomerAccount(id):
     edit_user_form = userEditInfo(request.form)
     if request.method == 'POST' and edit_user_form.validate():
-        db = shelve.open('Object/account/user.db', 'c')
+        db = shelve.open('Objects/account/user.db', 'c')
         users_dict = {}
         try:
             users_dict = db['users']  # user_dict = {1:UserObject, 2:UserObject} #take everything out
@@ -237,7 +240,7 @@ def EditCustomerAccount(id):
         db.close()
         return redirect(url_for('UserProfile'))
     else:
-        db = shelve.open('Object/account/user.db', 'r')
+        db = shelve.open('Objects/account/user.db', 'r')
         users_dict = db['users']
         db.close()
 
@@ -412,9 +415,23 @@ def OrderStatus():
 def OrderHistory():
     return render_template('/Customer/account/orderhistory.html')
 
+@app.route('/addtowishlist/<product_id>')
+def AddToWishList(product_id):
+    with shelve.open('Objects/transaction/product.db') as productdb:
+        product = productdb[product_id]
+        for item in wishlistobj.wishlist_items:
+            print("item's product id matching with product id", item.product_id, product_id)
+            if item.product_id == product_id:
+                return redirect(url_for('product_info', product_id=product.product_id, error="product_alr_in_wishlist"))
+
+        wishlistobj.add_to_wishlist(WishlistItem(session['id'], product_id, product.name, product.list_price, product.image))
+    return redirect(url_for('Wishlist'))
+
+
+
 @app.route('/Wishlist')
 def Wishlist():
-    return render_template('/Customer/account/wishlist.html')
+    return render_template('/Customer/account/wishlist.html', wishlist=wishlistobj.wishlist_items)
 
 @app.route('/CustomerAccountDelete')
 def CustomerAccountDelete():
@@ -477,14 +494,6 @@ def products():
     return render_template('/Customer/transaction/Product.html', product_list=product_list, count=len(product_list), categories=categories)
 
 
-# def generate_csrf():
-#     if 'csrf_token' not in session:
-#         session['csrf_token'] = 'some_random_string_or_use_uuid_module_to_generate_one'
-#     return session['csrf_token']
-
-
-# app.jinja_env.globals['csrf_token'] = generate_csrf
-
 
 @app.route('/product/<product_id>')
 def product_info(product_id):
@@ -492,6 +501,8 @@ def product_info(product_id):
     error_message=None
     if error == "stock_limit_exceeded":
         error_message = "You've exceeded the available stock for this product."
+    elif error == "product_alr_in_wishlist":
+        error_message = "Product already in wishlist."
 
     review_list = []
     pdb_path = 'Objects/transaction/product.db'
@@ -570,13 +581,17 @@ def add_review(product_id):
     return redirect(url_for('product_info', product_id=product_id))
 
 
-cartobj = Cart()
-
 
 @app.context_processor
 def cart_items_processor():
     num_items_in_cart = sum(item.quantity for item in cartobj.get_cart_items())
     return {'num_items_in_cart': num_items_in_cart}
+
+
+@app.context_processor
+def wishlist_items_processor():
+    num_items_in_wishlist = len(wishlistobj.wishlist_items)
+    return {'num_items_in_wishlist': num_items_in_wishlist}
 
 
 @app.route('/product', methods=['POST'])
@@ -1208,7 +1223,7 @@ def AdminRegistrationPage():
         adminPassword = create_admin_form.adminPassword.data
         adminCfmPassword = create_admin_form.adminCfmPassword.data
         if not adminPassword == adminCfmPassword:
-            flash("Passwords Don't match", category="danger")
+            # flash("Passwords Don't match", category="danger")
             return redirect("/CustomerRegistration")
 
         admin = Admin.Admin( create_admin_form.adminFirstName.data, create_admin_form.adminLastName.data,
