@@ -32,8 +32,6 @@ from Objects.account.Forms import DelimitedNumberInput, createUser, userLogin, u
 
 # sys.path.remove(main_dir)
 
-if 'dbm.ndbm' in sys.modules:
-    del sys.modules['dbm.ndbm']
 
 Chingyi_Domain = "https://ubiquitous-enigma-r4g7v9wr9vg4c5jp9-5000.app.github.dev/"
 WeiHeng_Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/"
@@ -94,7 +92,7 @@ def verify_email():
     email = request.args.get('email')
     # Add code to verify the email address and update userVerified column accordingly in your database.
     # For simplicity, we'll just set userVerified to 1 here.
-    db = shelve.open('shelvefile.db', 'w')
+    db = shelve.open('Objects/account/user.db', 'w')
     users_dict = db.get('users', {})
 
     for user in users_dict.values():
@@ -112,13 +110,13 @@ def verify_email():
 @app.route('/Logout', methods=['GET','POST'])
 def Logout():
     session.clear()
-    return render_template('/Customer/account/homepage.html')
+    return render_template('/Customer/homepage.html')
 # User side
 @app.route('/Login', methods=['GET','POST'])
 def Login():
     create_user_form = userLogin(request.form)
     if request.method == "POST" and create_user_form.validate():
-        db = shelve.open('shelvefile.db', 'r')
+        db = shelve.open('Objects/account/user.db', 'r')
         users_dict = db.get('users', {})  # Use a default empty dict if 'users' doesn't exist yet
 
         email = create_user_form.userEmail.data
@@ -135,6 +133,7 @@ def Login():
                     session['userpostalcode'] = user_data.get_userPostalCode()
                     session['user_logged_in'] = True
                     db.close()
+
                     print("User successfully saved.")
                     return redirect(url_for('CustomerHomepage'))
                 else:
@@ -181,13 +180,13 @@ def CustomerHomepage():
 def UserRegistrationPage():
     create_user_form = createUser(request.form)
     if request.method == "POST":
-        db = shelve.open('shelvefile.db', 'c')
+        db = shelve.open('Objects/account/user.db', 'c')
         users_dict = {}
         try:
             users_dict = db['users'] #user_dict = {1:UserObject, 2:UserObject} #take everything out
         except:
             db["users"] = users_dict
-            print("Error in retrieving Users from shelvefile.db")
+            print("Error in retrieving Users from user.db")
 
         userPassword = create_user_form.userPassword.data
         userCfmPassword = create_user_form.userCfmPassword.data
@@ -198,6 +197,7 @@ def UserRegistrationPage():
         user = User(create_user_form.userFullName.data, create_user_form.userName.data, create_user_form.userPassword.data,
                              create_user_form.userEmail.data, create_user_form.userCfmPassword.data,
                              create_user_form.userAddress.data, create_user_form.userPostalCode.data)
+        print("User is created", user)
 
         users_dict[user.get_user_id()] = user #users_dict[3] = user // user_dict = {1:user, 3:user}
         db['users'] = users_dict #put everything back
@@ -211,13 +211,13 @@ def UserRegistrationPage():
 def EditCustomerAccount(id):
     edit_user_form = userEditInfo(request.form)
     if request.method == 'POST' and edit_user_form.validate():
-        db = shelve.open('shelvefile.db', 'c')
+        db = shelve.open('Object/account/user.db', 'c')
         users_dict = {}
         try:
             users_dict = db['users']  # user_dict = {1:UserObject, 2:UserObject} #take everything out
         except:
             db["users"] = users_dict
-            print("Error in retrieving Users from shelvefile.db")
+            print("Error in retrieving Users from user.db")
 
         tempUser = users_dict[id]
         tempUser.set_userFullName(edit_user_form.userFullName.data)
@@ -237,7 +237,7 @@ def EditCustomerAccount(id):
         db.close()
         return redirect(url_for('UserProfile'))
     else:
-        db = shelve.open('shelvefile.db', 'r')
+        db = shelve.open('Object/account/user.db', 'r')
         users_dict = db['users']
         db.close()
 
@@ -247,19 +247,19 @@ def EditCustomerAccount(id):
         edit_user_form.userEmail.data = user.get_userEmail()
         edit_user_form.userAddress.data = user.get_userAddress()
         edit_user_form.userPostalCode.data = user.get_userPostalCode()
-        return render_template('User/account/editinfo.html', form=edit_user_form)
+        return render_template('Customer/account/editinfo.html', form=edit_user_form)
 
 @app.route('/CustomerChangePassword/<int:id>/', methods=['GET', 'POST'])
 def CustomerChangePassword(id):
     edit_user_form = userChangePassword(request.form)
     if request.method == 'POST' and edit_user_form.validate():
-        db = shelve.open('shelvefile.db', 'c')
+        db = shelve.open('Objects/account/user.db', 'c')
         users_dict = {}
         try:
             users_dict = db['users']  # user_dict = {1:UserObject, 2:UserObject} #take everything out
         except:
             db["users"] = users_dict
-            print("Error in retrieving Users from shelvefile.db")
+            print("Error in retrieving Users from Objects/account/user.db")
 
         tempUser = users_dict[id]
         tempUser.set_userPassword(edit_user_form.userPassword.data)
@@ -271,18 +271,18 @@ def CustomerChangePassword(id):
 
         return redirect(url_for('UserProfile'))
     else:
-        db = shelve.open('shelvefile.db', 'r')
+        db = shelve.open('Objects/account/user.db', 'r')
         users_dict = db['users']
         db.close()
 
         user = users_dict.get(id)
         edit_user_form.userPassword.data = user.get_userPassword()
         edit_user_form.userCfmPassword.data = user.get_userCfmPassword()
-        return render_template('User/account/changepw.html', form=edit_user_form)
+        return render_template('Customer/account/changepw.html', form=edit_user_form)
 
 @app.route('/UserDeletion/<int:user_id>', methods=['POST'])
 def user_deletion(user_id):
-    db = shelve.open('shelvefile.db', 'w')
+    db = shelve.open('Objects/account/user.db', 'w')
     users_dict = db.get('users', {})
 
     # Check if the user_id exists in the users_dict
@@ -298,7 +298,7 @@ def user_deletion(user_id):
 
 @app.route('/UserDeactivation/<int:user_id>', methods=['POST'])
 def user_deactivation(user_id):
-    db = shelve.open('shelvefile.db', 'w')
+    db = shelve.open('Objects/account/user.db', 'w')
     users_dict = db.get('users', {})
 
     # Check if the user_id exists in the users_dict
@@ -316,7 +316,7 @@ def user_deactivation(user_id):
 
 @app.route('/AdminDeletion/<int:admin_id>', methods=['POST'])
 def admin_deletion(admin_id):
-    db = shelve.open('shelvefile.db', 'w')
+    db = shelve.open('Objects/account/user.db', 'w')
     admins_dict = db.get('admins', {})
 
     # Check if the admin_id exists in the admins_dict
@@ -332,7 +332,7 @@ def admin_deletion(admin_id):
 
 @app.route('/AdminDeactivation/<int:admin_id>', methods=['POST'])
 def admin_deactivation(admin_id):
-    db = shelve.open('shelvefile.db', 'w')
+    db = shelve.open('Objects/account/user.db', 'w')
     admins_dict = db.get('admins', {})
 
     # Check if the admin_id exists in the admins_dict
@@ -347,6 +347,54 @@ def admin_deactivation(admin_id):
     else:
         db.close()
         return "Admin not found."
+
+@app.route('/payment_methods/<int:id>', methods = ['GET', 'POST'])
+def PaymentMethod(id):
+    create_user_payment = userPaymentMethod(request.form)
+    if request.method == "POST" and create_user_payment.validate():
+        address = create_user_payment.userAddress.data
+        email = create_user_payment.userEmail.data
+        name = create_user_payment.userFullName.data
+
+        expiry_date = create_user_payment.userCardExp.data
+        number = create_user_payment.userCardNumber.data
+        cvc = create_user_payment.userCardSec.data
+
+
+        print("retrieved expry date", expiry_date)
+        expiry_list = expiry_date.split('/')
+        print("expiry_list", expiry_list)
+        exp_month = expiry_list[0]
+        print("expiry_month", exp_month)
+        exp_year = expiry_list[1] 
+        print('expriry year', exp_month)
+
+        stripe.PaymentMethod.create(
+            type="card",
+            billing_details = {
+                "address": address,
+                "email": email,
+                "name": name
+            },
+            card = {
+                "exp_month": exp_month,
+                "exp_year": exp_year,
+                "number": number,
+                "cvc": cvc
+            },
+        )
+        db = shelve.open('Objects/account/user.db', 'r')
+        users_dict = db['users']
+        db.close()
+
+        user = users_dict.get(id)
+        create_user_payment.userFullName.data = user.get_userFullName()
+        create_user_payment.userName.data = user.get_userName()
+        create_user_payment.userEmail.data = user.get_userEmail()
+        create_user_payment.userAddress.data = user.get_userAddress()
+        create_user_payment.userPostalCode.data = user.get_userPostalCode()
+
+    return render_template('/Customer/account/payment.html', form=create_user_payment)
 
 @app.route('/UserHomepage')
 def UserHomepage():
@@ -1149,13 +1197,13 @@ def AdminRegistrationPage():
         #     or not request.form.get("userPassword")\
         #     or not request.form.get("userCfmPassword"):
         #         flash("All fields are required to sign up")
-        db = shelve.open('shelvefile.db', 'c')
+        db = shelve.open('Objects/account/user.db', 'c')
         admin_dict = {}
         try:
             admin_dict = db['admins'] #admin_dict = {1:AdminObject, 2:AdminObject} #take everything out
         except:
             db["admins"] = admin_dict
-            print("Error in retrieving Users from shelvefile.db")
+            print("Error in retrieving Users from Objects/account/user.db")
 
         adminPassword = create_admin_form.adminPassword.data
         adminCfmPassword = create_admin_form.adminCfmPassword.data
@@ -1184,13 +1232,13 @@ def AdminProfile():
 def EditAdminAccount(id):
     edit_admin_form = editAdminAccount(request.form)
     if request.method == 'POST' and edit_admin_form.validate():
-        db = shelve.open('shelvefile.db', 'c')
+        db = shelve.open('Objects/account/user.db', 'c')
         admin_dict = {}
         try:
             admin_dict = db['admins']  # user_dict = {1:UserObject, 2:UserObject} #take everything out
         except:
             db["admins"] = admin_dict
-            print("Error in retrieving Users from shelvefile.db")
+            print("Error in retrieving Users from Objects/account/user.db")
 
         tempAdmin = admin_dict[id]
         tempAdmin.set_adminFirstName(edit_admin_form.adminFirstName.data)
@@ -1209,7 +1257,7 @@ def EditAdminAccount(id):
 
         return redirect(url_for('AdminProfile'))
     else:
-        db = shelve.open('shelvefile.db', 'r')
+        db = shelve.open('Objects/account/user.db', 'r')
         admin_dict = db['admins']
         db.close()
 
@@ -1223,7 +1271,7 @@ def EditAdminAccount(id):
 @app.route('/listCustomerAccounts')
 def listCustomerAccounts():
     users_dict = {}
-    db = shelve.open('shelvefile.db', 'r')
+    db = shelve.open('Objects/account/user.db', 'r')
     users_dict = db['users']
     db.close()
     users_list = []
@@ -1235,7 +1283,7 @@ def listCustomerAccounts():
 @app.route('/listAdminAccounts')
 def listAdminAccounts():
     admins_dict = {}
-    db = shelve.open('shelvefile.db', 'r')
+    db = shelve.open('Objects/account/user.db', 'r')
     admins_dict = db['admins']
     db.close()
     admins_list = []
