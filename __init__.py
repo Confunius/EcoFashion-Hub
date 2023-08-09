@@ -836,7 +836,7 @@ def delete_record(record_id):
         if record_id in service_records_db:
             # If the record exists, delete it from the dictionary
             deleted_record_ids.add(record_id)
-            with shelve.open("Objects/CustomerService/custservicedeleted_records.db") as custservice_deleted_records_db:
+            with shelve.open("Objects/CustomerService/custservice_deleted_records.db") as custservice_deleted_records_db:
                 custservice_deleted_records_db['deleted_record_ids'] = deleted_record_ids
             del service_records_db[record_id]
             return jsonify({'message': 'Record deleted successfully'})
