@@ -1,6 +1,7 @@
 import json
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, g, send_file
 import shelve
+# import dbm.gnu
 import sys
 import os
 from datetime import datetime, timedelta
@@ -31,16 +32,35 @@ from Objects.account.Forms import DelimitedNumberInput, createUser, userLogin, u
 
 # sys.path.remove(main_dir)
 
+if 'dbm.ndbm' in sys.modules:
+    del sys.modules['dbm.ndbm']
+
+Chingyi_Domain = "https://ubiquitous-enigma-r4g7v9wr9vg4c5jp9-5000.app.github.dev/"
+WeiHeng_Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/"
+Presentation = False
+Public_key = ""
+Private_key = ""
+
+if Presentation == True:
+    Domain = WeiHeng_Domain
+    Public_key = "6LeJypInAAAAAEc9ZdK6sjIO1e_mA4AEvwNVWkVe"
+    Private_key = "6LeJyplnAAAAAFHw6VagR9VHmkvAjGÄD8dVaxnNQ"
+    print("Wei heng's domain is being used.")
+    
+elif Presentation == False:
+    Domain = Chingyi_Domain
+    Public_key ="6LehwpInAAAAAFvfSbp_VZ2McYWNIqlKCVoq86dR"
+    Private_key ='6LehwpInAAAAABNvNls3L2jaHbG1rx6DlyDcXur-'
+    print("Ching yi's domain is being used")
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key_here'
 app.config['SENDGRID_API_KEY'] = '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'
 app.secret_key = 'your_secret_key_here'  # Replace with your own secret key
-app.config['RECAPTCHA_PUBLIC_KEY'] = '6LcmcpEnAAAAAHxJ65HrhNMxZyew7i11rbhtOcpp'  # Add this line
-app.config['RECAPTCHA_PRIVATE_KEY'] = '6LcmcpEnAAAAAJMyWO81WUlszsiT2dVifAvP9YWq'
+app.config['RECAPTCHA_PUBLIC_KEY'] = Public_key  # Add this line
+app.config['RECAPTCHA_PRIVATE_KEY'] = Private_key
 app.config['RECAPTCHA_VERIFY_URL'] = 'https://www.google.com/recaptcha/api/siteverify'
-SITE_KEY = "6LfarpAnAAAAAARa-mm-fxaT-ELv4SOygA8tX687"
-VERIFY_URL = 'https://www.google.com/recaptcha/api/siteverify'
-SECRET_KEY = '6LfarpAnAAAAAPnX52zucGBcrqBXduANOx9gEFbc'
+
 
 # Replace with your own secret key
 stripe.api_key = 'sk_test_51NbJAUL0EO5j7e8js0jOonkCjFkHksaoITSyuD8YR34JLHMBkX3Uy4SwejTVr6XAvL8amqm4kMjmXtedg2I1oNTI00wnaqFYJJ'
@@ -53,7 +73,7 @@ def generate_time_for_timeseries():
 
 def send_verification_email(email):
     sg = sendgrid.SendGridAPIClient(api_key=app.config['SENDGRID_API_KEY'])
-    verification_link = f"http://127.0.0.1:5000/verify_email?email={email}"
+    verification_link = f"{Domain}verify_email?email={email}"
     message = Mail(
         from_email=From('sam.bryant29@gmail.com'),
         to_emails=To(email),
@@ -115,6 +135,7 @@ def Login():
                     session['userpostalcode'] = user_data.get_userPostalCode()
                     session['user_logged_in'] = True
                     db.close()
+                    print("User successfully saved.")
                     return redirect(url_for('CustomerHomepage'))
                 else:
                     #flash("Please verify/create your account.", category="danger")
@@ -147,8 +168,10 @@ def Login():
 
 @app.route('/')
 def CustomerHomepage():
-    session['admin_logged_in'] = False
-    session['user_logged_in'] = False
+    try:
+        login = session['user_logged_in']
+    except KeyError:
+        session['user_logged_in'] = False
 
     return render_template('/Customer/homepage.html')
 
@@ -180,15 +203,9 @@ def UserRegistrationPage():
         db['users'] = users_dict #put everything back
         db.close()
         send_verification_email(create_user_form.userEmail.data)
-        recaptcha_response = request.form.get('g-recaptcha-response')
-        verify_payload = {
-            'secret': SECRET_KEY,
-            'response': recaptcha_response
-        }
-        verify_response = requests.post(url=VERIFY_URL, data=verify_payload).json()
         #flash('A verification email has been sent. Please check your inbox.', category='success')
         return redirect("/Login")
-    return render_template('/Customer/account/CustomerRegistration.html', form=create_user_form, site_key=SITE_KEY)
+    return render_template('/Customer/account/CustomerRegistration.html', form=create_user_form)
 
 @app.route('/EditCustomerAccount/<int:id>/', methods=['GET', 'POST']) #refer to usersettings "href"
 def EditCustomerAccount(id):
@@ -218,7 +235,6 @@ def EditCustomerAccount(id):
         users_dict[id] = tempUser
         db['users'] = users_dict
         db.close()
-
         return redirect(url_for('UserProfile'))
     else:
         db = shelve.open('shelvefile.db', 'r')
@@ -332,9 +348,33 @@ def admin_deactivation(admin_id):
         db.close()
         return "Admin not found."
 
+@app.route('/UserHomepage')
+def UserHomepage():
+    return render_template('/Customer/homepage.html')
+# Account
+@app.route('/UserProfile')
+def UserProfile():
+    return render_template('/Customer/account/usersettings.html')
+
+@app.route('/OrderStatus')
+def OrderStatus():
+    return render_template('/Customer/account/orderstatus.html')
+
+@app.route('/OrderHistory')
+def OrderHistory():
+    return render_template('/Customer/account/orderhistory.html')
+
+@app.route('/Wishlist')
+def Wishlist():
+    return render_template('/Customer/account/wishlist.html')
+
+@app.route('/CustomerAccountDelete')
+def CustomerAccountDelete():
+    return render_template('/Customer/account/accountdelete.html')
+
 @app.route('/sustainability')
 def sustainability():
-    return render_template('Customer/sustainability.html')
+    return render_template('/Customer/sustainability.html')
 
 # Transaction
 
@@ -389,13 +429,13 @@ def products():
     return render_template('/Customer/transaction/Product.html', product_list=product_list, count=len(product_list), categories=categories)
 
 
-def generate_csrf():
-    if 'csrf_token' not in session:
-        session['csrf_token'] = 'some_random_string_or_use_uuid_module_to_generate_one'
-    return session['csrf_token']
+# def generate_csrf():
+#     if 'csrf_token' not in session:
+#         session['csrf_token'] = 'some_random_string_or_use_uuid_module_to_generate_one'
+#     return session['csrf_token']
 
 
-app.jinja_env.globals['csrf_token'] = generate_csrf
+# app.jinja_env.globals['csrf_token'] = generate_csrf
 
 
 @app.route('/product/<product_id>')
@@ -720,10 +760,6 @@ def display_payment():
         return str(e)
 
     return redirect(checkout_session.url, code=303)
-
-
-Domain = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/"
-
 
 @app.route('/totalcostcalculator')
 def calculate_total_cost(cart_items, delivery_option):
