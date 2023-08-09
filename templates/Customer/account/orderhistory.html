@@ -627,8 +627,6 @@
                         <thead>
                             <tr>
                                 <th>Product Name:</th>
-                                <br>
-                                
                                 <th>Product:</th>
                                 <th>Order Date:</th>
                                 <th>Order ID:</th>
@@ -637,30 +635,21 @@
                             </tr>
                         </thead>
                         <tbody>
+                            {% for entry in combined_list %}
+                            {% for product in entry.products %}
                             <tr>
-                                <td>Jessie Ruched Wrap Slit Dress</td>
-                                <td><img class="product-image" src="static\img\Lovet.png" alt="Product A" width="80" height="90"></img></td>
-                                <td>2023-11-26</td>
-                                <td>T1234</td>
-                                <td style="text-align: center;">1</td>
-                                <td>$38.80</td>
+                                <td>{{ product.name }}</td>
+                                <td><img src="{{ product.image }}" alt="{{ product.name }}" style="width:100px"></td>
+                                <td>{{ entry.order.order_date }}</td>
+                                <td>{{ entry.order.order_id }}</td>
+                                <td style="text-align: center;">{{ entry.order.quantity }}</td> <!-- Adjust if quantity is per product -->
+                                <td>${{ product.list_price }}</td>
                             </tr>
-                            <tr>
-                                <td>Molly Smocked Ruffle Midi Dress From Able</td>
-                                <td><img class="product-image" src="static\img\Molly.png" alt="Product B" width="80" height="90"></img></td>
-                                <td>2023-12-26</td>
-                                <td>T5678</td>
-                                <td style="text-align: center;">1</td>
-                                <td>$89.80</td>
-                            </tr>
-                
-                            <!-- Add more rows for other orders -->
+                            {% endfor %}
+                            {% endfor %}
                         </tbody>
-                        
                     </table>
                 </div>
-
-
             </div>
         </div>
     </div>

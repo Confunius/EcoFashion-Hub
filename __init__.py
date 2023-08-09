@@ -413,7 +413,21 @@ def OrderStatus():
 
 @app.route('/OrderHistory')
 def OrderHistory():
-    return render_template('/Customer/account/orderhistory.html')
+    combined_list = []
+
+    with shelve.open('Objects/transaction/order.db') as order_db:
+        with shelve.open('Objects/transaction/product.db') as product_db:
+            for key in order_db:
+                orderobj = order_db.get(key)
+                if orderobj.user_id == session['id']:
+                    products_for_order = [product_db.get(pid) for pid in orderobj.product_id]
+                    combined_list.append({
+                        "order": orderobj,
+                        "products": products_for_order
+                    })
+    for product in products_for_order:
+        print(product.__dict__)
+    return render_template('/Customer/account/orderhistory.html', combined_list=combined_list)
 
 @app.route('/addtowishlist/<product_id>')
 def AddToWishList(product_id):
@@ -749,7 +763,7 @@ def display_payment():
     allow_promo = os.path.isfile(db_file)
     for item in cart_items:
         line_item = {
-            'price': find_product(item.name, item.color, item.size)[0]["default_price"],
+            'price': find_product(item.name, item.color, item.size)["default_price"],
             'quantity': item.quantity,
             'adjustable_quantity': {"enabled": True, "minimum": 1, "maximum": 99},
         }
