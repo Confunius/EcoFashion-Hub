@@ -45,12 +45,6 @@ SECRET_KEY = '6LfarpAnAAAAAPnX52zucGBcrqBXduANOx9gEFbc'
 # Replace with your own secret key
 stripe.api_key = 'sk_test_51NbJAUL0EO5j7e8js0jOonkCjFkHksaoITSyuD8YR34JLHMBkX3Uy4SwejTVr6XAvL8amqm4kMjmXtedg2I1oNTI00wnaqFYJJ'
 
-# Home
-@app.route('/')
-def home():
-    return render_template('/Customer/homepage.html')
-# Customer side
-
 # Account
 
 
@@ -89,7 +83,7 @@ def verify_email():
             user.set_userVerified(userVerified)
             db['users'] = users_dict
             db.close()
-            return render_template('/User/verifiedEmailThankYou.html')
+            return render_template('/Customer/verifiedEmailThankYou.html')
 
     db.close()
     return "Email verification failed. User not found."
@@ -98,7 +92,7 @@ def verify_email():
 @app.route('/Logout', methods=['GET','POST'])
 def Logout():
     session.clear()
-    return render_template('/User/homepage.html')
+    return render_template('/Customer/account/homepage.html')
 # User side
 @app.route('/Login', methods=['GET','POST'])
 def Login():
@@ -124,7 +118,7 @@ def Login():
                     return redirect(url_for('CustomerHomepage'))
                 else:
                     #flash("Please verify/create your account.", category="danger")
-                    return render_template('/User/account/LoginPage.html', form=create_user_form)
+                    return render_template('/Customer/account/LoginPage.html', form=create_user_form)
 
         admin_dict = db.get('admins', {})
         # Handle admin login here (similar to user login)
@@ -137,7 +131,7 @@ def Login():
             if admin_data.get_adminEmail() == admin_email and admin_data.get_adminPassword() == admin_password:
                 if admin_data.get_adminVerified() == 'deactivated':
                     #flask.flash("Your account has been deactivated. Please contact an administrator to reactivate your account.", category="danger")
-                    return render_template('/User/account/LoginPage.html', form=create_user_form)
+                    return render_template('/Customer/account/LoginPage.html', form=create_user_form)
                 else:
                     session['id'] = key
                     session['adminfname'] = admin_data.get_adminFirstName()
@@ -148,12 +142,15 @@ def Login():
                     session['admin_logged_in'] = True
                     db.close()
                     return redirect(url_for('ahome'))
-    return render_template('/User/account/LoginPage.html', form=create_user_form)
+    return render_template('/Customer/account/LoginPage.html', form=create_user_form)
 
 
-@app.route('/CustomerHomepage')
+@app.route('/')
 def CustomerHomepage():
-    return render_template('/User/LoggedInHomepage.html')
+    session['admin_logged_in'] = False
+    session['user_logged_in'] = False
+
+    return render_template('/Customer/homepage.html')
 
 
 
@@ -191,33 +188,7 @@ def UserRegistrationPage():
         verify_response = requests.post(url=VERIFY_URL, data=verify_payload).json()
         #flash('A verification email has been sent. Please check your inbox.', category='success')
         return redirect("/Login")
-    return render_template('/User/account/CustomerRegistration.html', form=create_user_form, site_key=SITE_KEY)
-
-
-
-@app.route('/UserHomepage')
-def UserHomepage():
-    return render_template('/User/LoggedInHomepage.html')
-# Account
-@app.route('/UserProfile')
-def UserProfile():
-    return render_template('/User/account/usersettings.html')
-
-@app.route('/OrderStatus')
-def OrderStatus():
-    return render_template('/User/account/orderstatus.html')
-
-@app.route('/OrderHistory')
-def OrderHistory():
-    return render_template('/User/account/orderhistory.html')
-
-@app.route('/Wishlist')
-def Wishlist():
-    return render_template('/User/account/wishlist.html')
-
-@app.route('/CustomerAccountDelete')
-def CustomerAccountDelete():
-    return render_template('User/account/accountdelete.html')
+    return render_template('/Customer/account/CustomerRegistration.html', form=create_user_form, site_key=SITE_KEY)
 
 @app.route('/EditCustomerAccount/<int:id>/', methods=['GET', 'POST']) #refer to usersettings "href"
 def EditCustomerAccount(id):
@@ -322,7 +293,7 @@ def user_deactivation(user_id):
         db['users'] = users_dict
         db.close()
         session.clear()
-        return render_template('/User/homepage.html')
+        return render_template('/Customer/account/homepage.html')
     else:
         db.close()
         return "User not found."
@@ -361,8 +332,11 @@ def admin_deactivation(admin_id):
         db.close()
         return "Admin not found."
 
-# Transaction
+@app.route('/sustainability')
+def sustainability():
+    return render_template('Customer/sustainability.html')
 
+# Transaction
 
 @app.route('/product')
 def products():
@@ -1115,7 +1089,7 @@ def ahome():
     if session['admin_logged_in'] == True:
         return render_template('/Admin/AdminLoggedInHomepage.html')
     else:
-        return redirect(url_for('login'))
+        return redirect(url_for('Login'))
 @app.route('/admin/homepage')
 def ahomepage():
     return render_template('/Admin/LoginPage.html')

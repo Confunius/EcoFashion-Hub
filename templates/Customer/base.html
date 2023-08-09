@@ -64,7 +64,7 @@
           <a class="nav-link text-light" href="/product">Products</a>
         </li>
         <li class="nav-item list-group-item">
-          <a class="nav-link text-light" href="/">Sustainability</a>
+          <a class="nav-link text-light" href="/sustainability">Sustainability</a>
         </li>
 
         <!-- Dropdown -->
@@ -81,10 +81,14 @@
 
         <li class="nav-item list-group-item d-flex flew-row">
           <a class="nav-link" href="/cart"><i class="fa-solid fa-lg fa-shopping-cart" style="color:black"></i></a>
-          <text>{{ num_items_in_cart }}</text>  {# Display the number of items in the cart #}
+          <text>{{ num_items_in_cart }}</text>
         </li>
         <li class="nav-item list-group-item">
+          {% if session['user_logged_in'] %}
           <a class="nav-link" href="/CustomerAccounts"><i class="fa-solid fa-lg fa-user" style="color:black"></i></a>
+          {% else %}
+          <a class="nav-link" href="/Login"><button type="button" class="btn bgd-light">Login</button></a>
+          {% endif %}
         </li>
         <li class="nav-item list-group-item d-flex flex-row">
           <a class="nav-link" href="/"><i class="fa-solid fa-lg fa-heart" style="color:black"></i></a>
