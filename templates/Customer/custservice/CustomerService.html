@@ -148,7 +148,7 @@
         }
 
     </style>
-    {% extends "Customer/base.html" %} {% block title %}Ecofashion Hub - Customer Service{% endblock %} {% block content %}
+    {% extends "base.html" %} {% block title %}Ecofashion Hub - Customer Service{% endblock %} {% block content %}
 
 
 </head>
@@ -206,6 +206,7 @@
         let finalSubject;
         let dateInitiated;
         let status;
+        let last_save;
         let record = {
         chat: []
     };
@@ -221,7 +222,8 @@
         window.addEventListener('beforeunload', function(event) {
         if (!isClosePopupCalled) {
             const chatHistory = document.getElementById("chatHistory").innerHTML;
-            saveServiceRecord(finalSubject, dateInitiated, chatHistory, status, automatedResponseSent)
+            last_save = new Date().toLocaleDateString();
+            saveServiceRecord(finalSubject, dateInitiated, chatHistory, status, automatedResponseSent, last_save)
             }
         });
 
@@ -296,7 +298,7 @@
             }
         }
 
-        function saveServiceRecord(subject, dateInitiated, chatHistory, status, auto) {
+        function saveServiceRecord(subject, dateInitiated, chatHistory, status, auto, last_save) {
             const xhr = new XMLHttpRequest();
             xhr.open("POST", "/save_service_record", true);
             xhr.setRequestHeader("Content-Type", "application/json");
@@ -311,12 +313,14 @@
             };
             // Create a new array to store the chat history in the desired format
             console.log("record.chat:", JSON.stringify(record.chat, null, 2));
+            console.log("last save:", record.last_save)
             const data = JSON.stringify({
                 subject: subject,
                 dateInitiated: dateInitiated,
                 chatHistory: JSON.stringify(record.chat, null, 2),
                 status: status,
-                auto: auto
+                auto: auto,
+                last_save: last_save
             });
             xhr.send(data);
         }
