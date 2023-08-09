@@ -169,7 +169,7 @@ def UserRegistrationPage():
         userPassword = create_user_form.userPassword.data
         userCfmPassword = create_user_form.userCfmPassword.data
         if not userPassword == userCfmPassword:
-            flash("Passwords Don't match", category="danger")
+            flash("Password and Confirm Password does not match.", category="danger")
             return redirect("/CustomerRegistration")
 
         user = User(create_user_form.userFullName.data, create_user_form.userName.data, create_user_form.userPassword.data,
