@@ -3,7 +3,7 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 import shelve
 import sys
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import stripe
 # current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -649,14 +649,31 @@ def cancel_and_refund(order_id):
 
 
 # Customer Service
-with shelve.open("custservice_deleted_records.db") as custservice_deleted_records_db:
+
+# Get the current date and format it
+today = datetime.today()
+formatted_date = today.strftime("%d/%m/%Y")
+
+with shelve.open("Objects/CustomerService/custservice_deleted_records.db") as custservice_deleted_records_db:
     deleted_record_ids = custservice_deleted_records_db.get('deleted_record_ids', set())
 
-with shelve.open("custservice_deleted_records_admin.db") as custservice_deleted_records_admin_db:
+with shelve.open("Objects/CustomerService/custservice_deleted_records_admin.db") as custservice_deleted_records_admin_db:
     deleted_record_admin_ids = custservice_deleted_records_admin_db.get('deleted_record_ids', set())
 
-# Add any other methods or attributes required for your Record class
+def check_and_delete_records():
+    with shelve.open("Objects/CustomerService/service_records.db", writeback=True) as service_records_db:
+        formatted_date = datetime.today()
+        for record_id, record in service_records_db.items():
+            last_save_date = datetime.strptime(record.last_save, "%d/%m/%Y")  # Correct the format here
+            difference = formatted_date - last_save_date
+            if difference > timedelta(days=30):
+                print(f"Deleting record: {record_id}")
+                deleted_record_ids.add(record_id)
+                with shelve.open("Objects/CustomerService/custservice_deleted_records.db") as custservice_deleted_records_db:
+                    custservice_deleted_records_db['deleted_record_ids'] = deleted_record_ids
+                del service_records_db[record_id]
 
+check_and_delete_records()
 
 def get_total_record_count():
     with shelve.open("Objects/CustomerService/service_records.db") as service_records_db:
@@ -711,6 +728,7 @@ def record_detail(record_id):
         status = record.status
         auto = record.auto
         user = record.user_id
+        last_save = record.last_save
 
         # Parse the string as a list of dictionaries
         chat_list = json.loads(chat)
@@ -726,7 +744,7 @@ def record_detail(record_id):
             contents.append(content)
 
         return render_template('Customer/custservice/record_detail.html', record=record, senders=senders, contents=contents,
-                               subject=subject, date=date, status=status, auto=auto, user_id=user)
+                               subject=subject, date=date, status=status, auto=auto, user_id=user, last_save = last_save)
    
 
 @app.route('/save_service_record', methods=['POST'])
@@ -750,6 +768,7 @@ def save_service_record():
                 status=data['status'],
                 auto=data['auto'],
                 user_id="Real"
+                last_save=data['last_save']
             )
             service_records_db[record_id] = record
     else:
@@ -764,6 +783,7 @@ def save_service_record():
                 record.subject = data['subject']
                 record.status = data['status']
                 record.auto = data['auto']
+                record.last_save = data['last_save']
             elif record_id not in service_records_db:
                 return jsonify({'error': 'Record not found'}), 404
 
@@ -783,6 +803,7 @@ def save_service_record():
                 record_admin.subject = data['subject']
                 record_admin.status = data['status']
                 record_admin.auto = data['auto']
+                record_admin.last_save = data['last_save']
             elif record_id not in service_records_admin_db and record_id not in deleted_record_admin_ids:
                 # Create a new admin Record object and add it to the service_records_admin_db dictionary
                 total_records = get_total_record_count()
@@ -794,7 +815,8 @@ def save_service_record():
                     subject=data['subject'],
                     status=data['status'],
                     auto=data['auto'],
-                    user_id=["Real"]
+                    user_id=["Real"],
+                    last_save=data['last_save']
                 )
                 service_records_admin_db[record_id] = record_admin
 
@@ -1375,6 +1397,7 @@ def RecordDetailAdmin(record_id):
         status = record.status
         auto = record.auto
         user = record.user_id
+        last_save = record.last_save
 
         # Parse the string as a list of dictionaries
         chat_list = json.loads(chat)
