@@ -733,7 +733,7 @@ def save_service_record():
                 subject=data['subject'],
                 status=data['status'],
                 auto=data['auto'],
-                user_id="Real"
+                user_id="Real",
                 last_save=data['last_save']
             )
             service_records_db[record_id] = record
