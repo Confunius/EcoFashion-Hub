@@ -1508,7 +1508,7 @@ faqs = [
     },
 
 ]
-if get_faqs_from_shelve() == '':
+if not get_faqs_from_shelve() == '':
     save_faqs_to_shelve(faqs)
 
 
