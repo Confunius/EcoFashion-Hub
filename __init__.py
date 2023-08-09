@@ -25,40 +25,6 @@ app.secret_key = 'your_secret_key_here'  # Replace with your own secret key
 # Replace with your own secret key
 stripe.api_key = 'sk_test_51NbJAUL0EO5j7e8js0jOonkCjFkHksaoITSyuD8YR34JLHMBkX3Uy4SwejTVr6XAvL8amqm4kMjmXtedg2I1oNTI00wnaqFYJJ'
 
-
-# FAQ data
-faqs = [
-    {
-        "section": "Order Issues",
-        "questions": ["How to check my order status?", "Why didn't I get an email about my order being shipped?",
-                      "How long will shipping take for my order?"],
-        "answers": ["You will receive the shipping inform email within 1 business day after the order is shipped",
-                    "Answer 2", "Answer 3"]
-    },
-    {
-        "section": "Promotions",
-        "questions": ["Question 4", "Question 5"],
-        "answers": ["Answer 4", "Answer 5"]
-    },
-    {
-        "section": "Account",
-        "questions": ["Question 6", "Question 7"],
-        "answers": ["Answer 6", "Answer 7"]
-    },
-    {
-        "section": "Delivery",
-        "questions": ["Question 8", "Question 9"],
-        "answers": ["Answer 8", "Answer 9"]
-    },
-    {
-        "section": "Refund",
-        "questions": ["Question 10", "Question 11"],
-        "answers": ["Answer 10", "Answer 11"]
-    },
-
-]
-
-
 # Home
 @app.route('/')
 def home():
