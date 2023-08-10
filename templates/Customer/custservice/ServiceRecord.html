@@ -54,14 +54,12 @@
             </tr>
         </thead>
         <tbody id="serviceRecordBody">
-            {% for record_id, record in service_records.items() %}
-                {% if user_id|string == record.user_id|string %}
-                    <tr onclick="redirectToRecordDetail('{{ record_id }}')">
-                        <td>{{ record.subject }}</td>
-                        <td>{{ record.date }}</td>
-                        <td>{{ record.status }}</td>
-                    </tr>
-                {% endif %}
+             {% for record_id, record in service_records.items() %}
+             <tr onclick="redirectToRecordDetail('{{ record_id }}')">
+                 <td>{{ record.subject }}</td>
+                 <td>{{ record.date }}</td>
+                 <td>{{ record.status }}</td>
+             </tr>
             {% endfor %}
         </tbody>
 

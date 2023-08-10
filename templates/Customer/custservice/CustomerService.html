@@ -12,7 +12,7 @@
             border: 1px solid #ccc;
             background-color: #f2ecd8;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            z-index: -1;
+            z-index: 99;
         }
 
         /* Styles for the popup message */
@@ -64,7 +64,7 @@
         background-color: #f2ecd8;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         margin: 0 auto; /* Add this line to center the chatbox */
-        z-index: -3;
+        z-index: 97;
     }
 
     .chat-header {
@@ -144,7 +144,7 @@
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
-        z-index: -2; /* Adjust the z-index to layer the overlay below the popup container */
+        z-index: 98; /* Adjust the z-index to layer the overlay below the popup container */
         }
 
     </style>
@@ -200,15 +200,13 @@
             <button onclick="sendMessage()">Send</button>
         </div>
     </div>
-  <script src="https://cdn.botpress.cloud/webchat/v0/inject.js"></script>
-  <script src="https://mediafiles.botpress.cloud/038392c4-da5b-42af-a948-b27028c79e76/webchat/config.js" defer></script>
   <script>
         let isClosePopupCalled = false;
         let finalSubject;
         let dateInitiated;
         let status;
         let last_save;
-        let user_id = "{{ session["id"] }}"
+        let user_id = "{{ user_id }}";
         let record = {
         chat: []
     };
@@ -268,7 +266,7 @@
             var popupContainer = document.getElementById("popupContainer");
             popupContainer.style.display = "none";
             // Replace "homepage.html" with the desired URL
-            window.location.href = "https://effective-goldfish-7v974gw9rvr92x5p4-5000.app.github.dev/";
+            window.location.href = "https://confunius-sturdy-space-guide-9pwww99p7vqfxrqw-5000.app.github.dev/";
         }
 
         // Function to add a new message to the chat history

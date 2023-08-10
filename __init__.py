@@ -863,6 +863,11 @@ def create_intent():
         automatic_payment_methods={
             'enabled': True,
         },
+        # shipping = {
+        #     "address": "Nanyang Polytechnic",
+        #     "name": "Mr Alvin",
+        #     "phone": "12345678"
+        # },
         metadata={
             'cart': cart_json,
         }
@@ -883,7 +888,6 @@ def thankyou():
     order_db_path = 'Objects/transaction/order.db'
     checkout_info = stripe.checkout.Session.retrieve(
         session['checkout_session_id'])
-    print(checkout_info)
     # checkout_line_items = stripe.checkout.Session.list_line_items(checkout_info['id'])
     subtotal = float(checkout_info['amount_subtotal']/100)
     total_cost = float(checkout_info['amount_total']/100)
@@ -1070,6 +1074,7 @@ def ServiceRecord():
 
 @app.route('/record_detail/<record_id>')
 def record_detail(record_id):
+    user_id = 1
     # Find the record with the given record_id
     with shelve.open("Objects/CustomerService/service_records.db", writeback=True) as service_records_db:
         record = service_records_db.get(record_id)
@@ -1081,6 +1086,7 @@ def record_detail(record_id):
         date = record.date
         status = record.status
         auto = record.auto
+    
         last_save = record.last_save
         user_id = record.user_id
 
@@ -1391,12 +1397,14 @@ def add_product():
     description = request.form['description'].strip()
     image = request.form['image'].strip()
     category = request.form['category'].strip()
+    print(name, color_options, size_options, cost_price, list_price, stock, description, image, category)
 
     # Update the product_dict with the new product
     db = shelve.open('Objects/transaction/product.db', 'w')
     # Add stripe product
     max_id = 0
     for key in db:
+        key = key[1:]
         if int(key) > max_id:
             max_id = int(key)
     product_id = "P" + str(max_id + 1)
@@ -1413,7 +1421,7 @@ def add_product():
                         "unit_amount": int(float(list_price) * 100),
                         "currency": "sgd",
                     },
-                    images=product.image,
+                    images=[product.image],
                 )
                 stripe.Product.modify(
                     stripe_details["id"],
@@ -1474,7 +1482,6 @@ def update_product(product_id):
         unit_amount=int(float(list_price) * 100),
         currency="sgd",
     )
-    print("new_default_price",default_price['id'])
 
     stripe.Product.modify(base_product['id'], default_price=default_price['id'])
     
@@ -1486,7 +1493,6 @@ def update_product(product_id):
         for size in size_options:
             # Check if the variant already exists
             variant_product = find_product(name, color, size)
-            print("variant_product",variant_product)
 
             if len(variant_product) == 0:
                 # Create a new price for the variant
@@ -1648,7 +1654,7 @@ def find_product(name, color=None, size=None):
         product_name = product["name"]
         if color and size:
             # if color and size are specified, check for exact match
-            print(f"Checking if {name} | {color} | {size} is {product_name}")
+            # print(f"Checking if {name} | {color} | {size} is {product_name}")
             if product_name == f"{name} | {color} | {size}":
                 return product
         else:
@@ -1927,7 +1933,7 @@ def update_faq():
     save_faqs_to_shelve(faqs)
 
     # Redirect back to the FAQAdmin page after updating the question and answer
-    return redirect('/Admin/custservice/FAQAdmin')
+    return redirect('/Admin/custservice/FAQAdmin.html')
 
 
 @app.route('/delete_faq', methods=['POST'])
@@ -1945,7 +1951,7 @@ def delete_faq():
             break
     save_faqs_to_shelve(faqs)
 
-    return redirect('/Admin/custservice/FAQAdmin')
+    return redirect('/Admin/custservice/FAQAdmin.html')
 
     # FAQ data
 # FAQ data
