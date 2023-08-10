@@ -1207,9 +1207,23 @@ def delete_record(record_id):
 @app.route('/admin')
 def ahome():
     if session['admin_logged_in'] == True:
-        return render_template('/Admin/AdminLoggedInHomepage.html')
+        orders_data = {
+        'product_names': ['Product A', 'Product B', 'Product C'],
+        'order_counts': [5, 3, 7]  # Number of orders for each product
+    }
+        return render_template('/Admin/AdminLoggedInHomepage.html', data=orders_data)
     else:
         return redirect(url_for('Login'))
+
+@app.route('/orders-visualization')
+def orders_visualization():
+    # Fetch your orders data here. This is just a placeholder.
+    orders_data = {
+        'product_names': ['Product A', 'Product B', 'Product C'],
+        'order_counts': [5, 3, 7]  # Number of orders for each product
+    }
+    return render_template('orders_visualization.html', data=orders_data)
+
 @app.route('/admin/homepage')
 def ahomepage():
     return render_template('/Admin/LoginPage.html')
@@ -1240,7 +1254,7 @@ def AdminRegistrationPage():
             # flash("Passwords Don't match", category="danger")
             return redirect("/CustomerRegistration")
 
-        admin = Admin.Admin( create_admin_form.adminFirstName.data, create_admin_form.adminLastName.data,
+        admin = Admin( create_admin_form.adminFirstName.data, create_admin_form.adminLastName.data,
                              create_admin_form.adminUserName.data, create_admin_form.adminPassword.data,
                              create_admin_form.adminEmail.data, create_admin_form.adminCfmPassword.data,
                              create_admin_form.adminPhoneNumber.data)

@@ -6,23 +6,23 @@
   <div class="container-fluid">
     <div class="row">
       <!-- Vertical Navbar -->
-      <nav class="navbar col-md-2 vertical-nav navbar col-md-3 vertical-nav">
+      <nav class="navbar list-group col-md-2 vertical-nav navbar col-md-3 vertical-nav">
         <ul class="navbar-nav">
           <li></li>
-          <li class="nav-item">
-              <a class="nav-link" href="/UserProfile">My Account </a>
+          <li class="nav-item active list-group-item">
+              <a class="nav-link txt-light" href="/UserProfile">My Account </a>
           </li>
-          <li class="nav-item">
-              <a class="nav-link" href="/Wishlist">My Wishlist</a>
+          <li class="nav-item list-group-item">
+              <a class="nav-link txt-light" href="/Wishlist">My Wishlist</a>
           </li>
-          <li class="nav-item">
-              <a class="nav-link" href="/OrderStatus">Order Status</a>
+          <li class="nav-item list-group-item">
+              <a class="nav-link txt-light" href="/OrderStatus">Order Status</a>
           </li>
-          <li class="nav-item">
-              <a class="nav-link" href="/OrderHistory">Order History</a>
+          <li class="nav-item list-group-item">
+              <a class="nav-link txt-light" href="/OrderHistory">Order History</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="/Payment/{{ session['id']}}">Payment Methods</a>
+          <li class="nav-item list-group-item">
+            <a class="nav-link txt-light" href="{{ url_for('PaymentMethod', id=session['id'])}} ">Payment Methods</a>
           </li>
           <!-- Add more history items as needed -->
         </ul>
