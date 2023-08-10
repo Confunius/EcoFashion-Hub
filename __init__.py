@@ -1059,14 +1059,13 @@ def get_csv():
 
 @app.route('/CustomerService')
 def CustomerService():
-    user_id = session['id'] 
-    return render_template('/Customer/custservice/CustomerService.html', user_id= user_id)
+    return render_template('/Customer/custservice/CustomerService.html')
 
 
 @app.route('/ServiceRecord')
 def ServiceRecord():
     with shelve.open("Objects/CustomerService/service_records.db", writeback=True) as service_records_db:
-        return render_template('/Customer/custservice/ServiceRecord.html', service_records=service_records_db)
+        return render_template('/Customer/custservice/ServiceRecord.html', service_records=service_records_db, user_id = session["id"])
 
 
 @app.route('/record_detail/<record_id>')
@@ -1082,7 +1081,6 @@ def record_detail(record_id):
         date = record.date
         status = record.status
         auto = record.auto
-        user = record.user_id
         last_save = record.last_save
         user_id = record.user_id
 
@@ -1160,7 +1158,7 @@ def save_service_record():
                 record_admin.subject = data['subject']
                 record_admin.status = data['status']
                 record_admin.auto = data['auto']
-                record_admin.user_id = data['user_id']
+                record_admin.user_id = "Admin"
                 record_admin.last_save = data['last_save']
             elif record_id not in service_records_admin_db and record_id not in deleted_record_admin_ids:
                 # Create a new admin Record object and add it to the service_records_admin_db dictionary
@@ -1173,7 +1171,7 @@ def save_service_record():
                     subject=data['subject'],
                     status=data['status'],
                     auto=data['auto'],
-                    user_id=["Real"],
+                    user_id= "Admin",
                     last_save=data['last_save']
                 )
                 service_records_admin_db[record_id] = record_admin
@@ -1835,7 +1833,6 @@ def RecordDetailAdmin(record_id):
         date = record.date
         status = record.status
         auto = record.auto
-        user = record.user_id
         last_save = record.last_save
 
         # Parse the string as a list of dictionaries
@@ -1852,7 +1849,7 @@ def RecordDetailAdmin(record_id):
             contents.append(content)
 
         return render_template('/Admin/custservice/RecordDetailAdmin.html', record=record, senders=senders, contents=contents,
-                               subject=subject, date=date, status=status, auto=auto, user=user)
+                               subject=subject, date=date, status=status, auto=auto)
 
 
 @app.route('/ServiceRecordAdmin')
