@@ -55,7 +55,7 @@
         </thead>
         <tbody id="serviceRecordBody">
             {% for record_id, record in service_records.items() %}
-                {% if user_id|string == record.user_id|string %}
+                {% if session['id']|string == record.user_id|string %}
                     <tr onclick="redirectToRecordDetail('{{ record_id }}')">
                         <td>{{ record.subject }}</td>
                         <td>{{ record.date }}</td>
@@ -71,6 +71,11 @@
         function redirectToRecordDetail(recordId) {
             window.location.href = `/record_detail/${recordId}`;
         }
+        console.log('sessionid', {{ session['id'] }})
+ {% for record_id, record in service_records.items() %}
+        console.log("record.user_id: {{ record.user_id }}");
+        console.log("Comparison result: {{ record.user_id == user_id }}");
+{% endfor %}
     </script>
 </body>
 </html>
