@@ -1074,7 +1074,6 @@ def ServiceRecord():
 
 @app.route('/record_detail/<record_id>')
 def record_detail(record_id):
-    user_id = 1
     # Find the record with the given record_id
     with shelve.open("Objects/CustomerService/service_records.db", writeback=True) as service_records_db:
         record = service_records_db.get(record_id)
@@ -1127,7 +1126,7 @@ def save_service_record():
                 subject=data['subject'],
                 status=data['status'],
                 auto=data['auto'],
-                user_id=data['user_id'],
+                user_id=session["id"],
                 last_save=data['last_save']
             )
             service_records_db[record_id] = record
@@ -1143,7 +1142,7 @@ def save_service_record():
                 record.subject = data['subject']
                 record.status = data['status']
                 record.auto = data['auto']
-                record.user_id = data['user_id']
+                record.user_id = session["id"]
                 record.last_save = data['last_save']
             elif record_id not in service_records_db:
                 return jsonify({'error': 'Record not found'}), 404
@@ -1914,7 +1913,7 @@ def FAQAdmin():
     # Retrieve the FAQs from the shelve database
     faqs = get_faqs_from_shelve()
 
-    return render_template('/Admin/custservice/FAQAdmin.html', faqs=faqs)
+    return redirect(url_for('FAQAdmin', faqs=faqs))
 
 
 @app.route('/update_faq', methods=['POST'])
@@ -1933,7 +1932,7 @@ def update_faq():
     save_faqs_to_shelve(faqs)
 
     # Redirect back to the FAQAdmin page after updating the question and answer
-    return redirect('/Admin/custservice/FAQAdmin.html')
+    return redirect(url_for('FAQAdmin', faqs=faqs))
 
 
 @app.route('/delete_faq', methods=['POST'])
@@ -2000,7 +1999,7 @@ faqs = [
     }
 
 ]
-if not get_faqs_from_shelve() == '':
+if get_faqs_from_shelve() == '':
     save_faqs_to_shelve(faqs)
 
 
