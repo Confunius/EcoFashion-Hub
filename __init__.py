@@ -1913,8 +1913,7 @@ def FAQAdmin():
     # Retrieve the FAQs from the shelve database
     faqs = get_faqs_from_shelve()
 
-    return redirect(url_for('FAQAdmin', faqs=faqs))
-
+    return render_template('/Admin/custservice/FAQAdmin.html', faqs=faqs)
 
 @app.route('/update_faq', methods=['POST'])
 def update_faq():
@@ -1950,8 +1949,7 @@ def delete_faq():
             break
     save_faqs_to_shelve(faqs)
 
-    return redirect('/Admin/custservice/FAQAdmin.html')
-
+    return redirect(url_for('FAQAdmin', faqs=faqs))
     # FAQ data
 # FAQ data
 faqs = [
